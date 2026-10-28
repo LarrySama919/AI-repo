@@ -1,6 +1,0 @@
-.venv/
-.venv-eda/
-__pycache__/
-dataset/
-charts/
-*.pdf
