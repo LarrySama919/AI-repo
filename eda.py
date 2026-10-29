@@ -5,9 +5,9 @@ Expected defaults:
     dataset/Skin Cancer MNIST HAM10000/HAM10000_metadata.csv
     dataset/Sephora Products and Skincare Reviews/product_info.csv
 
-Edit the paths below to match the files downloaded for the project. If Sephora
-reviews are stored separately, set SEPHORA_REVIEWS_PATH; otherwise ratings are
-read from the product file when that column is available.
+Edit the paths below to match the files downloaded for the project. Sephora
+reviews are read from the configured reviews file; set SEPHORA_REVIEWS_PATH to
+None to use ratings from the product file instead.
 """
 
 from pathlib import Path
@@ -23,7 +23,9 @@ DATASET_DIR = Path("dataset")
 
 HAM_METADATA_PATH = DATASET_DIR / "Skin Cancer MNIST HAM10000" / "HAM10000_metadata.csv"
 SEPHORA_PRODUCTS_PATH = DATASET_DIR / "Sephora Products and Skincare Reviews" / "product_info.csv"
-SEPHORA_REVIEWS_PATH: Path | None = None
+SEPHORA_REVIEWS_PATH: Path | None = (
+    DATASET_DIR / "Sephora Products and Skincare Reviews" / "reviews_0-250.csv"
+)
 
 CHARTS_DIR = Path("charts")
 TOP_BRANDS = 10
@@ -97,7 +99,7 @@ def inspect_dataset(data: pd.DataFrame, title: str) -> None:
 def check_data_quality(
     data: pd.DataFrame, title: str, critical_columns: list[str | None]
 ) -> int:
-    """Report missing data and exact duplicate rows without cleaning the data."""
+    """Report missing, duplicate, non-numeric, and out-of-range values."""
     print(f"\n{'=' * 78}\n{title}: DATA QUALITY\n{'=' * 78}")
     missing = data.isna().sum().sort_values(ascending=False)
     if missing.any():
@@ -114,6 +116,58 @@ def check_data_quality(
             continue
         count = int(data[column].isna().sum())
         print(f"- {column}: {count} missing ({count / len(data):.1%})")
+
+    print("\nPotential numeric type and range issues:")
+    expected_ranges = {
+        "age": (0, 120),
+        "price": (0, None),
+        "rating": (0, 5),
+    }
+    found_numeric_fields = False
+    for role, (minimum, maximum) in expected_ranges.items():
+        column = find_column(data, role)
+        if column is None:
+            continue
+        found_numeric_fields = True
+        values = data[column]
+        if role == "price" and not pd.api.types.is_numeric_dtype(values):
+            values = values.astype("string").str.replace(r"[$,]", "", regex=True)
+        parsed = (
+            values
+            if pd.api.types.is_numeric_dtype(values)
+            else pd.to_numeric(values, errors="coerce")
+        )
+        parse_errors = int((data[column].notna() & parsed.isna()).sum())
+        out_of_range = parsed.notna()
+        if minimum is not None:
+            out_of_range &= parsed < minimum
+        if maximum is not None:
+            out_of_range &= parsed > maximum
+        range_errors = int(out_of_range.sum())
+        print(
+            f"- {column} (source dtype: {data[column].dtype}): "
+            f"{parse_errors} non-missing value(s) failed numeric parsing; "
+            f"{range_errors} value(s) fell outside the expected range."
+        )
+    if not found_numeric_fields:
+        print("- No recognized age, price, or rating columns were found.")
+
+    expected_categories = {
+        "diagnosis": set(HAM_DIAGNOSIS_LABELS),
+        "sex": {"female", "male", "unknown"},
+    }
+    print("\nPotential categorical consistency issues:")
+    found_categorical_fields = False
+    for role, expected in expected_categories.items():
+        column = find_column(data, role)
+        if column is None:
+            continue
+        found_categorical_fields = True
+        observed = set(data[column].dropna().astype("string").str.strip().str.casefold())
+        unexpected = sorted(observed - expected)
+        print(f"- {column}: unexpected categories: {unexpected or 'none'}")
+    if not found_categorical_fields:
+        print("- No recognized diagnosis or sex columns were found.")
     return duplicates
 
 
@@ -199,6 +253,59 @@ def analyze_ham(data: pd.DataFrame) -> dict[str, object]:
     plt.xlabel("Number of images / metadata records")
     plt.ylabel("Diagnostic class")
     save_chart(CHARTS_DIR / "ham10000" / "diagnostic_class_distribution.png")
+
+    if age is not None:
+        ages = numeric_series(data[age], "age")
+        if ages.empty:
+            print(f"\nSkipping age distribution chart: {age!r} has no numeric values.")
+        else:
+            plt.figure(figsize=(9, 5))
+            sns.histplot(ages, bins=20, kde=True, color="steelblue")
+            plt.title("HAM10000 Patient Age Distribution")
+            plt.xlabel("Age (years)")
+            plt.ylabel("Number of records")
+            save_chart(CHARTS_DIR / "ham10000" / "age_distribution.png")
+            median_age = float(ages.median())
+            under_18_share = float((ages < 18).mean())
+            interpretation = (
+                f"The median recorded patient age is {median_age:.1f} years. "
+                f"Patients under 18 account for {under_18_share:.1%} of records "
+                "with reported ages, "
+                "so age coverage and missing values should be considered when "
+                "assessing how representative the metadata is."
+            )
+            print(f"\nAge-distribution chart interpretation:\n{interpretation}")
+    else:
+        print("\nAge distribution chart not created: no recognized age column was found.")
+
+    if localization is not None:
+        sites = data[localization].astype("string").fillna("<Missing>")
+        site_counts = sites.value_counts()
+        if site_counts.empty:
+            print(f"\nSkipping localization chart: {localization!r} has no values.")
+        else:
+            plt.figure(figsize=(10, 6))
+            sns.barplot(
+                x=site_counts.values,
+                y=site_counts.index.astype(str),
+                color="darkseagreen",
+            )
+            plt.title("HAM10000 Lesion Localization Distribution")
+            plt.xlabel("Number of images / metadata records")
+            plt.ylabel("Body-site location")
+            save_chart(CHARTS_DIR / "ham10000" / "localization_distribution.png")
+            top_site = str(site_counts.index[0])
+            top_site_share = float(site_counts.iloc[0] / site_counts.sum())
+            interpretation = (
+                f"The most frequently recorded lesion site is {top_site} "
+                f"({site_counts.iloc[0]} records, {top_site_share:.1%}). "
+                "Differences in site counts may reflect dataset sampling as well "
+                "as clinical patterns, so location should be interpreted alongside "
+                "diagnosis and other patient features."
+            )
+            print(f"\nLocalization-chart interpretation:\n{interpretation}")
+    else:
+        print("\nLocalization chart not created: no recognized localization column was found.")
 
     largest_class = str(counts.index[0])
     largest_share = float(counts.iloc[0] / counts.sum())
