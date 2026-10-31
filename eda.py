@@ -1,38 +1,32 @@
-"""
-Assignment 2: EDA for the AI Skin Health project.
+"""Exploratory data analysis for HAM10000 and Amazon All_Beauty."""
 
-Expected defaults:
-    dataset/Skin Cancer MNIST HAM10000/HAM10000_metadata.csv
-    dataset/Sephora Products and Skincare Reviews/product_info.csv
-
-Edit the paths below to match the files downloaded for the project. Sephora
-reviews are read from the configured reviews file; set SEPHORA_REVIEWS_PATH to
-None to use ratings from the product file instead.
-"""
-
+import ast
+import json
+import unicodedata
+from collections.abc import Iterable, Mapping
+from collections import Counter
 from pathlib import Path
+from typing import Any, Iterator
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
 
-# --------------------------- User configuration ---------------------------
-DATASET_DIR = Path("dataset")
-
-HAM_METADATA_PATH = DATASET_DIR / "Skin Cancer MNIST HAM10000" / "HAM10000_metadata.csv"
-SEPHORA_PRODUCTS_PATH = DATASET_DIR / "Sephora Products and Skincare Reviews" / "product_info.csv"
-SEPHORA_REVIEWS_PATH: Path | None = (
-    DATASET_DIR / "Sephora Products and Skincare Reviews" / "reviews_0-250.csv"
+PROJECT_DIR = Path(__file__).resolve().parent
+DATASET_DIR = PROJECT_DIR / "dataset"
+HAM_DATASET_DIR = DATASET_DIR / "Skin Cancer MNIST HAM10000"
+HAM_METADATA_PATH = HAM_DATASET_DIR / "HAM10000_metadata.csv"
+HAM_IMAGE_DIRS = (
+    HAM_DATASET_DIR / "HAM10000_images_part_1",
+    HAM_DATASET_DIR / "HAM10000_images_part_2",
 )
+CHARTS_DIR = PROJECT_DIR / "charts"
+TOP_ITEMS = 10
 
-CHARTS_DIR = Path("charts")
-TOP_BRANDS = 10
-# -------------------------------------------------------------------------
-
-
-sns.set_theme(style="whitegrid")
+AMAZON_DATASET_NAME = "McAuley-Lab/Amazon-Reviews-2023"
+AMAZON_REVIEWS_CONFIG = "raw_review_All_Beauty"
+AMAZON_PRODUCTS_CONFIG = "raw_meta_All_Beauty"
 
 HAM_DIAGNOSIS_LABELS = {
     "akiec": "Actinic keratoses / intraepithelial carcinoma",
@@ -47,14 +41,27 @@ HAM_DIAGNOSIS_LABELS = {
 COLUMN_ALIASES = {
     "diagnosis": ("dx", "diagnosis", "diagnostic_class", "class"),
     "age": ("age",),
+    "image_id": ("image_id",),
     "sex": ("sex", "gender"),
     "localization": ("localization", "location", "body_location", "anatomical_site"),
-    "price": ("price_usd", "price", "sale_price", "list_price"),
-    "ingredients": ("ingredients", "ingredient_list"),
-    "rating": ("rating", "product_rating", "review_rating", "stars", "score"),
-    "brand": ("brand_name", "brand", "brandname"),
-    "skin_type": ("skin_type", "skin type", "skintype"),
+    "rating": (
+        "rating",
+        "average_rating",
+        "product_rating",
+        "review_rating",
+        "stars",
+        "score",
+    ),
+    "review_text": ("text", "review_text", "content", "review"),
+    "review_title": ("title", "review_title", "summary"),
+    "verified_purchase": ("verified_purchase", "verified", "is_verified_purchase"),
+    "helpful_votes": ("helpful_vote", "helpful_votes", "helpful"),
+    "brand": ("brand", "brand_name", "brandname", "store"),
+    "categories": ("categories", "category", "main_category"),
+    "asin": ("parent_asin", "asin", "product_id"),
 }
+
+sns.set_theme(style="whitegrid")
 
 
 def find_column(data: pd.DataFrame, role: str) -> str | None:
@@ -66,147 +73,28 @@ def find_column(data: pd.DataFrame, role: str) -> str | None:
     return None
 
 
-def require_file(path: Path, dataset_name: str) -> None:
-    """Raise an actionable error when a configured input file is unavailable."""
-    if not path.is_file():
-        raise FileNotFoundError(
-            f"{dataset_name} file not found: {path.resolve()}\n"
-            "Update its path in the user configuration section at the top of eda.py."
-        )
-
-
-def load_csv(path: Path, dataset_name: str) -> pd.DataFrame:
-    """Load a CSV and reject empty tables with a clear message."""
-    require_file(path, dataset_name)
-    data = pd.read_csv(path, low_memory=False)
-    if data.empty:
-        raise ValueError(f"{dataset_name} CSV contains no data rows: {path.resolve()}")
-    return data
-
-
 def inspect_dataset(data: pd.DataFrame, title: str) -> None:
-    """Print the standard first-look inspection requested in the assignment."""
+    """Print a consistent overview of a loaded dataset."""
     print(f"\n{'=' * 78}\n{title}: LOAD AND INSPECT\n{'=' * 78}")
-    print("\nFirst five rows:")
-    print(data.head())
-    print(f"\nShape (rows, columns): {data.shape}")
-    print("\nColumn names and data types:")
+    print(f"Shape (rows, columns): {data.shape}")
+    print("\nColumns and data types:")
     data.info()
+    print("\nFirst five rows:")
+    print(data.head().to_string(index=False))
     print("\nDescriptive statistics:")
-    print(data.describe(include="all").T)
-
-
-def check_data_quality(
-    data: pd.DataFrame, title: str, critical_columns: list[str | None]
-) -> int:
-    """Report missing, duplicate, non-numeric, and out-of-range values."""
-    print(f"\n{'=' * 78}\n{title}: DATA QUALITY\n{'=' * 78}")
-    missing = data.isna().sum().sort_values(ascending=False)
-    if missing.any():
-        print("\nMissing values by column:")
-        print(missing[missing > 0].to_string())
-    else:
-        print("\nNo missing values found.")
-
-    duplicates = int(data.duplicated().sum())
-    print(f"\nDuplicate rows: {duplicates}")
-    print("\nMissing values in critical columns:")
-    for column in critical_columns:
-        if column is None:
-            continue
-        count = int(data[column].isna().sum())
-        print(f"- {column}: {count} missing ({count / len(data):.1%})")
-
-    print("\nPotential numeric type and range issues:")
-    expected_ranges = {
-        "age": (0, 120),
-        "price": (0, None),
-        "rating": (0, 5),
-    }
-    found_numeric_fields = False
-    for role, (minimum, maximum) in expected_ranges.items():
-        column = find_column(data, role)
-        if column is None:
-            continue
-        found_numeric_fields = True
-        values = data[column]
-        if role == "price" and not pd.api.types.is_numeric_dtype(values):
-            values = values.astype("string").str.replace(r"[$,]", "", regex=True)
-        parsed = (
-            values
-            if pd.api.types.is_numeric_dtype(values)
-            else pd.to_numeric(values, errors="coerce")
+    summary_data = data.copy()
+    for column in summary_data.select_dtypes(include=["object", "string"]).columns:
+        summary_data[column] = summary_data[column].map(
+            lambda value: repr(value)
+            if isinstance(value, (dict, list, tuple, set))
+            else value
         )
-        parse_errors = int((data[column].notna() & parsed.isna()).sum())
-        out_of_range = parsed.notna()
-        if minimum is not None:
-            out_of_range &= parsed < minimum
-        if maximum is not None:
-            out_of_range &= parsed > maximum
-        range_errors = int(out_of_range.sum())
-        print(
-            f"- {column} (source dtype: {data[column].dtype}): "
-            f"{parse_errors} non-missing value(s) failed numeric parsing; "
-            f"{range_errors} value(s) fell outside the expected range."
-        )
-    if not found_numeric_fields:
-        print("- No recognized age, price, or rating columns were found.")
-
-    expected_categories = {
-        "diagnosis": set(HAM_DIAGNOSIS_LABELS),
-        "sex": {"female", "male", "unknown"},
-    }
-    print("\nPotential categorical consistency issues:")
-    found_categorical_fields = False
-    for role, expected in expected_categories.items():
-        column = find_column(data, role)
-        if column is None:
-            continue
-        found_categorical_fields = True
-        observed = set(data[column].dropna().astype("string").str.strip().str.casefold())
-        unexpected = sorted(observed - expected)
-        print(f"- {column}: unexpected categories: {unexpected or 'none'}")
-    if not found_categorical_fields:
-        print("- No recognized diagnosis or sex columns were found.")
-    return duplicates
-
-
-def explain_columns(
-    data: pd.DataFrame,
-    title: str,
-    target: str | None,
-    proposed_features: list[str | None],
-    descriptions: dict[str, str],
-) -> list[str]:
-    """Print available project features, omitting absent optional columns."""
-    features = [
-        column
-        for column in proposed_features
-        if column is not None and column in data.columns and column != target
-    ]
-    print(f"\n{'=' * 78}\n{title}: FEATURES AND TARGET / USE-CASE\n{'=' * 78}")
-    print(f"Target: {target if target else 'Not detected in this table'}")
-    print(f"Input features available: {features or 'No listed features detected'}")
-    for column in features:
-        print(f"- {column}: {descriptions.get(column, 'Candidate model input feature.')}")
-    if target is not None:
-        print(
-            f"- {target}: outcome to predict or analyze; confirm that its definition "
-            "matches the project objective."
-        )
-    return features
-
-
-def numeric_series(series: pd.Series, role: str) -> pd.Series:
-    """Parse numeric values for analysis without modifying the source DataFrame."""
-    values = series
-    if role == "price":
-        values = values.astype("string").str.replace(r"[$,]", "", regex=True)
-    return pd.to_numeric(values, errors="coerce").dropna()
+    # print(summary_data.describe(include="all").T.to_string())
+    print(summary_data.describe().T.to_string())
 
 
 def save_chart(figure_path: Path) -> None:
-    """Format and save the current plot."""
+    """Save the current chart under the requested project chart directory."""
     figure_path.parent.mkdir(parents=True, exist_ok=True)
     plt.tight_layout()
     plt.savefig(figure_path, dpi=150, bbox_inches="tight")
@@ -214,76 +102,112 @@ def save_chart(figure_path: Path) -> None:
     print(f"Saved chart: {figure_path}")
 
 
-def analyze_ham(data: pd.DataFrame) -> dict[str, object]:
-    """Inspect HAM10000 metadata, check quality, and chart diagnosis classes."""
+def report_ham_images(data: pd.DataFrame) -> None:
+    """Report how many metadata image IDs are available in the local image folders."""
+    image_column = find_column(data, "image_id")
+    if image_column is None:
+        print("\nHAM10000 image check skipped: no image_id column was found.")
+        return
+
+    image_ids: set[str] = set()
+    folder_counts: dict[Path, int] = {}
+    for folder in HAM_IMAGE_DIRS:
+        if not folder.is_dir():
+            print(f"\nHAM10000 image folder not found: {folder}")
+            continue
+        image_paths = list(folder.glob("*.jpg"))
+        folder_counts[folder] = len(image_paths)
+        image_ids.update(path.stem for path in image_paths)
+
+    metadata_ids = set(data[image_column].dropna().astype(str))
+    matched = len(metadata_ids & image_ids)
+    print("\nHAM10000 local image coverage:")
+    for folder, count in folder_counts.items():
+        print(f"- {folder.name}: {count:,} JPEG images")
+    print(
+        f"- Unique metadata image IDs matched to local files: {matched:,} "
+        f"of {len(metadata_ids):,}"
+    )
+
+
+def analyze_ham(data: pd.DataFrame) -> dict[str, Any]:
+    """Inspect HAM10000 metadata, impute missing ages, and create three charts."""
     inspect_dataset(data, "PART 1 — HAM10000 metadata")
     diagnosis = find_column(data, "diagnosis")
     age = find_column(data, "age")
     sex = find_column(data, "sex")
     localization = find_column(data, "localization")
 
-    check_data_quality(data, "HAM10000 metadata", [diagnosis, age, sex, localization])
-    explain_columns(
-        data,
-        "HAM10000",
-        diagnosis,
-        [age, sex, localization],
-        {
-            age: "Patient age; a demographic feature that may support clinical risk analysis.",
-            sex: "Recorded patient sex; a demographic feature, subject to dataset limitations.",
-            localization: "Body-site label; lesion location may be informative for screening.",
-        },
-    )
-
     if diagnosis is None:
         raise ValueError(
-            "Could not identify the HAM10000 diagnosis column. Expected a column "
-            "such as 'dx' or 'diagnosis'; update COLUMN_ALIASES if your file differs."
+            "Could not identify the HAM10000 diagnosis column. "
+            "Expected a column such as 'dx' or 'diagnosis'."
         )
 
-    labels = data[diagnosis].astype("string").fillna("<Missing>")
-    counts = labels.value_counts()
-    display_labels = [
+    print("\nHAM10000 metadata quality:")
+    print(f"- Duplicate rows: {int(data.duplicated().sum()):,}")
+    print("- Missing values by column:")
+    missing = data.isna().sum()
+    if missing.any():
+        print(missing[missing > 0].to_string())
+    else:
+        print("None")
+
+    if age is not None:
+        numeric_age = pd.to_numeric(data[age], errors="coerce")
+        missing_age_count = int(numeric_age.isna().sum())
+        if numeric_age.notna().any():
+            median_age = float(numeric_age.median())
+            data[age] = numeric_age.fillna(median_age)
+            print(
+                f"\nAge handling: {missing_age_count:,} missing or non-numeric "
+                f"value(s) filled with the median age ({median_age:.1f} years)."
+            )
+        else:
+            print(
+                "\nAge handling: no numeric age values are available; "
+                "age imputation and charting are skipped."
+            )
+
+    print("\nAvailable medical metadata fields:")
+    print(f"- Diagnosis/target: {diagnosis}")
+    print(f"- Patient age: {age or 'not present'}")
+    print(f"- Patient sex: {sex or 'not present'}")
+    print(f"- Lesion localization: {localization or 'not present'}")
+    report_ham_images(data)
+
+    class_counts = data[diagnosis].astype("string").fillna("<Missing>").value_counts()
+    class_labels = [
         f"{HAM_DIAGNOSIS_LABELS.get(str(value).casefold(), str(value))} ({value})"
-        for value in counts.index
+        for value in class_counts.index
     ]
     plt.figure(figsize=(11, 6))
-    sns.barplot(x=counts.values, y=display_labels, color="indianred")
+    sns.barplot(x=class_counts.values, y=class_labels, color="indianred")
     plt.title("HAM10000 Diagnostic Class Distribution")
     plt.xlabel("Number of images / metadata records")
     plt.ylabel("Diagnostic class")
     save_chart(CHARTS_DIR / "ham10000" / "diagnostic_class_distribution.png")
 
-    if age is not None:
-        ages = numeric_series(data[age], "age")
-        if ages.empty:
-            print(f"\nSkipping age distribution chart: {age!r} has no numeric values.")
-        else:
-            plt.figure(figsize=(9, 5))
-            sns.histplot(ages, bins=20, kde=True, color="steelblue")
-            plt.title("HAM10000 Patient Age Distribution")
-            plt.xlabel("Age (years)")
-            plt.ylabel("Number of records")
-            save_chart(CHARTS_DIR / "ham10000" / "age_distribution.png")
-            median_age = float(ages.median())
-            under_18_share = float((ages < 18).mean())
-            interpretation = (
-                f"The median recorded patient age is {median_age:.1f} years. "
-                f"Patients under 18 account for {under_18_share:.1%} of records "
-                "with reported ages, "
-                "so age coverage and missing values should be considered when "
-                "assessing how representative the metadata is."
-            )
-            print(f"\nAge-distribution chart interpretation:\n{interpretation}")
+    if age is not None and pd.to_numeric(data[age], errors="coerce").notna().any():
+        ages = pd.to_numeric(data[age], errors="coerce").dropna()
+        plt.figure(figsize=(9, 5))
+        sns.histplot(ages, bins=20, kde=True, color="steelblue")
+        plt.title("HAM10000 Patient Age Distribution (Median-Imputed)")
+        plt.xlabel("Age (years)")
+        plt.ylabel("Number of records")
+        save_chart(CHARTS_DIR / "ham10000" / "age_distribution.png")
+        print(
+            f"- Age summary after imputation: mean {ages.mean():.1f}, "
+            f"median {ages.median():.1f}, range {ages.min():.1f}–{ages.max():.1f} years."
+        )
     else:
-        print("\nAge distribution chart not created: no recognized age column was found.")
+        print("- Age distribution chart skipped: no usable age column or values.")
 
     if localization is not None:
-        sites = data[localization].astype("string").fillna("<Missing>")
-        site_counts = sites.value_counts()
-        if site_counts.empty:
-            print(f"\nSkipping localization chart: {localization!r} has no values.")
-        else:
+        site_counts = (
+            data[localization].astype("string").fillna("<Missing>").value_counts()
+        )
+        if not site_counts.empty:
             plt.figure(figsize=(10, 6))
             sns.barplot(
                 x=site_counts.values,
@@ -294,301 +218,402 @@ def analyze_ham(data: pd.DataFrame) -> dict[str, object]:
             plt.xlabel("Number of images / metadata records")
             plt.ylabel("Body-site location")
             save_chart(CHARTS_DIR / "ham10000" / "localization_distribution.png")
-            top_site = str(site_counts.index[0])
-            top_site_share = float(site_counts.iloc[0] / site_counts.sum())
-            interpretation = (
-                f"The most frequently recorded lesion site is {top_site} "
-                f"({site_counts.iloc[0]} records, {top_site_share:.1%}). "
-                "Differences in site counts may reflect dataset sampling as well "
-                "as clinical patterns, so location should be interpreted alongside "
-                "diagnosis and other patient features."
+            print(
+                f"- Most frequent localization: {site_counts.index[0]} "
+                f"({site_counts.iloc[0]:,} records)."
             )
-            print(f"\nLocalization-chart interpretation:\n{interpretation}")
     else:
-        print("\nLocalization chart not created: no recognized localization column was found.")
+        print("- Localization chart skipped: no localization column was found.")
 
-    largest_class = str(counts.index[0])
-    largest_share = float(counts.iloc[0] / counts.sum())
-    interpretation = (
-        f"The most frequent class is {HAM_DIAGNOSIS_LABELS.get(largest_class.casefold(), largest_class)} "
-        f"({largest_class}), representing {largest_share:.1%} of metadata records. "
-        "A large difference between class counts indicates potential class imbalance, "
-        "which should be considered when splitting data and evaluating a screening model."
-    )
-    print(f"\nDiagnostic-class chart interpretation:\n{interpretation}")
-    return {
-        "class_counts": counts,
-        "diagnosis_column": diagnosis,
-        "largest_class": largest_class,
-        "largest_class_share": largest_share,
-    }
-
-
-def analyze_sephora_products(data: pd.DataFrame) -> dict[str, object]:
-    """Inspect products, assess quality, and create price and brand visualizations."""
-    inspect_dataset(data, "PART 2 — Sephora products")
-    price = find_column(data, "price")
-    ingredients = find_column(data, "ingredients")
-    brand = find_column(data, "brand")
-    skin_type = find_column(data, "skin_type")
-    product_rating = find_column(data, "rating")
-
-    check_data_quality(data, "Sephora products", [price, ingredients, product_rating])
-    product_features = explain_columns(
-        data,
-        "Sephora products",
-        product_rating,
-        [price, brand, skin_type, ingredients],
-        {
-            price: "Product cost; useful for budget-aware product recommendations.",
-            brand: "Brand identity; may support brand preference and product comparisons.",
-            skin_type: "Skin compatibility information, when supplied; potentially relevant "
-            "to personalized recommendations.",
-            ingredients: "Formula composition; useful for ingredient-aware recommendations "
-            "and compatibility checks.",
-        },
-    )
+    dominant_class = str(class_counts.index[0])
+    dominant_share = float(class_counts.iloc[0] / class_counts.sum())
     print(
-        "Use-case: analyze or predict product ratings and build personalized "
-        "skincare recommendations using product attributes and review evidence."
+        f"- Most frequent diagnosis: "
+        f"{HAM_DIAGNOSIS_LABELS.get(dominant_class.casefold(), dominant_class)} "
+        f"({class_counts.iloc[0]:,} records; {dominant_share:.1%})."
     )
-
-    if price is not None:
-        prices = numeric_series(data[price], "price")
-        if prices.empty:
-            print(f"\nSkipping price histogram: {price!r} has no parseable numeric values.")
-        else:
-            plt.figure(figsize=(9, 5))
-            sns.histplot(prices, bins=30, kde=True, color="teal")
-            plt.title("Distribution of Sephora Product Prices")
-            plt.xlabel("Price (USD or source currency)")
-            plt.ylabel("Number of products")
-            save_chart(CHARTS_DIR / "sephora" / "price_histogram.png")
-            interpretation = (
-                f"Product prices have a median of {prices.median():.2f} and a mean of "
-                f"{prices.mean():.2f}. The distribution is "
-                f"{'right-skewed' if prices.skew() > 0.5 else 'left-skewed' if prices.skew() < -0.5 else 'approximately symmetric'}, "
-                "so use robust summaries and consider budget segments when preparing "
-                "recommendations."
-            )
-            print(f"\nPrice-histogram interpretation:\n{interpretation}")
-    else:
-        prices = pd.Series(dtype=float)
-        print("\nPrice histogram not created: no recognized price column was found.")
-
     return {
-        "brand_column": brand,
-        "features": product_features,
-        "ingredients_column": ingredients,
-        "price_column": price,
-        "prices": prices,
-        "product_rating_column": product_rating,
-        "skin_type_column": skin_type,
+        "class_counts": class_counts,
+        "dominant_class": dominant_class,
+        "dominant_share": dominant_share,
     }
 
 
-def analyze_sephora_ratings(
-    data: pd.DataFrame, ratings_source: str, quality_checked: bool = False
-) -> dict[str, object]:
-    """Check rating quality and create a ratings box plot."""
-    rating = find_column(data, "rating")
-    if rating is None:
-        print(
-            f"\nNo recognized rating column was found in the {ratings_source} table. "
-            "The ratings box plot and rating-based finding will be skipped."
+def load_amazon_table(config: str, title: str, columns: tuple[str, ...]) -> pd.DataFrame:
+    """Load an Amazon-Reviews-2023 full split, retaining only relevant columns."""
+    try:
+        from datasets import load_dataset
+    except ImportError as error:
+        raise ImportError(
+            "Amazon EDA requires Hugging Face's 'datasets' package. "
+            "Install it with: python -m pip install datasets"
+        ) from error
+
+    print(f"\nLoading {title} from {AMAZON_DATASET_NAME} ({config}, split='full')...")
+    dataset = load_dataset(AMAZON_DATASET_NAME, config, split="full", trust_remote_code=True)
+    available_columns = set(dataset.column_names)
+    selected_columns = [column for column in columns if column in available_columns]
+    if not selected_columns:
+        raise ValueError(
+            f"No expected {title} columns were found. "
+            f"Available columns: {dataset.column_names}"
         )
-        return {"rating_column": None, "ratings": pd.Series(dtype=float)}
+    data = dataset.select_columns(selected_columns).to_pandas()
+    if data.empty:
+        raise ValueError(f"{title} contains no rows.")
+    inspect_dataset(data, title)
+    return data
 
-    print(f"\nRating source: {ratings_source} table, column {rating!r}")
-    if not quality_checked:
-        check_data_quality(data, f"Sephora {ratings_source} ratings", [rating])
-    ratings = numeric_series(data[rating], "rating")
-    if ratings.empty:
-        print(f"\nSkipping ratings box plot: {rating!r} has no numeric values.")
-        return {"rating_column": rating, "ratings": ratings}
 
-    plt.figure(figsize=(8, 4))
-    sns.boxplot(x=ratings, color="cornflowerblue")
-    plt.title("Distribution of Sephora Product Ratings")
-    plt.xlabel("Rating")
-    plt.ylabel("Distribution")
-    save_chart(CHARTS_DIR / "sephora" / "ratings_box_plot.png")
-    q1, median, q3 = (float(value) for value in ratings.quantile([0.25, 0.5, 0.75]))
-    outliers = int(
-        (
-            (ratings < q1 - 1.5 * (q3 - q1))
-            | (ratings > q3 + 1.5 * (q3 - q1))
-        ).sum()
+def iter_attribute_values(value: Any) -> Iterator[str]:
+    """Flatten nested metadata into clean, human-readable attribute values."""
+    if isinstance(value, Mapping):
+        preferred_keys = {
+            "category",
+            "category_name",
+            "display_name",
+            "label",
+            "main_category",
+            "name",
+            "title",
+        }
+        identifier_keys = {
+            "asin",
+            "category_id",
+            "id",
+            "node_id",
+            "parent_asin",
+            "uuid",
+        }
+        preferred_values = [
+            nested_value
+            for key, nested_value in value.items()
+            if str(key).strip().casefold().replace(" ", "_") in preferred_keys
+        ]
+        if preferred_values:
+            for nested_value in preferred_values:
+                yield from iter_attribute_values(nested_value)
+            return
+
+        nested_values = [
+            nested_value
+            for key, nested_value in value.items()
+            if str(key).strip().casefold().replace(" ", "_") not in identifier_keys
+        ]
+        found_value = False
+        for nested_value in nested_values:
+            cleaned_values = list(iter_attribute_values(nested_value))
+            if cleaned_values:
+                found_value = True
+                yield from cleaned_values
+        if not found_value:
+            for key in value:
+                if str(key).strip().casefold().replace(" ", "_") not in identifier_keys:
+                    yield from iter_attribute_values(key)
+        return
+    if isinstance(value, Iterable) and not isinstance(value, (str, bytes, bytearray)):
+        for nested_value in value:
+            yield from iter_attribute_values(nested_value)
+        return
+    if value is None or value is pd.NA:
+        return
+    if not isinstance(value, (dict, list, tuple, set)):
+        try:
+            if bool(pd.isna(value)):
+                return
+        except (TypeError, ValueError):
+            pass
+    text = unicodedata.normalize("NFKC", str(value))
+    if text.startswith(("[", "{")) and text.endswith(("]", "}")):
+        for parser in (json.loads, ast.literal_eval):
+            try:
+                parsed = parser(text)
+            except (ValueError, SyntaxError, TypeError):
+                continue
+            if not isinstance(parsed, str):
+                yield from iter_attribute_values(parsed)
+                return
+
+    text = "".join(
+        character
+        for character in text
+        if character.isspace()
+        or not unicodedata.category(character).startswith("C")
+        and character != "\ufffd"
     )
-    interpretation = (
-        f"The median rating is {median:.2f}, and the middle half of ratings spans "
-        f"{q1:.2f} to {q3:.2f}. The box plot flags {outliers} potential outlier rating(s); "
-        "inspect their records and rating scale before using ratings as a model target."
-    )
-    print(f"\nRatings-box-plot interpretation:\n{interpretation}")
-    return {"rating_column": rating, "ratings": ratings}
+    text = " ".join(text.split())
+    if text and any(character.isalpha() for character in text):
+        yield text
 
 
-def analyze_sephora_brands(data: pd.DataFrame, brand: str | None) -> dict[str, object]:
-    """Plot the most represented brands and report their share."""
-    if brand is None:
-        print("\nTop-brand chart not created: no recognized brand column was found.")
-        return {"brand_counts": pd.Series(dtype="int64")}
-
-    names = data[brand].astype("string").fillna("<Missing>")
-    counts = names.value_counts().head(TOP_BRANDS)
-    if counts.empty:
-        print("\nTop-brand chart not created: the brand column has no values.")
-        return {"brand_counts": counts}
+def save_top_attribute_chart(
+    counts: Counter[str], title: str, filename: str, ylabel: str
+) -> bool:
+    """Plot a ranked attribute count with explicit, readable tick labels."""
+    top_counts = pd.Series(dict(counts)).sort_values(ascending=False).head(TOP_ITEMS)
+    if top_counts.empty:
+        print(f"- {ylabel} chart skipped: no usable values were found.")
+        return False
 
     plt.figure(figsize=(10, 6))
-    sns.barplot(x=counts.values, y=counts.index.astype(str), color="darkseagreen")
-    plt.title(f"Top {len(counts)} Sephora Brands by Product Count")
-    plt.xlabel("Number of products")
-    plt.ylabel("Brand")
-    save_chart(CHARTS_DIR / "sephora" / "top_brands.png")
-    total_products = max(int(names.notna().sum()), 1)
-    share = float(counts.iloc[0] / total_products)
-    interpretation = (
-        f"{counts.index[0]} has the most products in the displayed top-{len(counts)} "
-        f"brands ({counts.iloc[0]} products, about {share:.1%} of rows). "
-        "Brand representation can affect recommendation coverage, so compare brand "
-        "frequency with product diversity and user preference data."
+    axis = plt.gca()
+    positions = range(len(top_counts))
+    axis.barh(positions, top_counts.to_numpy(), color="darkseagreen")
+    axis.set_yticks(positions, labels=[str(label) for label in top_counts.index])
+    axis.invert_yaxis()
+    axis.set_title(title)
+    axis.set_xlabel("Number of products")
+    axis.set_ylabel(ylabel)
+    save_chart(CHARTS_DIR / "amazon_beauty" / filename)
+    print(f"- Top {ylabel.lower()}: {top_counts.index[0]} ({top_counts.iloc[0]:,} products).")
+    return True
+
+
+def plot_top_attribute(
+    data: pd.DataFrame, column: str | None, title: str, filename: str, ylabel: str
+) -> bool:
+    """Plot the most frequent values of a product attribute when available."""
+    if column is None:
+        print(f"- {ylabel} chart skipped: product metadata has no matching column.")
+        return False
+
+    counts: Counter[str] = Counter()
+    for value in data[column]:
+        counts.update(iter_attribute_values(value))
+    if not counts:
+        print(f"- {ylabel} chart skipped: {column!r} contains no usable values.")
+        return False
+    return save_top_attribute_chart(counts, title, filename, ylabel)
+
+
+def plot_top_categories(
+    data: pd.DataFrame,
+    categories_column: str | None,
+    main_category_column: str | None,
+) -> bool:
+    """Count readable categories per product, falling back to main_category."""
+    if categories_column is None and main_category_column is None:
+        print("- Category chart skipped: no category fields were found.")
+        return False
+
+    counts: Counter[str] = Counter()
+    for _, row in data.iterrows():
+        names = (
+            list(iter_attribute_values(row[categories_column]))
+            if categories_column is not None
+            else []
+        )
+        if not names and main_category_column is not None:
+            names = list(iter_attribute_values(row[main_category_column]))
+        counts.update(dict.fromkeys(names, 1))
+
+    if not counts:
+        print("- Category chart skipped: category fields contain no readable names.")
+        return False
+    return save_top_attribute_chart(
+        counts,
+        "Amazon All_Beauty Top Categories by Product Count",
+        "top_categories.png",
+        "Category",
     )
-    print(f"\nTop-brands chart interpretation:\n{interpretation}")
-    return {"brand_counts": counts, "top_brand_share": share}
 
 
-def report_overall_findings(
-    ham: dict[str, object],
-    sephora_products: dict[str, object],
-    sephora_ratings: dict[str, object],
-    sephora_brands: dict[str, object],
-) -> None:
-    """Summarize three observations across both sources and their next-stage use."""
-    print(f"\n{'=' * 78}\nSUMMARY: FINDINGS AND NEXT STEPS\n{'=' * 78}")
+def analyze_amazon_reviews(data: pd.DataFrame) -> pd.Series:
+    """Summarize review ratings and text, and save rating/statistics charts."""
+    rating = find_column(data, "rating")
+    review_text = find_column(data, "review_text")
+    review_title = find_column(data, "review_title")
+    verified = find_column(data, "verified_purchase")
+    helpful = find_column(data, "helpful_votes")
+    product_id = find_column(data, "asin")
 
-    class_counts = ham["class_counts"]
-    assert isinstance(class_counts, pd.Series)
-    class_share = float(ham["largest_class_share"])
+    print("\nAmazon All_Beauty review insights:")
+    print(f"- Review rows: {len(data):,}")
+    print(f"- Product identifier field: {product_id or 'not present'}")
+    if rating is None:
+        raise ValueError(
+            "Amazon review data has no recognized rating field; "
+            f"available fields: {list(data.columns)}"
+        )
+
+    ratings = pd.to_numeric(data[rating], errors="coerce")
+    valid_ratings = ratings.dropna()
+    invalid_count = int((data[rating].notna() & ratings.isna()).sum())
+    print(f"- Numeric ratings: {len(valid_ratings):,}; unparseable ratings: {invalid_count:,}")
+    if valid_ratings.empty:
+        raise ValueError("Amazon review data contains no numeric ratings.")
     print(
-        f"1. HAM10000 class distribution: {ham['largest_class']} is the largest "
-        f"diagnostic class ({class_share:.1%} of records). Next: use a stratified split "
-        "where appropriate, and select class-aware metrics and imbalance handling "
-        "during screening-model training."
+        f"- Rating summary: mean {valid_ratings.mean():.2f}, "
+        f"median {valid_ratings.median():.2f}, "
+        f"range {valid_ratings.min():g}–{valid_ratings.max():g}."
     )
+    print("- Rating counts:")
+    print(valid_ratings.value_counts().sort_index().to_string())
 
-    prices = sephora_products["prices"]
-    assert isinstance(prices, pd.Series)
-    if prices.empty:
-        print(
-            "2. Sephora price coverage: no usable numeric price values were found. "
-            "Next: verify the source price column and normalize its format before "
-            "budget-aware recommendation modeling."
-        )
-    else:
-        skew = float(prices.skew())
-        spread = (
-            "right-skewed"
-            if skew > 0.5
-            else "left-skewed"
-            if skew < -0.5
-            else "approximately symmetric"
-        )
-        print(
-            f"2. Sephora price distribution: median price is {prices.median():.2f} "
-            f"and prices are {spread} (skewness {skew:.2f}). Next: inspect currency "
-            "and extreme values, then consider robust scaling or price bands."
-        )
+    rating_counts = valid_ratings.value_counts().sort_index()
+    plt.figure(figsize=(9, 5))
+    sns.barplot(x=rating_counts.index.astype(str), y=rating_counts.values, color="cornflowerblue")
+    plt.title("Amazon All_Beauty Rating Distribution")
+    plt.xlabel("Rating (stars)")
+    plt.ylabel("Number of reviews")
+    save_chart(CHARTS_DIR / "amazon_beauty" / "rating_distribution.png")
 
-    ratings = sephora_ratings["ratings"]
-    assert isinstance(ratings, pd.Series)
-    if not ratings.empty:
+    text_lengths = pd.Series(0, index=data.index, dtype="int64")
+    text_coverage = pd.Series(False, index=data.index)
+    for column in (review_title, review_text):
+        if column is not None:
+            text = data[column].fillna("").astype("string")
+            text_lengths += text.str.len().fillna(0).astype("int64")
+            text_coverage |= text.str.strip().ne("").fillna(False)
+    if review_text is not None or review_title is not None:
+        observed_lengths = text_lengths[text_coverage]
         print(
-            f"3. Sephora ratings: {len(ratings)} numeric ratings are available, with "
-            f"median {ratings.median():.2f} and standard deviation "
-            f"{ratings.std():.2f}. Next: inspect rating sparsity and distribution, "
-            "then define a rating-prediction or ranking target."
+            f"- Reviews with text or title: {len(observed_lengths):,} "
+            f"({text_coverage.mean():.1%}); mean combined length: "
+            f"{observed_lengths.mean():.1f} characters."
         )
-    else:
-        ingredients = sephora_products["ingredients_column"]
-        brand_counts = sephora_brands["brand_counts"]
-        assert isinstance(brand_counts, pd.Series)
-        if not brand_counts.empty:
-            print(
-                f"3. Sephora brand coverage: {brand_counts.index[0]} is the most "
-                "represented brand among the displayed products. Next: assess brand "
-                "imbalance and confirm sufficient product and user-rating data for "
-                "personalized recommendations."
-            )
-        elif ingredients is not None:
-            print(
-                "3. Sephora recommendation inputs: ingredients are available as a "
-                "product feature, but numeric ratings were not found. Next: verify "
-                "whether a separate review table supplies user feedback."
+        if not observed_lengths.empty:
+            upper_limit = float(observed_lengths.quantile(0.99))
+            chart_lengths = observed_lengths.clip(upper=upper_limit)
+            plt.figure(figsize=(9, 5))
+            sns.histplot(chart_lengths, bins=40, color="teal")
+            plt.title("Amazon All_Beauty Review Length (99th Percentile Capped)")
+            plt.xlabel("Title and review text length (characters)")
+            plt.ylabel("Number of reviews")
+            save_chart(
+                CHARTS_DIR / "amazon_beauty" / "review_length_distribution.png"
             )
         else:
-            print(
-                "3. Sephora review evidence: no numeric rating column or brand summary "
-                "was available. Next: verify the products/reviews files and their "
-                "column names before modeling recommendations."
-            )
+            print("- Review-length chart skipped: no non-empty review text is available.")
+    elif helpful is not None:
+        helpful_votes = pd.to_numeric(data[helpful], errors="coerce").dropna()
+        if not helpful_votes.empty:
+            plt.figure(figsize=(9, 5))
+            sns.histplot(helpful_votes, bins=30, color="teal")
+            plt.title("Amazon All_Beauty Helpful Votes per Review")
+            plt.xlabel("Helpful votes")
+            plt.ylabel("Number of reviews")
+            save_chart(CHARTS_DIR / "amazon_beauty" / "review_statistics.png")
+        else:
+            print("- Review-statistics chart skipped: helpful-vote values are unavailable.")
+    else:
+        print("- Review-statistics chart skipped: no text or helpful-vote field was found.")
 
-    print(
-        "\nThe HAM10000 and Sephora datasets serve different tasks and should be "
-        "preprocessed and modeled separately. A shared system can connect their "
-        "outputs at the application layer, but product recommendations are not a "
-        "substitute for medical diagnosis or clinical advice."
+    if verified is not None:
+        print(f"- Verified-purchase field coverage: {data[verified].notna().mean():.1%}")
+        print(f"- Verified-purchase value counts:\n{data[verified].value_counts(dropna=False).to_string()}")
+    if helpful is not None:
+        helpful_votes = pd.to_numeric(data[helpful], errors="coerce")
+        print(
+            f"- Helpful votes: median {helpful_votes.median():.1f}; "
+            f"{int(helpful_votes.notna().sum()):,} numeric values."
+        )
+    return valid_ratings
+
+
+def analyze_amazon_products(data: pd.DataFrame) -> None:
+    """Inspect product metadata and chart the available brand/category attributes."""
+    brand = find_column(data, "brand")
+    categories = next(
+        (column for column in data.columns if str(column).strip().casefold() == "categories"),
+        None,
     )
+    main_category = next(
+        (
+            column
+            for column in data.columns
+            if str(column).strip().casefold() == "main_category"
+        ),
+        None,
+    )
+    product_id = find_column(data, "asin")
+    rating = find_column(data, "rating")
+    print("\nAmazon All_Beauty product metadata insights:")
+    print(f"- Product metadata rows: {len(data):,}")
+    if product_id is not None:
+        print(f"- Unique product identifiers: {data[product_id].nunique(dropna=True):,}")
+    if rating is not None:
+        product_ratings = pd.to_numeric(data[rating], errors="coerce").dropna()
+        if not product_ratings.empty:
+            print(
+                f"- Metadata rating summary: mean {product_ratings.mean():.2f}, "
+                f"median {product_ratings.median():.2f}."
+            )
+    print(f"- Brand field: {brand or 'not present'}")
+    print(
+        f"- Category fields: categories={categories or 'not present'}, "
+        f"main_category={main_category or 'not present'}"
+    )
+    plot_top_attribute(
+        data,
+        brand,
+        "Amazon All_Beauty Top Brands by Product Count",
+        "top_brands.png",
+        "Brand",
+    )
+    plot_top_categories(data, categories, main_category)
 
 
 def main() -> None:
-    """Run the complete two-source dataset exploration pipeline."""
-    ham_metadata = load_csv(HAM_METADATA_PATH, "HAM10000 metadata")
-    sephora_products = load_csv(SEPHORA_PRODUCTS_PATH, "Sephora products")
-    sephora_reviews = (
-        load_csv(SEPHORA_REVIEWS_PATH, "Sephora reviews")
-        if SEPHORA_REVIEWS_PATH is not None
-        else None
-    )
-
+    """Run EDA for the two project datasets."""
+    if not HAM_METADATA_PATH.is_file():
+        raise FileNotFoundError(
+            f"HAM10000 metadata file not found: {HAM_METADATA_PATH}"
+        )
+    ham_metadata = pd.read_csv(HAM_METADATA_PATH, low_memory=False)
+    if ham_metadata.empty:
+        raise ValueError(f"HAM10000 metadata contains no rows: {HAM_METADATA_PATH}")
     ham_results = analyze_ham(ham_metadata)
-    product_results = analyze_sephora_products(sephora_products)
 
-    if sephora_reviews is not None:
-        inspect_dataset(sephora_reviews, "PART 2 — Sephora reviews")
-        review_rating = find_column(sephora_reviews, "rating")
-        review_critical = [review_rating]
-        check_data_quality(sephora_reviews, "Sephora reviews", review_critical)
-        review_features = [
-            find_column(sephora_reviews, "skin_type"),
-            find_column(sephora_reviews, "rating"),
-        ]
-        explain_columns(
-            sephora_reviews,
-            "Sephora reviews",
-            review_rating,
-            review_features,
-            {
-                review_rating: "User feedback; it can support rating prediction or "
-                "product ranking.",
-                find_column(sephora_reviews, "skin_type"): "Reviewer skin type, if "
-                "recorded; potentially useful for personalization.",
-            },
-        )
-        rating_results = analyze_sephora_ratings(
-            sephora_reviews, "reviews", quality_checked=True
-        )
-        if rating_results["rating_column"] is None:
-            rating_results = analyze_sephora_ratings(sephora_products, "products")
-    else:
-        rating_results = analyze_sephora_ratings(sephora_products, "products")
-
-    brand_results = analyze_sephora_brands(
-        sephora_products, product_results["brand_column"]
+    print(f"\n{'=' * 78}\nPART 2 — AMAZON ALL_BEAUTY\n{'=' * 78}")
+    reviews = load_amazon_table(
+        AMAZON_REVIEWS_CONFIG,
+        "Amazon All_Beauty reviews",
+        (
+            "rating",
+            "title",
+            "text",
+            "parent_asin",
+            "asin",
+            "verified_purchase",
+            "helpful_vote",
+            "timestamp",
+        ),
     )
-    report_overall_findings(
-        ham_results, product_results, rating_results, brand_results
+    ratings = analyze_amazon_reviews(reviews)
+
+    products = load_amazon_table(
+        AMAZON_PRODUCTS_CONFIG,
+        "Amazon All_Beauty product metadata",
+        (
+            "parent_asin",
+            "asin",
+            "title",
+            "brand",
+            "categories",
+            "main_category",
+            "price",
+            "average_rating",
+            "rating_number",
+            "store",
+        ),
+    )
+    analyze_amazon_products(products)
+
+    print(f"\n{'=' * 78}\nSUMMARY: EDA FINDINGS\n{'=' * 78}")
+    print(
+        f"- HAM10000: {len(ham_metadata):,} metadata records; "
+        f"{ham_results['dominant_class']} is the most common diagnosis "
+        f"({ham_results['dominant_share']:.1%})."
+    )
+    print(
+        f"- Amazon All_Beauty: {len(reviews):,} reviews with "
+        f"{len(ratings):,} usable numeric ratings; mean rating {ratings.mean():.2f}."
+    )
+    print(
+        "- The clinical lesion-classification and consumer-review datasets support "
+        "separate analyses; product-review ratings are not clinical evidence or "
+        "a substitute for medical diagnosis."
     )
 
 
