@@ -389,33 +389,68 @@ def plot_top_attribute(
 def plot_top_categories(
     data: pd.DataFrame,
     categories_column: str | None,
-    main_category_column: str | None,
+    store_column: str | None,
 ) -> bool:
-    """Count readable categories per product, falling back to main_category."""
-    if categories_column is None and main_category_column is None:
-        print("- Category chart skipped: no category fields were found.")
-        return False
+    """Plot specific category leaves, falling back to product stores if needed."""
+    category_names: list[str] = []
+    if categories_column is not None:
+        for value in data[categories_column]:
+            names = list(dict.fromkeys(iter_attribute_values(value)))
+            if names:
+                # Amazon category lists are hierarchical; the final entry is
+                # the most specific category rather than a broad root.
+                category_names.append(names[-1])
 
-    counts: Counter[str] = Counter()
-    for _, row in data.iterrows():
-        names = (
-            list(iter_attribute_values(row[categories_column]))
-            if categories_column is not None
-            else []
+    category_counts = pd.Series(category_names, dtype="string").value_counts()
+    if len(category_counts) <= 2 and store_column is not None:
+        print(
+            "- Category field has at most two distinct values; "
+            "using the store field for a more detailed top-10 chart."
         )
-        if not names and main_category_column is not None:
-            names = list(iter_attribute_values(row[main_category_column]))
-        counts.update(dict.fromkeys(names, 1))
+        category_names = []
+    elif not category_names and categories_column is not None:
+        print(f"- Category field {categories_column!r} has no readable values.")
 
-    if not counts:
-        print("- Category chart skipped: category fields contain no readable names.")
+    if category_names:
+        chart_values = category_names
+        chart_title = "Amazon All_Beauty Top 10 Specific Categories by Product Count"
+        chart_ylabel = "Category"
+    elif store_column is not None:
+        chart_values = [
+            name
+            for value in data[store_column]
+            for name in dict.fromkeys(iter_attribute_values(value))
+        ]
+        chart_title = "Amazon All_Beauty Top 10 Brands by Product Count"
+        chart_ylabel = "Brand / Store"
+    else:
+        print("- Category chart skipped: no detailed categories or store field found.")
         return False
-    return save_top_attribute_chart(
-        counts,
-        "Amazon All_Beauty Top Categories by Product Count",
-        "top_categories.png",
-        "Category",
+
+    if not chart_values:
+        print("- Category chart skipped: selected field contains no readable values.")
+        return False
+
+    top_categories = pd.Series(chart_values, dtype="string").value_counts().head(10)
+    figure, axis = plt.subplots(figsize=(12, max(6, 0.55 * len(top_categories))))
+    sns.barplot(
+        x=top_categories.to_numpy(),
+        y=top_categories.index.tolist(),
+        order=top_categories.index.tolist(),
+        color="darkseagreen",
+        ax=axis,
     )
+    axis.set_title(chart_title)
+    axis.set_xlabel("Number of products")
+    axis.set_ylabel(chart_ylabel)
+    axis.tick_params(axis="y", labelsize=9)
+    figure.tight_layout()
+    save_chart(CHARTS_DIR / "amazon_beauty" / "top_categories.png")
+    print(
+        f"- Top {chart_ylabel.lower()}: {top_categories.index[0]} "
+        f"({top_categories.iloc[0]:,} products)."
+    )
+    return True
 
 
 def analyze_amazon_reviews(data: pd.DataFrame) -> pd.Series:
@@ -514,6 +549,10 @@ def analyze_amazon_reviews(data: pd.DataFrame) -> pd.Series:
 def analyze_amazon_products(data: pd.DataFrame) -> None:
     """Inspect product metadata and chart the available brand/category attributes."""
     brand = find_column(data, "brand")
+    store = next(
+        (column for column in data.columns if str(column).strip().casefold() == "store"),
+        None,
+    )
     categories = next(
         (column for column in data.columns if str(column).strip().casefold() == "categories"),
         None,
@@ -551,7 +590,7 @@ def analyze_amazon_products(data: pd.DataFrame) -> None:
         "top_brands.png",
         "Brand",
     )
-    plot_top_categories(data, categories, main_category)
+    plot_top_categories(data, categories, store or brand)
 
 
 def main() -> None:
