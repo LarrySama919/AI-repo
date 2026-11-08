@@ -3,3 +3,5 @@
 dataset/
 charts/
 *.pdf
+.DS_Store
+**/ .DS_Store
