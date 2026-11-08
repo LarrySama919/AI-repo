@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f6f0" />
+    <meta
+      name="description"
+      content="A thoughtful skin check-in for your face and body. Explore a guided photo scan, sample insights, and progress tracking."
+    />
+    <title>Skinwise — A little more insight into your skin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Skinwise home">
+        <img class="brand-logo" src="assets/skinwise-scan-logo.png" alt="" aria-hidden="true" />
+        <span>skinwise<span class="brand-period">.</span></span>
+      </a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+      <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+        <a href="#how-it-works">How it works</a>
+        <a href="#insights">Your insights</a>
+        <a href="#shop">Product guide</a>
+        <a href="#about">About</a>
+        <div class="header-actions">
+          <button class="header-action header-sign-in" type="button" data-notice="Sign-in is not connected yet.">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l4-4-4-4m4 4H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            Sign In
+          </button>
+          <button class="header-action header-sign-up" type="button" data-notice="Sign-up is not connected yet.">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-4A4.5 4.5 0 0 0 2 18.5V20m6.5-10A3.5 3.5 0 1 0 8.5 3a3.5 3.5 0 0 0 0 7Zm9-4v6m-3-3h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            Sign Up
+          </button>
+          <a class="header-cta" href="#how-it-works">Start Scan</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero section-wrap">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> A calmer way to check in with your skin</div>
+          <h1>Get to know your skin, <em>a little better.</em></h1>
+          <p class="hero-lede">A guided photo check-in for your face or body, with clear insights to help you understand what you’re seeing.</p>
+          <div class="hero-actions">
+            <a class="button button-scan" href="#how-it-works">
+              <span class="button-scan-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M8 3.5H6.5A3 3 0 0 0 3.5 6.5V8M16 3.5h1.5a3 3 0 0 1 3 3V8M20.5 16v1.5a3 3 0 0 1-3 3H16M8 20.5H6.5a3 3 0 0 1-3-3V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8" />
+                </svg>
+              </span>
+              <span>Start free scan</span>
+              <span class="button-scan-arrow" aria-hidden="true">→</span>
+            </a>
+            <button class="text-button" id="sample-button" type="button"><span class="play-icon" aria-hidden="true">▶</span> View a sample result</button>
+          </div>
+          <div class="hero-note"><span class="shield-icon" aria-hidden="true">✳</span> Private by design <span class="note-divider">·</span> Informational, not a diagnosis</div>
+        </div>
+
+        <div class="hero-art" aria-label="Illustration of a facial skin scan">
+          <div class="art-orbit orbit-one"></div>
+          <div class="art-orbit orbit-two"></div>
+          <div class="art-caption"><span class="live-dot"></span><span id="mode-caption">Facial check-in</span><span class="caption-time">~ 2 min</span></div>
+          <div class="face-frame">
+            <img class="face-illustration" src="assets/face-pixel.png" alt="Pixel-art face for the facial skin scan" />
+            <img class="body-illustration" src="assets/body-pixel.png" alt="Pixel-art body figure for the body skin scan" />
+            <span class="scan-beam" aria-hidden="true"></span>
+            <span class="scan-corners" aria-hidden="true">
+              <i class="scan-corner scan-corner-tl"></i>
+              <i class="scan-corner scan-corner-tr"></i>
+              <i class="scan-corner scan-corner-bl"></i>
+              <i class="scan-corner scan-corner-br"></i>
+            </span>
+            <span class="face-landmarks" aria-hidden="true"><i></i><i></i></span>
+          </div>
+          <div class="scan-pill"><span class="scan-sparkle">✦</span> Gentle, guided analysis</div>
+          <div class="art-index">01 <span></span> 04</div>
+        </div>
+      </section>
+
+      <section class="proof-strip" aria-label="What you can do">
+        <div class="proof-item"><svg class="proof-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg><span>Face &amp; body check-ins</span></div>
+        <div class="proof-item"><svg class="proof-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 4h-4L8.5 6H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.5L14 4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="13" r="3.5" stroke="currentColor" stroke-width="1.7" /></svg><span>Photo quality guidance</span></div>
+        <div class="proof-item"><svg class="proof-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3v18h18M8 15l4-4 3 3 5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><path d="M16 8h4v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg><span>Progress you can revisit</span></div>
+        <div class="proof-item"><svg class="proof-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg><span>Product discovery</span></div>
+      </section>
+
+      <section class="how-section section-wrap" id="how-it-works">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Simple from the first step</div>
+            <h2>A check-in that <em>makes sense.</em></h2>
+          </div>
+          <p>Choose where to begin. We’ll guide you through a clear photo check and show an example of the kind of information you can review.</p>
+        </div>
+        <div class="scan-chooser" role="group" aria-label="Choose a scan type">
+          <button class="scan-choice is-selected" type="button" data-mode="face" aria-pressed="true">
+            <span class="choice-icon face-icon" aria-hidden="true">◡</span>
+            <span><strong>Facial scan</strong><small>Check in with your face</small></span>
+            <span class="choice-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="scan-choice" type="button" data-mode="body" aria-pressed="false">
+            <span class="choice-icon body-icon" aria-hidden="true"><img src="assets/body-scan-icon.png" alt="" /></span>
+            <span><strong>Body scan</strong><small>Focus on an area of skin</small></span>
+            <span class="choice-arrow" aria-hidden="true">↗</span>
+          </button>
+        </div>
+        <div class="steps-grid">
+          <article class="step-card">
+            <div class="step-top"><span>STEP 1</span></div>
+            <img class="step-image" src="assets/Step1.png" alt="A person taking a photo of a skin concern" />
+            <h3>Take a clear photo</h3>
+            <p>Choose a face or body scan, then upload a well-lit, focused photo.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-top"><span>STEP 2</span></div>
+            <img class="step-image" src="assets/Step2.png" alt="AI reviewing a photo" />
+            <h3>AI reviews your photo</h3>
+            <p>The photo is checked for quality, then reviewed for visible skin patterns.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-top"><span>STEP 3</span></div>
+            <img class="step-image" src="assets/Step3.png" alt="A checklist representing a skin report" />
+            <h3>Review your report</h3>
+            <p>Read a simple summary of your scan and save it to your history.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-top"><span>STEP 4</span></div>
+            <img class="step-image" src="assets/Step4.png" alt="A friendly AI assistant" />
+            <h3>Understand your results</h3>
+            <p>Ask the AI assistant to explain your summary and share general skincare suggestions.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="insights-section" id="insights">
+        <div class="insights-inner section-wrap">
+          <div class="insights-copy">
+            <div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span> A clearer picture, over time</div>
+            <h2>Small check-ins.<br /><em>More context.</em></h2>
+            <p>Keep your past check-ins together and revisit them as your routine changes. Your skin journey is personal; your insights should be easy to understand.</p>
+            <a class="button button-light" href="#how-it-works">See how it works <span aria-hidden="true">↗</span></a>
+            <div class="disclaimer-light">Sample screen for illustration. Scan insights are informational and do not diagnose skin conditions.</div>
+          </div>
+          <div class="result-card" id="sample-result">
+            <div class="result-card-header"><div><span class="result-kicker">YOUR CHECK-IN</span><h3>Skin overview</h3></div><span class="result-menu" aria-hidden="true">···</span></div>
+            <div class="result-date">Example scan <span>·</span> Facial</div>
+            <div class="result-signal">
+              <div class="signal-ring"><span>●</span></div>
+              <div><strong>Example insights</strong><small>Illustrative preview only</small></div>
+            </div>
+            <div class="result-lines">
+              <div><span>Visible texture</span><i><b style="width: 68%"></b></i><small>Sample</small></div>
+              <div><span>Tone variation</span><i><b style="width: 46%"></b></i><small>Sample</small></div>
+              <div><span>Areas to revisit</span><i><b style="width: 32%"></b></i><small>Sample</small></div>
+            </div>
+            <div class="result-foot"><span class="saved-mark">✓</span> Ready to save to your history</div>
+          </div>
+          <div class="floating-note"><span>↗</span><div><strong>Your history</strong><small>Check-ins in one place</small></div></div>
+          <div class="floating-swatch" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </section>
+
+      <section class="shop-section section-wrap" id="shop">
+        <div class="shop-heading">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> Explore at your own pace</div>
+            <h2>Find your next <em>good fit.</em></h2>
+          </div>
+          <p>Browse a product guide alongside your insights. Recommendations can reflect your preferences and the details you choose to share.</p>
+        </div>
+        <div class="product-row">
+          <article class="product-card">
+            <div class="product-visual product-visual-one"><div class="product-tube"><span>SOFT<br />FORM</span><i>daily wash</i></div><span class="product-tag">GENTLE ROUTINE</span></div>
+            <div class="product-info"><div><h3>Daily cleanser</h3><p>A simple first step</p></div><span class="product-link" aria-hidden="true">↗</span></div>
+          </article>
+          <article class="product-card">
+            <div class="product-visual product-visual-two"><div class="product-jar"><span>CALM<br />CLOUD</span><i>comfort cream</i></div><span class="product-tag">MOISTURE</span></div>
+            <div class="product-info"><div><h3>Moisturizer</h3><p>Explore everyday options</p></div><span class="product-link" aria-hidden="true">↗</span></div>
+          </article>
+          <article class="product-card">
+            <div class="product-visual product-visual-three"><div class="product-bottle"><span>DAY<br />LIGHT</span><i>spf 30</i></div><span class="product-tag">DAYTIME</span></div>
+            <div class="product-info"><div><h3>Daily sun care</h3><p>Compare product details</p></div><span class="product-link" aria-hidden="true">↗</span></div>
+          </article>
+        </div>
+        <div class="shop-footnote"><span>✳</span> Product examples are placeholders. Review ingredients and suitability for your own needs.</div>
+      </section>
+
+      <section class="closing-cta section-wrap" id="about">
+        <div class="closing-flower" aria-hidden="true">✳</div>
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> Make space for a better routine</div><h2>Your skin, your pace.</h2></div>
+        <a class="button button-scan" href="#how-it-works">
+          <span class="button-scan-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M8 3.5H6.5A3 3 0 0 0 3.5 6.5V8M16 3.5h1.5a3 3 0 0 1 3 3V8M20.5 16v1.5a3 3 0 0 1-3 3H16M8 20.5H6.5a3 3 0 0 1-3-3V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8" />
+            </svg>
+          </span>
+          <span>Start free scan</span>
+          <span class="button-scan-arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand brand-footer" href="#top"><img class="brand-logo" src="assets/skinwise-scan-logo.png" alt="" aria-hidden="true" /><span>skinwise<span class="brand-period">.</span></span></a>
+      <p>Thoughtful skin check-ins, made simple.</p>
+      <div class="footer-links"><a href="#about">Privacy</a><a href="#about">About</a><a href="#top">Back to top ↑</a></div>
+      <small>Skinwise is an informational concept and does not provide medical diagnosis or treatment.</small>
+    </footer>
+
+    <div class="toast" id="sample-toast" role="status" aria-live="polite">This is an illustrative sample screen, not a live skin analysis.</div>
+  </body>
+</html>
