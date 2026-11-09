@@ -1,0 +1,132 @@
+<div class="scan-overlay" id="scan-overlay" aria-hidden="true">
+  <div class="scan-panel">
+    <button class="scan-close" id="scan-close" aria-label="Close scan">✕</button>
+    <div class="scan-progress"><span class="scan-progress-fill" id="scan-progress-fill"></span></div>
+
+    <!-- step 1: choose mode -->
+    <div class="scan-step is-active" id="step-mode">
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 1 of 4</p>
+      <h2>What are we <em>checking?</em></h2>
+      <div class="mode-cards">
+        <button class="mode-card" data-mode="facial">
+          <img src="assets/face-scan.png" alt="" /><strong>Facial Scan</strong><small>Face &amp; neck</small>
+        </button>
+        <button class="mode-card" data-mode="body">
+          <img src="assets/body-scan.png" alt="" /><strong>Body Scan</strong><small>Any other area</small>
+        </button>
+      </div>
+    </div>
+
+    <!-- step 2: upload -->
+    <div class="scan-step" id="step-upload">
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 2 of 4</p>
+      <h2>Upload a <em>skin photo.</em></h2>
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-frame">
+          <img class="drop-preview" id="drop-preview" src="assets/face-scan.png" alt="Scan preview" />
+          <span class="scan-beam" id="drop-beam"></span>
+        </div>
+        <p>Drag a photo here, or <button class="link-btn" id="browse-btn" type="button">browse files</button></p>
+        <small>Use natural light · keep the camera steady · fill the frame</small>
+      </div>
+      <div class="quality-check" id="quality-check">
+        <span class="spinner"></span>
+        <p id="quality-text">Checking image quality…</p>
+      </div>
+      <div class="scan-step-actions">
+        <button class="btn-ghost" data-scan-back type="button">← Back</button>
+        <button class="btn-primary" id="upload-next" type="button" disabled>Continue</button>
+      </div>
+    </div>
+
+    <!-- step 3: symptoms -->
+    <div class="scan-step" id="step-symptoms">
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 3 of 4</p>
+      <h2>Any <em>symptoms?</em></h2>
+      <p class="lede">Tell the AI what you've noticed. Select all that apply.</p>
+      <div class="symptom-grid" id="symptom-grid">
+        <button class="symptom-chip" type="button">🔴 Redness</button>
+        <button class="symptom-chip" type="button">🌵 Dryness</button>
+        <button class="symptom-chip" type="button">🫧 Bumps</button>
+        <button class="symptom-chip" type="button">😖 Itching</button>
+        <button class="symptom-chip" type="button">🟤 Dark spots</button>
+        <button class="symptom-chip" type="button">✨ Oily skin</button>
+        <button class="symptom-chip" type="button">🩹 Rash</button>
+        <button class="symptom-chip" type="button">🙅 None</button>
+      </div>
+      <div class="field" style="margin-top:18px">
+        <label for="symptom-days">How many days have you noticed this?</label>
+        <input id="symptom-days" type="text" placeholder="e.g. 3 days" />
+      </div>
+      <div class="scan-step-actions">
+        <button class="btn-ghost" data-scan-back type="button">← Back</button>
+        <button class="btn-primary" id="symptoms-next" type="button">Analyze my skin →</button>
+      </div>
+    </div>
+
+    <!-- step 4: processing -->
+    <div class="scan-step" id="step-processing">
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 4 of 4</p>
+      <h2>The AI is <em>working.</em></h2>
+      <div class="proc-visual">
+        <div class="proc-frame">
+          <img id="proc-preview" src="assets/face-scan.png" alt="" />
+          <span class="scan-beam proc-beam"></span>
+        </div>
+      </div>
+      <ul class="proc-steps" id="proc-steps">
+        <li><span class="proc-icon">🗜️</span> Data preprocessing <em class="proc-state">waiting</em></li>
+        <li><span class="proc-icon">🧠</span> AI model processing (CNN) <em class="proc-state">waiting</em></li>
+        <li><span class="proc-icon">📋</span> Generating report <em class="proc-state">waiting</em></li>
+        <li><span class="proc-icon">💾</span> Saving record to your history <em class="proc-state">waiting</em></li>
+      </ul>
+    </div>
+
+    <!-- step 5: result -->
+    <div class="scan-step" id="step-result">
+      <div class="result-banner">
+        <span class="result-check">✓</span>
+        <div>
+          <h2>Report <em>ready.</em></h2>
+          <p>Facial scan · Nov 8, 2026 · saved to your history</p>
+        </div>
+        <div class="result-score">
+          <svg class="score-ring score-ring-sm" viewBox="0 0 160 160">
+            <circle class="ring-bg" cx="80" cy="80" r="68" />
+            <circle class="ring-fg ring-result" cx="80" cy="80" r="68" />
+          </svg>
+          <div class="score-center"><strong class="count" data-count="82">0</strong><small>Score</small></div>
+        </div>
+      </div>
+      <div class="result-grid">
+        <article class="result-block">
+          <h3>What we found</h3>
+          <ul class="result-list">
+            <li><span class="pill pill-good">Clear</span> No significant concerns detected on cheeks and forehead.</li>
+            <li><span class="pill pill-warn">Mild</span> Slight dryness around the chin — improving vs. last scan.</li>
+            <li><span class="pill pill-soft">Note</span> Hydration up 4% since Nov 2. Whatever you're doing, keep doing it.</li>
+          </ul>
+        </article>
+        <article class="result-block">
+          <h3>Recommended products</h3>
+          <div class="recs-row recs-col">
+            <button class="rec-card" data-open-product="hydra" data-close-scan>
+              <span class="rec-emoji">🧴</span>
+              <strong>Hydra Barrier Cream</strong>
+              <small>Targets the dryness found today</small>
+            </button>
+            <button class="rec-card" data-open-product="spf" data-close-scan>
+              <span class="rec-emoji">☀️</span>
+              <strong>Mineral SPF 50</strong>
+              <small>Prevents dark spots from worsening</small>
+            </button>
+          </div>
+        </article>
+      </div>
+      <div class="scan-step-actions">
+        <button class="btn-ghost" type="button" data-close-scan>Close</button>
+        <button class="btn-primary" type="button" data-view-jump="progress" data-close-scan>View progress tracker →</button>
+      </div>
+    </div>
+  </div>
+</div>

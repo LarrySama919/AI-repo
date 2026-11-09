@@ -1,0 +1,135 @@
+<section class="view is-active" id="view-overview">
+  <div class="view-head">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Good morning</p>
+      <h1>Welcome back, <em>Win.</em></h1>
+      <p class="lede">Here's what's happening with your skin today.</p>
+    </div>
+    <button class="btn-primary" id="quick-scan">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8 3.5H6.5A3 3 0 0 0 3.5 6.5V8M16 3.5h1.5a3 3 0 0 1 3 3V8M20.5 16v1.5a3 3 0 0 1-3 3H16M8 20.5H6.5a3 3 0 0 1-3-3V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/></svg>
+      Start AI Analysis
+    </button>
+  </div>
+
+  <div class="bento">
+    <!-- skin score ring -->
+    <article class="card card-score" data-anim="card">
+      <div class="score-ring-wrap">
+        <svg class="score-ring" viewBox="0 0 160 160">
+          <circle class="ring-bg" cx="80" cy="80" r="68" />
+          <circle class="ring-fg" cx="80" cy="80" r="68" />
+        </svg>
+        <div class="score-center">
+          <strong class="count" data-count="82">0</strong>
+          <small>Skin Score</small>
+        </div>
+      </div>
+      <div class="score-copy">
+        <h3>Overall skin health</h3>
+        <p><span class="pill pill-up">▲ 6 pts</span> vs. last month</p>
+        <ul class="score-legend">
+          <li><i style="--c:#324f43"></i> Hydration <strong class="count" data-count="78">0</strong></li>
+          <li><i style="--c:#cc795f"></i> Clarity <strong class="count" data-count="85">0</strong></li>
+          <li><i style="--c:#8a9c83"></i> Texture <strong class="count" data-count="80">0</strong></li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- stat tiles -->
+    <article class="card stat" data-anim="card">
+      <div class="stat-icon stat-icon-sage">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M8 3.5H6.5A3 3 0 0 0 3.5 6.5V8M16 3.5h1.5a3 3 0 0 1 3 3V8M20.5 16v1.5a3 3 0 0 1-3 3H16M8 20.5H6.5a3 3 0 0 1-3-3V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/></svg>
+      </div>
+      <strong class="stat-num count" data-count="14">0</strong>
+      <p>Total scans</p>
+      <small class="stat-sub">3 this week</small>
+    </article>
+    <article class="card stat" data-anim="card">
+      <div class="stat-icon stat-icon-flame">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-1.7.7-3.2 1.6-4.4C9.9 9.4 12 8 12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </div>
+      <strong class="stat-num count" data-count="9">0</strong>
+      <p>Day streak</p>
+      <small class="stat-sub">Keep it going!</small>
+    </article>
+    <article class="card stat" data-anim="card">
+      <div class="stat-icon stat-icon-drop">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5S5.5 10.4 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10.4 12 3.5 12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </div>
+      <strong class="stat-num count" data-count="78" data-suffix="%">0</strong>
+      <p>Hydration level</p>
+      <small class="stat-sub">+4% this week</small>
+    </article>
+
+    <!-- 7-day sparkline -->
+    <article class="card card-trend" data-anim="card">
+      <div class="card-head">
+        <h3>Skin score · last 7 scans</h3>
+        <button class="link-btn" data-view-jump="progress">View progress →</button>
+      </div>
+      <svg class="trend-chart" viewBox="0 0 520 160" preserveAspectRatio="none">
+        <path class="trend-area" d="M0,120 C40,112 60,96 100,92 C150,86 180,104 220,88 C260,72 300,80 340,58 C380,38 420,52 460,34 C490,22 505,18 520,14 L520,160 L0,160 Z" />
+        <path class="trend-line" d="M0,120 C40,112 60,96 100,92 C150,86 180,104 220,88 C260,72 300,80 340,58 C380,38 420,52 460,34 C490,22 505,18 520,14" />
+        <g class="trend-dots">
+          <circle cx="0" cy="120" r="4"/><circle cx="100" cy="92" r="4"/><circle cx="220" cy="88" r="4"/><circle cx="340" cy="58" r="4"/><circle cx="460" cy="34" r="4"/><circle cx="520" cy="14" r="5.5"/>
+        </g>
+      </svg>
+    </article>
+
+    <!-- recent scans -->
+    <article class="card card-recent" data-anim="card">
+      <div class="card-head">
+        <h3>Recent scans</h3>
+        <button class="link-btn" data-view-jump="history">See history →</button>
+      </div>
+      <ul class="recent-list">
+        <li>
+          <span class="recent-thumb thumb-face"><img src="assets/face-scan.png" alt="" /></span>
+          <span class="recent-meta"><strong>Facial scan</strong><small>Today · 9:14 AM</small></span>
+          <span class="pill pill-good">Clear</span>
+          <strong class="recent-score">82</strong>
+        </li>
+        <li>
+          <span class="recent-thumb thumb-body"><img src="assets/body-scan.png" alt="" /></span>
+          <span class="recent-meta"><strong>Body scan — left arm</strong><small>Nov 5 · 7:40 PM</small></span>
+          <span class="pill pill-warn">Mild rash</span>
+          <strong class="recent-score">74</strong>
+        </li>
+        <li>
+          <span class="recent-thumb thumb-face"><img src="assets/face-scan.png" alt="" /></span>
+          <span class="recent-meta"><strong>Facial scan</strong><small>Nov 2 · 8:02 AM</small></span>
+          <span class="pill pill-good">Clear</span>
+          <strong class="recent-score">76</strong>
+        </li>
+      </ul>
+    </article>
+
+    <!-- recommended products -->
+    <article class="card card-recs" data-anim="card">
+      <div class="card-head">
+        <h3>Recommended for you</h3>
+        <button class="link-btn" data-view-jump="products">Browse all →</button>
+      </div>
+      <div class="recs-row">
+        <button class="rec-card" data-open-product="hydra">
+          <span class="rec-emoji">🧴</span>
+          <strong>Hydra Barrier Cream</strong>
+          <small>For dry patches</small>
+          <span class="rec-stars">★★★★★ <em>4.8</em></span>
+        </button>
+        <button class="rec-card" data-open-product="spf">
+          <span class="rec-emoji">☀️</span>
+          <strong>Mineral SPF 50</strong>
+          <small>Daily protection</small>
+          <span class="rec-stars">★★★★★ <em>4.9</em></span>
+        </button>
+        <button class="rec-card" data-open-product="gel">
+          <span class="rec-emoji">🫧</span>
+          <strong>Gentle Gel Cleanser</strong>
+          <small>Sensitive skin</small>
+          <span class="rec-stars">★★★★☆ <em>4.6</em></span>
+        </button>
+      </div>
+    </article>
+  </div>
+</section>
