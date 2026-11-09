@@ -1,0 +1,521 @@
+{
+  "version": "3.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "relationshipMode": "All",
+    "tablePositions": [
+      {
+        "name": "users",
+        "schemaName": "public",
+        "x": 12,
+        "y": 552
+      },
+      {
+        "name": "otps",
+        "schemaName": "public",
+        "x": 616.45068359375,
+        "y": 74
+      },
+      {
+        "name": "skin_analyses",
+        "schemaName": "public",
+        "x": 616.45068359375,
+        "y": 472
+      },
+      {
+        "name": "skin_images",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 689
+      },
+      {
+        "name": "skin_concerns",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      },
+      {
+        "name": "analysis_results",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 53
+      },
+      {
+        "name": "symptom_questions",
+        "schemaName": "public",
+        "x": 12,
+        "y": 250
+      },
+      {
+        "name": "symptom_responses",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 451
+      },
+      {
+        "name": "products",
+        "schemaName": "public",
+        "x": 12,
+        "y": 918
+      },
+      {
+        "name": "recommendation_requests",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 991
+      },
+      {
+        "name": "request_concerns",
+        "schemaName": "public",
+        "x": 1856.671875,
+        "y": 12
+      },
+      {
+        "name": "product_recommendations",
+        "schemaName": "public",
+        "x": 1856.671875,
+        "y": 186
+      },
+      {
+        "name": "progress_comparisons",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 1325
+      },
+      {
+        "name": "product_reviews",
+        "schemaName": "public",
+        "x": 616.45068359375,
+        "y": 1119
+      },
+      {
+        "name": "review_reports",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 1617
+      },
+      {
+        "name": "review_moderations",
+        "schemaName": "public",
+        "x": 1856.671875,
+        "y": 456
+      },
+      {
+        "name": "review_ai_checks",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 1919
+      },
+      {
+        "name": "review_sentiments",
+        "schemaName": "public",
+        "x": 1243.2421875,
+        "y": 2221
+      },
+      {
+        "name": "admin_audit_logs",
+        "schemaName": "public",
+        "x": 616.45068359375,
+        "y": 817
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "otps",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "skin_analyses",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "analysis_id"
+        ],
+        "firstTableName": "skin_analyses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "analysis_id"
+        ],
+        "secondTableName": "skin_images",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "analysis_id"
+        ],
+        "firstTableName": "skin_analyses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "analysis_id"
+        ],
+        "secondTableName": "analysis_results",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "concern_id"
+        ],
+        "firstTableName": "skin_concerns",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "concern_id"
+        ],
+        "secondTableName": "analysis_results",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "analysis_id"
+        ],
+        "firstTableName": "skin_analyses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "analysis_id"
+        ],
+        "secondTableName": "symptom_responses",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "question_id"
+        ],
+        "firstTableName": "symptom_questions",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "question_id"
+        ],
+        "secondTableName": "symptom_responses",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "recommendation_requests",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "analysis_id"
+        ],
+        "firstTableName": "skin_analyses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "analysis_id"
+        ],
+        "secondTableName": "recommendation_requests",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "request_id"
+        ],
+        "firstTableName": "recommendation_requests",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "request_id"
+        ],
+        "secondTableName": "request_concerns",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "concern_id"
+        ],
+        "firstTableName": "skin_concerns",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "concern_id"
+        ],
+        "secondTableName": "request_concerns",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "request_id"
+        ],
+        "firstTableName": "recommendation_requests",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "request_id"
+        ],
+        "secondTableName": "product_recommendations",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "product_id"
+        ],
+        "firstTableName": "products",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "product_id"
+        ],
+        "secondTableName": "product_recommendations",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "progress_comparisons",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "analysis_id"
+        ],
+        "firstTableName": "skin_analyses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "before_analysis_id"
+        ],
+        "secondTableName": "progress_comparisons",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "analysis_id"
+        ],
+        "firstTableName": "skin_analyses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "after_analysis_id"
+        ],
+        "secondTableName": "progress_comparisons",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "product_reviews",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "product_id"
+        ],
+        "firstTableName": "products",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "product_id"
+        ],
+        "secondTableName": "product_reviews",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "review_id"
+        ],
+        "firstTableName": "product_reviews",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "review_id"
+        ],
+        "secondTableName": "review_reports",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "reporter_id"
+        ],
+        "secondTableName": "review_reports",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "review_id"
+        ],
+        "firstTableName": "product_reviews",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "review_id"
+        ],
+        "secondTableName": "review_moderations",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "report_id"
+        ],
+        "firstTableName": "review_reports",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "report_id"
+        ],
+        "secondTableName": "review_moderations",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "moderator_id"
+        ],
+        "secondTableName": "review_moderations",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "review_id"
+        ],
+        "firstTableName": "product_reviews",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "review_id"
+        ],
+        "secondTableName": "review_ai_checks",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "review_id"
+        ],
+        "firstTableName": "product_reviews",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "review_id"
+        ],
+        "secondTableName": "review_sentiments",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "user_id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "admin_id"
+        ],
+        "secondTableName": "admin_audit_logs",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}
