@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f6f0" />
+  <title>Skinwise — Your Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../CSS/dashboard.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="../../Javascript/user.js" defer></script>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div data-include="components/sidebar.html"></div>
+
+  <div class="main">
+    <div data-include="components/topbar.html"></div>
+
+    <div class="views" id="views">
+      <div data-include="components/view-overview.html"></div>
+      <div data-include="components/view-scan.html"></div>
+      <div data-include="components/view-history.html"></div>
+      <div data-include="components/view-progress.html"></div>
+      <div data-include="components/view-products.html"></div>
+      <div data-include="components/view-settings.html"></div>
+    </div>
+  </div>
+</div>
+
+<div data-include="components/scan-overlay.html"></div>
+<div data-include="components/product-modal.html"></div>
+<div data-include="components/toast.html"></div>
+
+</body>
+</html>
