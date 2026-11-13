@@ -1,0 +1,111 @@
+<mxfile host="65bd71144e">
+    <diagram id="34J8is0c80iH9PhUuzUD" name="Admin Use Case">
+        <mxGraphModel dx="1291" dy="874" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="light-dark(#ffffff, #121212)" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;verticalAlign=top;fontStyle=1;fontSize=15;strokeWidth=2;" value="&lt;font face=&quot;Times New Roman&quot;&gt;Skincare Assistant - Admin Use Case&lt;/font&gt;" vertex="1">
+                    <mxGeometry height="830" width="660" x="210" y="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Login" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="73" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Manage Users &amp; Moderators" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="159" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Manage Products" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="245" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Add/Edit Products" vertex="1">
+                    <mxGeometry height="56" width="220" x="610" y="245" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-6" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Manage Account &amp;amp; Settings" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="670" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-7" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Review Escalated Issues" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="412" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-8" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Log out" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="750" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-9" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;fontSize=13;" value="Admin" vertex="1">
+                    <mxGeometry height="80" width="40" x="70" y="412" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-10" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="html=1;endArrow=none;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="Moj0AAQDyJGDKfyvny9I-2" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-11" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="html=1;endArrow=none;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Moj0AAQDyJGDKfyvny9I-3" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-12" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="html=1;endArrow=none;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="Moj0AAQDyJGDKfyvny9I-4" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-13" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="html=1;endArrow=none;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Moj0AAQDyJGDKfyvny9I-6" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-14" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="html=1;endArrow=none;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="Moj0AAQDyJGDKfyvny9I-7" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-15" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="html=1;endArrow=none;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="Moj0AAQDyJGDKfyvny9I-8" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="110" y="440" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-16" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Ban/Delete Account" vertex="1">
+                    <mxGeometry height="56" width="220" x="610" y="159" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-17" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-16" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=open;endFill=0;dashed=1;rounded=0;defaultLabelBackgroundColor=page;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="Moj0AAQDyJGDKfyvny9I-3" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;">
+                    <mxGeometry relative="1" width="160" as="geometry">
+                        <mxPoint x="490" y="190" as="sourcePoint"/>
+                        <mxPoint x="650" y="190" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-18" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-5" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=open;endFill=0;dashed=1;rounded=0;defaultLabelBackgroundColor=page;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="Moj0AAQDyJGDKfyvny9I-4" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;">
+                    <mxGeometry relative="1" width="160" as="geometry">
+                        <mxPoint x="625" y="310" as="sourcePoint"/>
+                        <mxPoint x="475" y="310" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-19" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="View Activity Log" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="580" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-20" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-19" style="endArrow=none;html=1;rounded=0;defaultLabelBackgroundColor=page;entryX=1;entryY=0.3333333333333333;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="Moj0AAQDyJGDKfyvny9I-9" value="">
+                    <mxGeometry height="50" relative="1" width="50" as="geometry">
+                        <mxPoint x="320" y="470" as="sourcePoint"/>
+                        <mxPoint x="370" y="420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-21" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Manage Report &amp;amp; Feedback" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="492" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-22" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="endArrow=none;html=1;rounded=0;defaultLabelBackgroundColor=page;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="Moj0AAQDyJGDKfyvny9I-21" value="">
+                    <mxGeometry height="50" relative="1" width="50" as="geometry">
+                        <mxPoint x="390" y="510" as="sourcePoint"/>
+                        <mxPoint x="440" y="460" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-23" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="View Scan Records &amp;amp; Results" vertex="1">
+                    <mxGeometry height="56" width="220" x="240" y="329" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-24" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-9" style="endArrow=none;html=1;rounded=0;defaultLabelBackgroundColor=page;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;" target="Moj0AAQDyJGDKfyvny9I-23" value="">
+                    <mxGeometry height="50" relative="1" width="50" as="geometry">
+                        <mxPoint x="340" y="530" as="sourcePoint"/>
+                        <mxPoint x="390" y="480" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-25" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=12;" value="Resolve Escalated Issues" vertex="1">
+                    <mxGeometry height="56" width="220" x="610" y="412" as="geometry"/>
+                </mxCell>
+                <mxCell id="Moj0AAQDyJGDKfyvny9I-26" edge="1" parent="1" source="Moj0AAQDyJGDKfyvny9I-7" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=open;endFill=0;dashed=1;rounded=0;defaultLabelBackgroundColor=page;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="Moj0AAQDyJGDKfyvny9I-25" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+                    <mxGeometry relative="1" width="160" as="geometry">
+                        <mxPoint x="480" y="470" as="sourcePoint"/>
+                        <mxPoint x="640" y="470" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="2REsWg_fNQX6_1G_dzlB-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Times New Roman;fontSize=14;" value="&lt;div style=&quot;line-height: 160%;&quot;&gt;The admin is responsible for overseeing and managing the overall system operations. They can manage user and moderator accounts, control account access, and maintain product information. They can also monitor AI scan records and results, review escalated issues, and manage reports and feedback. Additionally, they can access activity logs and system settings to ensure the system operates properly.&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="246" width="270" x="570" y="485" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -1,0 +1,76 @@
+<mxfile host="65bd71144e">
+    <diagram id="za4VECnZ16x3oJ6E7mqU" name="Moderator Use Case">
+        <mxGraphModel dx="1021" dy="691" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="light-dark(#ffffff, #121212)" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;verticalAlign=top;fontStyle=1;fontSize=15;strokeWidth=2;strokeColor=#0F3D3A;" value="Skincare Assistant - Moderator Use Cases" vertex="1">
+                    <mxGeometry height="650" width="680" x="200" y="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-2" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontStyle=1;fontSize=14;" value="Moderator" vertex="1">
+                    <mxGeometry height="80" width="40" x="60" y="280" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="Login" vertex="1">
+                    <mxGeometry height="45" width="160" x="300" y="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="Manage Users" vertex="1">
+                    <mxGeometry height="45" width="160" x="300" y="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="Moderate Reviews" vertex="1">
+                    <mxGeometry height="45" width="170" x="300" y="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-6" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="View Product Reviews" vertex="1">
+                    <mxGeometry height="45" width="180" x="305" y="310" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-7" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="View Reported Content" vertex="1">
+                    <mxGeometry height="45" width="190" x="300" y="390" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-8" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="Log out" vertex="1">
+                    <mxGeometry height="45" width="160" x="315" y="480" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-9" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="Warn / Suspend User" vertex="1">
+                    <mxGeometry height="45" width="190" x="560" y="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-10" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="Hide / Reject Review" vertex="1">
+                    <mxGeometry height="45" width="190" x="560" y="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=13;" value="Report to Admin" vertex="1">
+                    <mxGeometry height="45" width="190" x="560" y="390" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-12" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-2" style="endArrow=none;html=1;strokeWidth=1.5;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JKbYcydW19tn2P_FXaS0-3">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-13" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-2" style="endArrow=none;html=1;strokeWidth=1.5;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JKbYcydW19tn2P_FXaS0-4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-15" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-2" style="endArrow=none;html=1;strokeWidth=1.5;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JKbYcydW19tn2P_FXaS0-6">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-16" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-2" style="endArrow=none;html=1;strokeWidth=1.5;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JKbYcydW19tn2P_FXaS0-7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-17" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-2" style="endArrow=none;html=1;strokeWidth=1.5;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JKbYcydW19tn2P_FXaS0-8">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-18" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-9" style="endArrow=open;html=1;dashed=1;endFill=0;fontSize=12;fontColor=#555555;" target="JKbYcydW19tn2P_FXaS0-4" value="extend">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-19" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-10" style="endArrow=open;html=1;dashed=1;endFill=0;fontSize=12;fontColor=#555555;" target="JKbYcydW19tn2P_FXaS0-5" value="extend">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="JKbYcydW19tn2P_FXaS0-20" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-11" style="endArrow=open;html=1;dashed=1;endFill=0;fontSize=12;fontColor=#555555;" target="JKbYcydW19tn2P_FXaS0-7" value="extend">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="pBvnCMg8xld050iZZSGV-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontFamily=Times New Roman;fontSize=14;" value="&lt;div style=&quot;line-height: 150%;&quot;&gt;The moderator is responsible for maintaining user activities and managing the content within the system. They can review user accounts, manage account access, and handle product information to ensure that the displayed content remains accurate and appropriate. They can also review reports, feedback, and product reviews to identify and handle inappropriate content. This role focuses on maintaining a safe and well-organized environment for users.&lt;/div&gt;" vertex="1">
+                    <mxGeometry height="240" width="275" x="550" y="440" as="geometry"/>
+                </mxCell>
+                <mxCell id="pBvnCMg8xld050iZZSGV-2" edge="1" parent="1" source="JKbYcydW19tn2P_FXaS0-2" style="endArrow=none;html=1;strokeWidth=1.5;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JKbYcydW19tn2P_FXaS0-5">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="140" y="210" as="sourcePoint"/>
+                        <mxPoint x="340" y="66" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
