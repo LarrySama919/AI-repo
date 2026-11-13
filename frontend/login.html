@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f6f0" />
+    <meta name="description" content="Sign in to Skinwise and keep your skin check-ins together." />
+    <title>Sign in — Skinwise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../CSS/styles.css" />
+    <link rel="stylesheet" href="../CSS/login.css" />
+    <script src="../Javascript/login.js" defer></script>
+  </head>
+  <body class="auth-page">
+    <header class="auth-header">
+      <a class="brand auth-brand" href="landing_page.html" aria-label="Skinwise home">
+        <img class="brand-logo" src="User/assets/skinwise-scan-logo.png" alt="" aria-hidden="true" />
+        <span>skinwise<span class="brand-period">.</span></span>
+      </a>
+      <a class="back-link" href="landing_page.html"><span aria-hidden="true">←</span> Back to website</a>
+    </header>
+
+    <main class="auth-main">
+      <section class="auth-panel" aria-labelledby="auth-title">
+        <div class="auth-card-cap">
+          <h2 id="auth-title">Welcome back</h2>
+        </div>
+        <div class="auth-form-wrap">
+          <div class="form-eyebrow">Welcome to skinwise</div>
+          <p class="form-intro" id="auth-intro">Sign in to continue to your personal skin space.</p>
+
+          <form class="auth-form" id="auth-form">
+            <div class="field-group" id="name-group" hidden>
+              <label for="full-name">Your name</label>
+              <div class="input-icon-wrap">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.7"/><path d="M5 20a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                <input id="full-name" name="name" type="text" autocomplete="name" placeholder="How should we call you?" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="email">Email address</label>
+              <div class="input-icon-wrap">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="m4.5 7 7.5 6 7.5-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label-row">
+                <label for="password">Password</label>
+              </div>
+              <div class="password-wrap">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" minlength="8" required />
+                <button class="password-toggle" type="button" data-password-toggle aria-label="Show password" aria-pressed="false">Show</button>
+              </div>
+            </div>
+
+            <div class="field-group confirm-group" id="confirm-group" hidden>
+              <label for="confirm-password">Confirm password</label>
+              <div class="password-wrap">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Enter your password again" minlength="8" />
+                <button class="password-toggle" type="button" data-password-toggle aria-label="Show password" aria-pressed="false">Show</button>
+              </div>
+            </div>
+
+            <label class="remember-row" id="remember-row">
+              <input name="remember" type="checkbox" />
+              <span class="custom-check" aria-hidden="true"></span>
+              <span>Remember me</span>
+            </label>
+
+            <button class="submit-button" type="submit"><span id="submit-label">Sign in</span><span aria-hidden="true">→</span></button>
+            <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+          </form>
+
+          <p class="auth-switch" id="auth-switch">New to Skinwise? <a href="login.html?mode=signup">Create an account</a></p>
+          <div class="auth-footnote">Private by design <i></i> Informational, not a diagnosis</div>
+        </div>
+        <div class="auth-bottom-tab" id="forgot-tab">
+          <button class="forgot-link" id="forgot-password" type="button">Forgot password?</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="auth-footer">
+      <span>© Skinwise</span>
+      <span>Take good care, at your own pace.</span>
+      <a href="landing_page.html#about">About Skinwise</a>
+    </footer>
+  </body>
+</html>
