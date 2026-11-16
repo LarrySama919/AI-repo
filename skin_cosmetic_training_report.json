@@ -1,9 +1,9 @@
 {
-  "dataset": "Kaggle Facial Skin (Acne, Pigmentation, Pores, Wrinkles)",
-  "dataset_url": "https://www.kaggle.com/datasets/shijo96john/facial-skin-acne-pigmentation-pores-wrinkles",
-  "dataset_license": "Apache-2.0 (publisher metadata)",
+  "dataset": "Folder-labeled facial skin-concern collection",
+  "original_dataset_url": "https://www.kaggle.com/datasets/shijo96john/facial-skin-acne-pigmentation-pores-wrinkles",
+  "source_note": "Record the source, license, and label provenance of every added dataset before training.",
   "model": "skin_cosmetic_model.keras",
-  "architecture": "MobileNetV2 ImageNet feature backbone from the existing HAM10000 model; frozen backbone with a newly trained eight-class head",
+  "architecture": "MobileNetV2 ImageNet feature backbone from the existing HAM10000 model; frozen backbone with a newly trained 8-class head",
   "seed": 42,
   "image_size": 128,
   "class_names": [
@@ -50,6 +50,23 @@
   "epochs_completed": 13,
   "test_loss": 0.4912095367908478,
   "test_accuracy": 0.8512195348739624,
+  "unknown_handling": {
+    "method": "maximum_softmax_probability threshold calibrated on known validation and separate OOD calibration images",
+    "threshold": 0.47815972566604614,
+    "calibration_metrics": {
+      "calibration_known_coverage": 0.9290953545232273,
+      "calibration_ood_accept_rate": 0.0,
+      "calibration_ood_rejection_rate": 1.0
+    },
+    "calibration_image_counts": {
+      "known_validation": 409,
+      "out_of_distribution": 1
+    },
+    "ood_test_image_count": 1,
+    "known_test_coverage": 0.9292682926829269,
+    "known_test_selective_accuracy": 0.8766404199475065,
+    "ood_test_rejection_rate": 0.0
+  },
   "test_classification_report": {
     "dark spots": {
       "precision": 0.7254901960784313,
@@ -197,7 +214,9 @@
   ],
   "limitations": [
     "Folder labels are broad dataset labels, not clinician-confirmed diagnoses.",
-    "The pigmentation class is not a melasma-specific label.",
+    "A broad pigmentation folder must not be split into melasma and non-melasma without reliable per-image relabeling.",
+    "Maximum-softmax unknown rejection is a heuristic and cannot guarantee detection of every out-of-distribution image.",
+    "The unknown threshold is calibrated only for the supplied OOD calibration examples and imaging conditions.",
     "The model is for educational exploration, not diagnosis or treatment decisions."
   ]
 }

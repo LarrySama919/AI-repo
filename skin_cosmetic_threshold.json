@@ -1,0 +1,16 @@
+{
+  "model": "skin_cosmetic_model.keras",
+  "method": "maximum_softmax_probability",
+  "threshold": 0.47815972566604614,
+  "known_if_confidence_at_least": 0.47815972566604614,
+  "max_ood_accept_rate_target": 0.05,
+  "calibration_metrics": {
+    "calibration_known_coverage": 0.9290953545232273,
+    "calibration_ood_accept_rate": 0.0,
+    "calibration_ood_rejection_rate": 1.0
+  },
+  "calibration_image_counts": {
+    "known_validation": 409,
+    "out_of_distribution": 1
+  }
+}

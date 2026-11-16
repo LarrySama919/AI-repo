@@ -48,12 +48,19 @@ except Exception as e:
     print(f"Error loading model: {e}")
 
 COSMETIC_MODEL_PATH = Path(__file__).resolve().parent / "skin_cosmetic_model.keras"
+COSMETIC_THRESHOLD_PATH = Path(__file__).resolve().parent / "skin_cosmetic_threshold.json"
+COSMETIC_UNKNOWN_THRESHOLD = None
 try:
     if COSMETIC_MODEL_PATH.is_file():
         cosmetic_model = tf.keras.models.load_model(COSMETIC_MODEL_PATH, compile=False)
         labels_path = Path(__file__).resolve().parent / "skin_cosmetic_labels.json"
         if labels_path.is_file():
             COSMETIC_CLASS_NAMES = json.loads(labels_path.read_text(encoding="utf-8"))
+        if COSMETIC_THRESHOLD_PATH.is_file():
+            threshold_data = json.loads(COSMETIC_THRESHOLD_PATH.read_text(encoding="utf-8"))
+            COSMETIC_UNKNOWN_THRESHOLD = float(threshold_data["threshold"])
+            if not 0.0 <= COSMETIC_UNKNOWN_THRESHOLD <= 1.00001:
+                raise ValueError("Cosmetic unknown threshold must be between 0 and 1.00001.")
         print(f"Successfully loaded cosmetic model from {COSMETIC_MODEL_PATH}")
     else:
         print(f"Cosmetic model not found at {COSMETIC_MODEL_PATH}")
@@ -72,6 +79,11 @@ async def predict_skin(file: UploadFile = File(...), mode: str = Form("condition
     active_class_names = COSMETIC_CLASS_NAMES if mode == "skincare" else CLASS_NAMES
     if active_model is None:
         raise HTTPException(status_code=503, detail=f"The {mode} model is not loaded on the server.")
+    if mode == "skincare" and COSMETIC_UNKNOWN_THRESHOLD is None:
+        raise HTTPException(
+            status_code=503,
+            detail="The cosmetic model has no calibrated Unknown/Uncertain threshold. Prepare OOD calibration and test images, then retrain it.",
+        )
     
     try:
         # Read image file bytes
@@ -92,14 +104,22 @@ async def predict_skin(file: UploadFile = File(...), mode: str = Form("condition
         predictions = active_model.predict(input_tensor)
         predicted_index = int(np.argmax(predictions[0]))
         confidence = float(np.max(predictions[0]))
-        
-        predicted_class = active_class_names[predicted_index] if predicted_index < len(active_class_names) else "unknown"
+        candidate_class = active_class_names[predicted_index] if predicted_index < len(active_class_names) else "unknown"
+        is_known = (
+            confidence >= COSMETIC_UNKNOWN_THRESHOLD
+            if mode == "skincare" and COSMETIC_UNKNOWN_THRESHOLD is not None
+            else None
+        )
+        predicted_class = candidate_class if is_known is not False else "unknown"
         
         return {
             "success": True,
             "mode": mode,
             "predicted_class": predicted_class,
+            "candidate_class": candidate_class,
+            "is_known": is_known,
             "confidence": confidence,
+            "unknown_threshold": COSMETIC_UNKNOWN_THRESHOLD if mode == "skincare" else None,
             "all_probabilities": {active_class_names[i]: float(predictions[0][i]) for i in range(len(active_class_names))}
         }
     except Exception as e:
