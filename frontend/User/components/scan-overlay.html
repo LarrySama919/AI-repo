@@ -1,7 +1,8 @@
 <div class="scan-overlay" id="scan-overlay" aria-hidden="true">
   <div class="scan-panel">
-    <button class="scan-close" id="scan-close" aria-label="Close scan">✕</button>
-    <div class="scan-progress"><span class="scan-progress-fill" id="scan-progress-fill"></span></div>
+    <div class="scan-head">
+      <div class="scan-progress"><span class="scan-progress-fill" id="scan-progress-fill"></span></div>
+    </div>
 
     <!-- step 1: choose mode -->
     <div class="scan-step is-active" id="step-mode">
@@ -23,7 +24,18 @@
       <p class="eyebrow"><span class="eyebrow-dot"></span> Step 2 of 5</p>
       <h2>Add a <em>skin photo.</em></h2>
       <p class="lede">Take a new photo with your device camera or choose an existing image.</p>
-      <div class="scan-step-actions"><button class="btn-ghost" id="camera-btn" type="button">Take a photo</button></div>
+      <div class="scan-step-actions"><button class="btn-ghost" id="camera-btn" type="button">📷 Take a photo</button></div>
+      <div class="webcam" id="webcam">
+        <div class="webcam-frame">
+          <video id="webcam-video" autoplay playsinline muted></video>
+        </div>
+        <canvas id="webcam-canvas" hidden></canvas>
+        <p class="webcam-hint" id="webcam-hint">Position the area in the frame, then capture.</p>
+        <div class="scan-step-actions">
+          <button class="btn-ghost" id="webcam-cancel" type="button">Cancel</button>
+          <button class="btn-primary" id="webcam-capture" type="button">Capture photo</button>
+        </div>
+      </div>
       <div class="dropzone" id="dropzone">
         <div class="dropzone-frame">
           <img class="drop-preview" id="drop-preview" src="assets/face-scan.png" alt="Scan preview" />

@@ -359,11 +359,13 @@
     if (processingTL) processingTL.kill();
     if (uploadController) uploadController.abort();
     uploadController = null;
+    stopWebcam();
   }
 
   function resetScanFlow() {
     if (uploadController) uploadController.abort();
     uploadController = null;
+    stopWebcam();
     selectedImage = null;
     predictionResult = null;
     if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
@@ -406,7 +408,6 @@
       setTimeout(() => showStep("step-upload"), 260);
     })
   );
-  $("#scan-close").addEventListener("click", closeScan);
   overlay.addEventListener("click", (e) => { if (e.target === overlay) closeScan(); });
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-close-scan]")) closeScan();
@@ -512,7 +513,65 @@
     e.stopPropagation();
     $("#scan-file-input").click();
   });
-  $("#camera-btn").addEventListener("click", () => $("#scan-file-input").click());
+
+  /* ---------------- in-browser webcam capture ---------------- */
+  const stepUpload = $("#step-upload");
+  const webcamVideo = $("#webcam-video");
+  const webcamCanvas = $("#webcam-canvas");
+  const webcamHint = $("#webcam-hint");
+  let webcamStream = null;
+
+  function stopWebcam() {
+    if (webcamStream) {
+      webcamStream.getTracks().forEach((t) => t.stop());
+      webcamStream = null;
+    }
+    webcamVideo.srcObject = null;
+    stepUpload.classList.remove("is-webcam");
+  }
+
+  async function openWebcam() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast("Camera is unavailable here — choose a file instead.");
+      $("#scan-file-input").click();
+      return;
+    }
+    stepUpload.classList.add("is-webcam");
+    webcamHint.textContent = "Starting camera…";
+    try {
+      try {
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+      } catch {
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      }
+      webcamVideo.srcObject = webcamStream;
+      await webcamVideo.play().catch(() => {});
+      webcamHint.textContent = "Position the area in the frame, then capture.";
+      gsap.fromTo(".webcam-frame", { scale: 0.96, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "power3.out" });
+    } catch {
+      webcamHint.textContent = "Camera access was blocked. Cancel and choose a file instead.";
+    }
+  }
+
+  function captureWebcamPhoto() {
+    const w = webcamVideo.videoWidth;
+    const h = webcamVideo.videoHeight;
+    if (!webcamStream || !w || !h) { toast("The camera is not ready yet."); return; }
+    webcamCanvas.width = w;
+    webcamCanvas.height = h;
+    webcamCanvas.getContext("2d").drawImage(webcamVideo, 0, 0, w, h);
+    webcamCanvas.toBlob((blob) => {
+      if (!blob) { toast("Could not capture the photo."); return; }
+      const file = new File([blob], `webcam-${Date.now()}.jpg`, { type: "image/jpeg" });
+      stopWebcam();
+      uploadImage(file);
+    }, "image/jpeg", 0.92);
+  }
+
+  $("#camera-btn").addEventListener("click", openWebcam);
+  $("#webcam-cancel").addEventListener("click", stopWebcam);
+  $("#webcam-capture").addEventListener("click", captureWebcamPhoto);
+
   $("#scan-file-input").addEventListener("change", (e) => {
     uploadImage(e.target.files[0]);
     e.target.value = "";
