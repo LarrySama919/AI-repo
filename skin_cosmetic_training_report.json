@@ -1,0 +1,203 @@
+{
+  "dataset": "Kaggle Facial Skin (Acne, Pigmentation, Pores, Wrinkles)",
+  "dataset_url": "https://www.kaggle.com/datasets/shijo96john/facial-skin-acne-pigmentation-pores-wrinkles",
+  "dataset_license": "Apache-2.0 (publisher metadata)",
+  "model": "skin_cosmetic_model.keras",
+  "architecture": "MobileNetV2 ImageNet feature backbone from the existing HAM10000 model; frozen backbone with a newly trained eight-class head",
+  "seed": 42,
+  "image_size": 128,
+  "class_names": [
+    "dark spots",
+    "inflammatory acne",
+    "non inflammatory acne black heads",
+    "non inflammatory acne white heads",
+    "pigmentation",
+    "pores",
+    "Redness",
+    "wrinkles"
+  ],
+  "raw_image_counts": {
+    "dark spots": 619,
+    "inflammatory acne": 603,
+    "non inflammatory acne black heads": 312,
+    "non inflammatory acne white heads": 300,
+    "pigmentation": 599,
+    "pores": 600,
+    "Redness": 600,
+    "wrinkles": 600
+  },
+  "unique_image_counts": {
+    "dark spots": 558,
+    "inflammatory acne": 585,
+    "non inflammatory acne black heads": 307,
+    "non inflammatory acne white heads": 294,
+    "pigmentation": 593,
+    "pores": 592,
+    "Redness": 589,
+    "wrinkles": 576
+  },
+  "deduplication": {
+    "same_class_duplicate_images_removed": 128,
+    "cross_class_duplicate_images_removed": 11
+  },
+  "images_after_deduplication": 4094,
+  "split_counts": {
+    "train": 3275,
+    "validation": 409,
+    "test": 410
+  },
+  "epochs_requested": 15,
+  "epochs_completed": 13,
+  "test_loss": 0.4912095367908478,
+  "test_accuracy": 0.8512195348739624,
+  "test_classification_report": {
+    "dark spots": {
+      "precision": 0.7254901960784313,
+      "recall": 0.6607142857142857,
+      "f1-score": 0.6915887850467289,
+      "support": 56.0
+    },
+    "inflammatory acne": {
+      "precision": 0.75,
+      "recall": 0.9152542372881356,
+      "f1-score": 0.8244274809160306,
+      "support": 59.0
+    },
+    "non inflammatory acne black heads": {
+      "precision": 0.8148148148148148,
+      "recall": 0.7333333333333333,
+      "f1-score": 0.7719298245614035,
+      "support": 30.0
+    },
+    "non inflammatory acne white heads": {
+      "precision": 0.9629629629629629,
+      "recall": 0.896551724137931,
+      "f1-score": 0.9285714285714286,
+      "support": 29.0
+    },
+    "pigmentation": {
+      "precision": 0.8409090909090909,
+      "recall": 0.6166666666666667,
+      "f1-score": 0.7115384615384616,
+      "support": 60.0
+    },
+    "pores": {
+      "precision": 0.95,
+      "recall": 0.9661016949152542,
+      "f1-score": 0.957983193277311,
+      "support": 59.0
+    },
+    "Redness": {
+      "precision": 0.8529411764705882,
+      "recall": 0.9830508474576272,
+      "f1-score": 0.9133858267716536,
+      "support": 59.0
+    },
+    "wrinkles": {
+      "precision": 0.9508196721311475,
+      "recall": 1.0,
+      "f1-score": 0.9747899159663865,
+      "support": 58.0
+    },
+    "accuracy": 0.8512195121951219,
+    "macro avg": {
+      "precision": 0.8559922391708794,
+      "recall": 0.8464590986891543,
+      "f1-score": 0.8467768645811755,
+      "support": 410.0
+    },
+    "weighted avg": {
+      "precision": 0.8517644809772664,
+      "recall": 0.8512195121951219,
+      "f1-score": 0.8465794012276175,
+      "support": 410.0
+    }
+  },
+  "test_confusion_matrix": [
+    [
+      37,
+      9,
+      3,
+      0,
+      4,
+      0,
+      3,
+      0
+    ],
+    [
+      2,
+      54,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      2,
+      2,
+      22,
+      0,
+      0,
+      2,
+      2,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      26,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      10,
+      5,
+      0,
+      0,
+      37,
+      1,
+      4,
+      3
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0,
+      57,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      58,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      58
+    ]
+  ],
+  "limitations": [
+    "Folder labels are broad dataset labels, not clinician-confirmed diagnoses.",
+    "The pigmentation class is not a melasma-specific label.",
+    "The model is for educational exploration, not diagnosis or treatment decisions."
+  ]
+}
