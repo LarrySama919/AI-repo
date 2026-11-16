@@ -94,20 +94,61 @@
       );
     }
     if (view.id === "view-overview") {
+      renderOverviewCharts();
       runCounters(view);
-      drawRing($(".card-score .ring-fg", view), 82, 0.35);
-      gsap.to($(".trend-line", view), { strokeDashoffset: 0, duration: 1.8, delay: 0.4, ease: "power2.inOut" });
-      gsap.to($(".trend-area", view), { opacity: 1, duration: 0.9, delay: 1.2 });
+      const hasData = getScans().length > 0;
+
+      const line = $("#trend-line", view);
+      if (hasData && line && line.getAttribute("d")) {
+        const len = line.getTotalLength();
+        gsap.fromTo(line, { strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0, duration: 1.5, delay: 0.35, ease: "power2.inOut" });
+        gsap.fromTo($("#trend-area", view), { opacity: 0 }, { opacity: 1, duration: 0.9, delay: 0.85, ease: "power2.out" });
+        gsap.fromTo(
+          $$("#trend-dots circle", view),
+          { opacity: 0, scale: 0, transformOrigin: "center" },
+          { opacity: 1, scale: 1, duration: 0.45, stagger: 0.09, delay: 0.5, ease: "back.out(2.4)" }
+        );
+        gsap.fromTo(
+          $$("#trend-x span", view),
+          { opacity: 0, y: 6 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, delay: 0.7, ease: "power2.out" }
+        );
+      }
+      if (!hasData) {
+        if (ghostDrift) ghostDrift.kill();
+        ghostDrift = gsap.to(line, { strokeDashoffset: -24, duration: 1.4, repeat: -1, ease: "none" });
+        gsap.fromTo($("#trend-ghost-note", view), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.5, ease: "power2.out" });
+      }
+
+      const donut = $("#mix-donut", view);
+      gsap.fromTo($(".mix-ring", view), { scale: 0.82, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.7, delay: 0.3, ease: "back.out(1.7)", clearProps: "transform,opacity" });
+      if (hasData) {
+        const target = Number(donut.dataset.mix) || 0;
+        const sweep = { v: 0 };
+        gsap.to(sweep, {
+          v: target,
+          duration: 1.3,
+          delay: 0.4,
+          ease: "power3.out",
+          onUpdate: () => donut.style.setProperty("--mix", sweep.v.toFixed(4)),
+        });
+      }
       gsap.fromTo(
-        $$(".trend-dots circle", view),
-        { opacity: 0, scale: 0 },
-        { opacity: 1, scale: 1, duration: 0.4, stagger: 0.12, delay: 0.7, ease: "back.out(2)", transformOrigin: "center" }
+        $$("#mix-legend li", view),
+        { x: -12, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.45, stagger: 0.1, delay: 0.55, ease: "power2.out" }
       );
+
       gsap.fromTo(
-        $$(".recent-list li", view),
-        { x: -14, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.5, stagger: 0.09, delay: 0.35, ease: "power2.out" }
+        $$("#find-list .find-row", view),
+        { x: -18, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.5, stagger: 0.07, delay: 0.4, ease: "power2.out" }
       );
+      if (hasData) {
+        $$("#find-list .find-fill", view).forEach((fill, i) => {
+          gsap.fromTo(fill, { width: "0%" }, { width: fill.dataset.w, duration: 1.1, delay: 0.55 + i * 0.07, ease: "power3.out" });
+        });
+      }
     }
     if (view.id === "view-progress") {
       runCounters(view);
@@ -139,6 +180,7 @@
       gsap.fromTo(activeBtn, { scale: 0.9 }, { scale: 1, duration: 0.5, ease: "back.out(3)", clearProps: "transform" });
     }
     currentView = name;
+    if (name !== "overview" && ghostDrift) { ghostDrift.kill(); ghostDrift = null; }
     history.replaceState(null, "", "#" + name);
 
     const show = () => {
@@ -348,7 +390,7 @@
     overlay.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     resetScanFlow();
-    showStep("step-mode");
+    showStep(preMode ? "step-upload" : "step-mode");
     gsap.fromTo(".scan-panel", { y: 26, scale: 0.97 }, { y: 0, scale: 1, duration: 0.45, ease: "power3.out" });
   }
 
@@ -693,6 +735,174 @@
     gsap.fromTo($$("#step-result .result-block"), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, stagger: 0.12, delay: 0.25, ease: "power3.out" });
   }
 
+  /* ---------------- overview charts ---------------- */
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const TREND_W = 560;
+  const TREND_H = 165;
+  const TREND_PAD_X = 14;
+  const TREND_PAD_T = 18;
+  const TREND_PAD_B = 20;
+
+  function getScans() {
+    try {
+      const raw = JSON.parse(localStorage.getItem("skinwise.scans") || "[]");
+      return Array.isArray(raw) ? raw : [];
+    } catch { return []; }
+  }
+
+  function smoothPath(coords) {
+    let d = `M ${coords[0][0].toFixed(1)} ${coords[0][1].toFixed(1)}`;
+    for (let i = 1; i < coords.length; i += 1) {
+      const [px, py] = coords[i - 1];
+      const [cx, cy] = coords[i];
+      const mx = (px + cx) / 2;
+      d += ` C ${mx.toFixed(1)} ${py.toFixed(1)}, ${mx.toFixed(1)} ${cy.toFixed(1)}, ${cx.toFixed(1)} ${cy.toFixed(1)}`;
+    }
+    return d;
+  }
+
+  let ghostDrift = null;
+
+  function renderOverviewCharts() {
+    const trendBody = $("#trend-body");
+    if (!trendBody) return;
+    const scans = getScans();
+
+    /* confidence trend — newest 8, plotted oldest → newest */
+    const pts = scans.slice(0, 8).reverse();
+    const gridG = $("#trend-grid");
+    const lineEl = $("#trend-line");
+    const areaEl = $("#trend-area");
+    const dotsG = $("#trend-dots");
+    const xRow = $("#trend-x");
+
+    gridG.innerHTML = "";
+    dotsG.innerHTML = "";
+    xRow.innerHTML = "";
+    lineEl.setAttribute("d", "");
+    areaEl.setAttribute("d", "");
+    lineEl.classList.remove("is-ghost");
+    lineEl.style.strokeDasharray = "";
+    lineEl.style.strokeDashoffset = "";
+    if (ghostDrift) { ghostDrift.kill(); ghostDrift = null; }
+
+    const innerW = TREND_W - TREND_PAD_X * 2;
+    const innerH = TREND_H - TREND_PAD_T - TREND_PAD_B;
+    const yFor = (v) => TREND_PAD_T + (1 - v / 100) * innerH;
+
+    [0, 50, 100].forEach((v) => {
+      const y = yFor(v);
+      const rule = document.createElementNS(SVG_NS, "line");
+      rule.setAttribute("x1", TREND_PAD_X);
+      rule.setAttribute("x2", TREND_W - TREND_PAD_X);
+      rule.setAttribute("y1", y);
+      rule.setAttribute("y2", y);
+      gridG.appendChild(rule);
+      const tag = document.createElementNS(SVG_NS, "text");
+      tag.setAttribute("x", TREND_W - TREND_PAD_X);
+      tag.setAttribute("y", y - 5);
+      tag.setAttribute("text-anchor", "end");
+      tag.textContent = v + "%";
+      gridG.appendChild(tag);
+    });
+
+    const hasTrend = pts.length > 0;
+    $("#trend-ghost-note").hidden = hasTrend;
+    $("#trend-state").textContent = hasTrend ? "All time" : "Preview";
+
+    if (hasTrend) {
+      const confs = pts.map((s) => Math.min(100, Math.max(0, Number(s.confidence) || 0)));
+      const xFor = (i) => (pts.length === 1 ? TREND_W / 2 : TREND_PAD_X + (i / (pts.length - 1)) * innerW);
+      const coords = confs.map((v, i) => [xFor(i), yFor(v)]);
+      const d = smoothPath(coords);
+      lineEl.setAttribute("d", d);
+      const base = TREND_H - TREND_PAD_B;
+      areaEl.setAttribute("d", `${d} L ${coords[coords.length - 1][0].toFixed(1)} ${base} L ${coords[0][0].toFixed(1)} ${base} Z`);
+
+      coords.forEach(([x, y]) => {
+        const dot = document.createElementNS(SVG_NS, "circle");
+        dot.setAttribute("cx", x.toFixed(1));
+        dot.setAttribute("cy", y.toFixed(1));
+        dot.setAttribute("r", "4.6");
+        dotsG.appendChild(dot);
+      });
+
+      pts.forEach((s) => {
+        const span = document.createElement("span");
+        span.textContent = new Date(s.createdAt).toLocaleDateString(undefined, { month: "numeric", day: "numeric" });
+        xRow.appendChild(span);
+      });
+
+      const latest = confs[confs.length - 1];
+      let note = "your first saved analysis";
+      if (confs.length > 1) {
+        const diff = Math.round(latest - confs[confs.length - 2]);
+        note = diff === 0 ? "unchanged from the previous analysis" : `${diff > 0 ? "+" : ""}${diff} points vs the previous analysis`;
+      }
+      $("#trend-sub").textContent = `Last 8 analyses · latest model confidence ${Math.round(latest)}%, ${note}.`;
+    } else {
+      const wave = [];
+      for (let i = 0; i <= 5; i += 1) {
+        wave.push([TREND_PAD_X + (i / 5) * innerW, TREND_PAD_T + innerH * (0.5 + 0.17 * Math.sin(i * 1.9 + 0.7))]);
+      }
+      lineEl.setAttribute("d", smoothPath(wave));
+      lineEl.classList.add("is-ghost");
+      lineEl.style.strokeDasharray = "2 10";
+      lineEl.style.strokeDashoffset = "0";
+      $("#trend-sub").textContent = "No analyses yet — this line draws itself from your saved scans.";
+    }
+
+    /* scan mix donut */
+    const total = scans.length;
+    const care = scans.filter((s) => s.mode !== "condition").length;
+    const condition = total - care;
+    const donut = $("#mix-donut");
+    donut.classList.toggle("is-empty", total === 0);
+    $("#mix-state").textContent = total ? "All time" : "Preview";
+    const frac = total ? care / total : 0;
+    donut.dataset.mix = frac.toFixed(4);
+    donut.style.setProperty("--mix", frac.toFixed(4));
+    const totalEl = $("#mix-total");
+    totalEl.dataset.count = total;
+    totalEl.textContent = total;
+    $("#mix-legend").innerHTML = [
+      { c: "var(--green)", name: "Skin care & cosmetic", n: care },
+      { c: "var(--orange)", name: "Skin condition & risk", n: condition },
+    ]
+      .map((row) => `<li style="--c:${row.c}"><i></i>${esc(row.name)}<strong>${row.n}</strong></li>`)
+      .join("");
+
+    /* most common findings */
+    const counts = new Map();
+    scans.forEach((s) => {
+      const label = String(s.label || "").trim();
+      if (label) counts.set(label, (counts.get(label) || 0) + 1);
+    });
+    const top = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 6);
+    $("#find-state").textContent = top.length ? "All time" : "Preview";
+    const findList = $("#find-list");
+    if (top.length) {
+      const max = top[0][1];
+      findList.innerHTML = top
+        .map(([label, n]) => `<div class="find-row">
+          <span class="find-name" title="${esc(label)}">${esc(label)}</span>
+          <span class="find-track"><span class="find-fill" data-w="${Math.round((n / max) * 100)}%"></span></span>
+          <span class="find-count">${n}</span>
+        </div>`)
+        .join("");
+    } else {
+      findList.innerHTML = [74, 55, 38]
+        .map((w) => `<div class="find-row is-ghost">
+          <span class="skel skel-name"></span>
+          <span class="find-track"><span class="skel skel-fill" style="--w:${w}%"></span></span>
+          <span class="skel skel-count"></span>
+        </div>`)
+        .join("");
+    }
+  }
+
   function saveScan(entry) {
     let entries = [];
     try { entries = JSON.parse(localStorage.getItem("skinwise.scans") || "[]"); } catch { entries = []; }
@@ -700,6 +910,7 @@
     entries = entries.slice(0, 50);
     localStorage.setItem("skinwise.scans", JSON.stringify(entries));
     renderHistory();
+    renderOverviewCharts();
   }
 
   function renderHistory() {

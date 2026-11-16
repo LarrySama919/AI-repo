@@ -7,19 +7,44 @@
     </div>
     <button class="btn-primary" id="quick-scan" type="button">Start an analysis →</button>
   </div>
-  <div class="scan-launch">
-    <button class="launch-card" data-open-scan="skincare" data-anim="card" type="button">
-      <span class="launch-art"><img src="assets/face-scan.png" alt="" /></span>
-      <h3>Skin care &amp; cosmetic analysis</h3>
-      <p>Review visible cosmetic concerns and general skin care information.</p>
-      <span class="launch-cta">Choose photo or camera →</span>
-    </button>
-    <button class="launch-card" data-open-scan="condition" data-anim="card" type="button">
-      <span class="launch-art"><img src="assets/body-scan.png" alt="" /></span>
-      <h3>Skin condition &amp; risk assessment</h3>
-      <p>Review a lesion or rash image. Concerning model signals direct you to professional care.</p>
-      <span class="launch-cta">Choose photo or camera →</span>
-    </button>
+  <div class="bento overview-charts">
+    <article class="card card-trend" data-anim="card">
+      <div class="card-head">
+        <h3>Model confidence trend</h3>
+        <span class="pill pill-soft" id="trend-state">Preview</span>
+        <button class="link-btn" data-view-jump="history" type="button">Open history →</button>
+      </div>
+      <p class="chart-sub" id="trend-sub"></p>
+      <div class="trend-body" id="trend-body">
+        <svg class="trend-chart" id="trend-chart" viewBox="0 0 560 165" aria-hidden="true">
+          <g class="trend-grid" id="trend-grid"></g>
+          <path class="trend-area" id="trend-area" d="" />
+          <path class="trend-line" id="trend-line" d="" />
+          <g class="trend-dots" id="trend-dots"></g>
+        </svg>
+        <p class="trend-ghost-note" id="trend-ghost-note" hidden>Your first analysis lands on this line</p>
+        <div class="trend-x" id="trend-x"></div>
+      </div>
+    </article>
+
+    <article class="card card-mix" data-anim="card">
+      <div class="card-head"><h3>Scan mix</h3><span class="pill pill-soft" id="mix-state">Preview</span></div>
+      <div class="mix-wrap" id="mix-wrap">
+        <div class="mix-ring">
+          <div class="mix-donut" id="mix-donut"></div>
+          <div class="mix-hole"><strong class="count" id="mix-total" data-count="0">0</strong><small>saved scans</small></div>
+        </div>
+        <ul class="mix-legend" id="mix-legend"></ul>
+      </div>
+    </article>
+
+    <article class="card card-findings" data-anim="card">
+      <div class="card-head">
+        <h3>Most common findings</h3>
+        <span class="pill pill-soft" id="find-state">Preview</span>
+      </div>
+      <div class="find-list" id="find-list"></div>
+    </article>
   </div>
   <div class="progress-grid">
     <article class="card" data-anim="card">
