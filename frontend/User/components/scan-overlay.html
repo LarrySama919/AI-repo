@@ -5,22 +5,25 @@
 
     <!-- step 1: choose mode -->
     <div class="scan-step is-active" id="step-mode">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 1 of 4</p>
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 1 of 5</p>
       <h2>What are we <em>checking?</em></h2>
+      <p class="lede">Cosmetic analysis uses the facial concern model. The lesion assessment uses the HAM10000 model; its confidence is not cancer probability.</p>
       <div class="mode-cards">
-        <button class="mode-card" data-mode="facial">
-          <img src="assets/face-scan.png" alt="" /><strong>Facial Scan</strong><small>Face &amp; neck</small>
+        <button class="mode-card" data-mode="skincare">
+          <img src="assets/face-scan.png" alt="" /><strong>Skin care analysis</strong><small>Cosmetic concerns</small>
         </button>
-        <button class="mode-card" data-mode="body">
-          <img src="assets/body-scan.png" alt="" /><strong>Body Scan</strong><small>Any other area</small>
+        <button class="mode-card" data-mode="condition">
+          <img src="assets/body-scan.png" alt="" /><strong>Condition &amp; risk</strong><small>Lesions or irritation</small>
         </button>
       </div>
     </div>
 
     <!-- step 2: upload -->
     <div class="scan-step" id="step-upload">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 2 of 4</p>
-      <h2>Upload a <em>skin photo.</em></h2>
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 2 of 5</p>
+      <h2>Add a <em>skin photo.</em></h2>
+      <p class="lede">Take a new photo with your device camera or choose an existing image.</p>
+      <div class="scan-step-actions"><button class="btn-ghost" id="camera-btn" type="button">Take a photo</button></div>
       <div class="dropzone" id="dropzone">
         <div class="dropzone-frame">
           <img class="drop-preview" id="drop-preview" src="assets/face-scan.png" alt="Scan preview" />
@@ -28,8 +31,9 @@
         </div>
         <p>Drag a photo here, or <button class="link-btn" id="browse-btn" type="button">browse files</button></p>
         <small>Use natural light · keep the camera steady · fill the frame</small>
+        <input id="scan-file-input" type="file" accept="image/*" capture="environment" hidden />
       </div>
-      <div class="quality-check" id="quality-check">
+      <div class="quality-check" id="quality-check" aria-live="polite">
         <span class="spinner"></span>
         <p id="quality-text">Checking image quality…</p>
       </div>
@@ -41,7 +45,7 @@
 
     <!-- step 3: symptoms -->
     <div class="scan-step" id="step-symptoms">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 3 of 4</p>
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 3 of 5</p>
       <h2>Any <em>symptoms?</em></h2>
       <p class="lede">Tell the AI what you've noticed. Select all that apply.</p>
       <div class="symptom-grid" id="symptom-grid">
@@ -66,7 +70,7 @@
 
     <!-- step 4: processing -->
     <div class="scan-step" id="step-processing">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 4 of 4</p>
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 4 of 5</p>
       <h2>The AI is <em>working.</em></h2>
       <div class="proc-visual">
         <div class="proc-frame">
@@ -84,31 +88,33 @@
 
     <!-- step 5: result -->
     <div class="scan-step" id="step-result">
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 5 of 5</p>
       <div class="result-banner">
         <span class="result-check">✓</span>
         <div>
           <h2>Report <em>ready.</em></h2>
-          <p>Facial scan · Nov 8, 2026 · saved to your history</p>
+          <p id="result-summary">Facial scan · Prediction results are ready</p>
         </div>
         <div class="result-score">
           <svg class="score-ring score-ring-sm" viewBox="0 0 160 160">
             <circle class="ring-bg" cx="80" cy="80" r="68" />
             <circle class="ring-fg ring-result" cx="80" cy="80" r="68" />
           </svg>
-          <div class="score-center"><strong class="count" data-count="82">0</strong><small>Score</small></div>
+          <div class="score-center"><strong class="count" id="result-confidence" data-count="0" data-suffix="%">0</strong><small>Model confidence</small></div>
         </div>
       </div>
       <div class="result-grid">
         <article class="result-block">
           <h3>What we found</h3>
-          <ul class="result-list">
-            <li><span class="pill pill-good">Clear</span> No significant concerns detected on cheeks and forehead.</li>
-            <li><span class="pill pill-warn">Mild</span> Slight dryness around the chin — improving vs. last scan.</li>
-            <li><span class="pill pill-soft">Note</span> Hydration up 4% since Nov 2. Whatever you're doing, keep doing it.</li>
+          <ul class="result-list" aria-live="polite">
+            <li id="result-prediction">Upload a photo to see the model prediction.</li>
+            <li id="result-confidence-detail">Confidence will appear here after analysis.</li>
+            <li><span class="pill pill-soft">Note</span> This AI result is informational and is not a medical diagnosis.</li>
           </ul>
         </article>
         <article class="result-block">
-          <h3>Recommended products</h3>
+          <h3 id="result-guidance-title">General care ideas</h3>
+          <p id="result-guidance-note" class="lede">Suggestions are general information, not a treatment plan.</p>
           <div class="recs-row recs-col">
             <button class="rec-card" data-open-product="hydra" data-close-scan>
               <span class="rec-emoji">🧴</span>
