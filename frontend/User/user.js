@@ -692,23 +692,37 @@
       "non inflammatory acne black heads": "Blackheads",
       "non inflammatory acne white heads": "Whiteheads",
       "pigmentation": "Pigmentation",
+      "other pigmentation": "Other pigmentation",
+      "melasma": "Melasma",
       "pores": "Visible pores",
       "wrinkles": "Wrinkles",
     };
     const confidence = predictionResult ? Math.round(predictionResult.confidence * 100) : 0;
-    const prediction = predictionResult
-      ? classNames[predictionResult.predicted_class] || predictionResult.predicted_class.replace(/[_-]+/g, " ")
+    const isUnknown = Boolean(predictionResult && predictionResult.is_known === false);
+    const candidateName = predictionResult
+      ? classNames[predictionResult.candidate_class || predictionResult.predicted_class] || (predictionResult.candidate_class || predictionResult.predicted_class).replace(/[_-]+/g, " ")
       : "No live prediction available. Upload a photo to run an analysis.";
+    const prediction = isUnknown
+      ? "Unknown / uncertain"
+      : candidateName;
     $("#result-prediction").textContent = predictionResult
-      ? `Model prediction: ${prediction}.`
+      ? isUnknown
+        ? "No supported category was accepted for this image."
+        : `Model prediction: ${prediction}.`
       : prediction;
     $("#result-confidence-detail").textContent = predictionResult
-      ? `Model confidence: ${confidence}%.`
+      ? isUnknown
+        ? `Closest class: ${candidateName} (${confidence}% model score), below the calibrated acceptance threshold. This score is not a probability of disease.`
+        : `Top-class model score: ${confidence}%. This is not a probability of disease.`
       : "Confidence will appear here after analysis.";
     const highConcern = predictionResult && scanMode === "condition" && ["mel", "bcc", "akiec"].includes(predictionResult.predicted_class);
     $("#result-summary").textContent = `${scanMode === "condition" ? "Condition & risk assessment" : "Skin care analysis"} · Results ready`;
     const guidance = $("#step-result .result-grid article:nth-child(2)");
-    if (highConcern) {
+    if (isUnknown) {
+      $("#result-guidance-title").textContent = "No supported class recognized";
+      $("#result-guidance-note").textContent = "Try a clear, well-lit photo that matches one of the supported skin concern categories. If the area is changing or worrying you, contact a qualified clinician. No product suggestions are shown for an uncertain result.";
+      guidance.querySelector(".recs-row").hidden = true;
+    } else if (highConcern) {
       $("#result-guidance-title").textContent = "Professional assessment recommended";
       $("#result-guidance-note").textContent = "This model signal is not a cancer probability or diagnosis. We are withholding product suggestions. Please arrange an assessment with a qualified clinician.";
       guidance.querySelector(".recs-row").hidden = true;
@@ -721,10 +735,10 @@
     }
     const historyEntry = {
       mode: scanMode,
-      label: predictionResult ? (classNames[predictionResult.predicted_class] || predictionResult.predicted_class) : "No model result",
+      label: isUnknown ? "Unknown / uncertain" : predictionResult ? (classNames[predictionResult.predicted_class] || predictionResult.predicted_class) : "No model result",
       confidence,
       createdAt: new Date().toISOString(),
-      concern: Boolean(highConcern)
+      concern: Boolean(highConcern || isUnknown)
     };
     if (predictionResult) saveScan(historyEntry);
     $("#result-confidence").dataset.count = String(confidence);
