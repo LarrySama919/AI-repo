@@ -80,7 +80,6 @@ img { max-width: 100%; }
 .side-item:hover { background: rgba(255, 255, 255, 0.07); color: #fff; transform: translateX(2px); }
 .side-item.is-active { background: rgba(255, 255, 255, 0.12); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
 .side-item.is-active svg { opacity: 1; color: var(--sage); }
-.side-badge { margin-left: auto; padding: 2.5px 8px; border-radius: 999px; background: var(--orange); color: #fff; font-size: 9px; font-weight: 800; font-style: normal; letter-spacing: .4px; max-width: 60px; overflow: hidden; white-space: nowrap; transition: opacity .3s ease, max-width .45s cubic-bezier(.65,0,.35,1), padding .45s ease, margin .45s ease; }
 
 .side-card { position: relative; margin-top: auto; padding: 18px 16px; max-height: 240px; border-radius: 16px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); overflow: hidden; transition: opacity .3s ease, max-height .5s cubic-bezier(.65,0,.35,1), padding .5s ease, margin .5s ease; }
 .side-card-glow { position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(204,121,95,.4), transparent 70%); }
@@ -102,7 +101,6 @@ img { max-width: 100%; }
 .app.collapsed .side-item,
 .app.collapsed .side-logout { justify-content: center; gap: 0; padding-left: 0; padding-right: 0; }
 .app.collapsed .side-label { opacity: 0; max-height: 0; margin-top: 8px; margin-bottom: 0; }
-.app.collapsed .side-badge { opacity: 0; max-width: 0; padding-left: 0; padding-right: 0; margin-left: 0; }
 .app.collapsed .side-card { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: auto; pointer-events: none; }
 .app.collapsed .side-item.is-active { box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 
@@ -136,7 +134,6 @@ img { max-width: 100%; }
 .avatar-lg { width: 54px; height: 54px; border-radius: 16px; font-size: 16px; }
 .avatar-meta { display: flex; flex-direction: column; text-align: left; }
 .avatar-meta strong { font: 700 12.5px var(--display); }
-.avatar-meta small { font-size: 10.5px; color: var(--ink-soft); }
 
 /* ---------- views ---------- */
 .views { flex: 1; padding: clamp(22px, 3vw, 40px); }
@@ -377,11 +374,10 @@ img { max-width: 100%; }
 /* ================= SCAN OVERLAY ================= */
 .scan-overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(33, 58, 50, 0.5); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .3s; }
 .scan-overlay.is-open { opacity: 1; pointer-events: auto; }
-.scan-panel { position: relative; width: min(760px, 100%); max-height: min(86vh, 860px); overflow-y: auto; padding: clamp(26px, 4vw, 44px); border-radius: 28px; background: var(--paper); box-shadow: var(--shadow-lg); transform: translateY(26px) scale(.97); transition: transform .35s cubic-bezier(.34,1.3,.64,1); }
+.scan-panel { position: relative; width: min(760px, 100%); max-height: min(86vh, 860px); overflow-y: auto; padding: 0 clamp(26px, 4vw, 44px) clamp(26px, 4vw, 44px); border-radius: 28px; background: var(--paper); box-shadow: var(--shadow-lg); transform: translateY(26px) scale(.97); transition: transform .35s cubic-bezier(.34,1.3,.64,1); }
 .scan-overlay.is-open .scan-panel { transform: translateY(0) scale(1); }
-.scan-close { position: absolute; top: 18px; right: 18px; width: 38px; height: 38px; border: 0; border-radius: 12px; background: #fff; box-shadow: var(--shadow-sm); color: var(--ink-soft); font-size: 15px; transition: transform .2s, color .2s; z-index: 2; }
-.scan-close:hover { transform: rotate(90deg); color: var(--ink); }
-.scan-progress { position: sticky; top: 0; height: 5px; border-radius: 999px; background: var(--paper-deep); margin: -10px 0 26px; overflow: hidden; z-index: 2; }
+.scan-head { position: sticky; top: 0; z-index: 3; margin: 0 calc(-1 * clamp(26px, 4vw, 44px)) 20px; padding: clamp(22px, 3vw, 32px) clamp(26px, 4vw, 44px) 16px; border-radius: 28px 28px 0 0; background: var(--paper); }
+.scan-progress { height: 5px; border-radius: 999px; background: var(--paper-deep); overflow: hidden; }
 .scan-progress-fill { display: block; height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--green), #6d9478); transition: width .5s cubic-bezier(.65,0,.35,1); }
 
 .scan-step { display: none; }
@@ -406,6 +402,16 @@ img { max-width: 100%; }
 .scan-beam { position: absolute; left: 0; right: 0; top: -30%; height: 34%; pointer-events: none; background: linear-gradient(to bottom, transparent, rgba(248,255,242,.6) 50%, transparent); opacity: 0; }
 .scan-beam::after { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1.5px; background: rgba(250,255,244,.95); box-shadow: 0 0 6px 1px rgba(111,158,120,.5); }
 .dropzone.is-scanning .scan-beam { opacity: 1; }
+
+/* ---------- in-browser webcam capture ---------- */
+#step-upload > .webcam { display: none; }
+#step-upload.is-webcam > .webcam { display: block; }
+#step-upload.is-webcam > .dropzone,
+#step-upload.is-webcam > .quality-check,
+#step-upload.is-webcam > .scan-step-actions { display: none; }
+.webcam-frame { position: relative; width: 100%; max-width: 420px; margin: 4px auto 0; aspect-ratio: 4 / 3; border-radius: 20px; overflow: hidden; background: #16241d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), var(--shadow-sm); }
+.webcam-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.webcam-hint { text-align: center; font-size: 12.5px; color: var(--ink-soft); margin: 14px 0 2px; }
 
 .quality-check { display: none; align-items: center; gap: 12px; margin-top: 18px; padding: 14px 18px; border-radius: 14px; background: #fff; box-shadow: var(--shadow-sm); font-size: 13px; font-weight: 600; }
 .quality-check.show { display: flex; }
@@ -481,7 +487,6 @@ img { max-width: 100%; }
   .app.collapsed .side-item,
   .app.collapsed .side-logout { justify-content: flex-start; gap: 12px; padding-left: 13px; padding-right: 13px; }
   .app.collapsed .side-label { opacity: 1; max-height: 20px; margin-top: 16px; margin-bottom: 6px; }
-  .app.collapsed .side-badge { opacity: 1; max-width: 60px; padding: 2.5px 8px; margin-left: auto; }
   .app.collapsed .side-card { opacity: 1; max-height: 240px; padding: 18px 16px; pointer-events: auto; }
   .progress-grid, .settings-grid, .scan-launch, .mode-cards, .result-grid { grid-template-columns: 1fr; }
   .settings-card:first-child { grid-column: span 1; }

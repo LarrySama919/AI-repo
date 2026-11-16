@@ -1,9 +1,33 @@
+/* Base tokens/resets/brand duplicated from the landing stylesheet so this page stands alone. */
+:root {
+  color-scheme: light;
+  --ink: #243932;
+  --ink-soft: #64716a;
+  --paper: #f7f6f0;
+  --paper-deep: #eeeee5;
+  --sage: #d8e0d1;
+  --green: #324f43;
+  --green-deep: #213a32;
+  --orange: #cc795f;
+  --line: rgba(36, 57, 50, 0.14);
+  --display: "Manrope", "DM Sans", sans-serif;
+  --body: "DM Sans", sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font: 800 21px var(--display); letter-spacing: -.9px; color: var(--ink); }
+.brand-period { color: var(--orange); }
+.brand-logo { width: 37px; height: 37px; flex: 0 0 37px; object-fit: contain; border-radius: 9px; }
+
 .auth-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: #eff1e9;
-  background-image: url("../frontend/User/assets/login-background.png");
+  background-image: url("../User/assets/login-background.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

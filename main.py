@@ -108,14 +108,4 @@ async def predict_skin(file: UploadFile = File(...), mode: str = Form("condition
 # Optional: Serve frontend static files directly if needed
 frontend_path = Path(__file__).resolve().parent / "frontend"
 if frontend_path.is_dir():
-    app.mount(
-        "/CSS",
-        StaticFiles(directory=str(Path(__file__).resolve().parent / "CSS")),
-        name="css",
-    )
-    app.mount(
-        "/Javascript",
-        StaticFiles(directory=str(Path(__file__).resolve().parent / "Javascript")),
-        name="javascript",
-    )
     app.mount("/frontend", StaticFiles(directory=str(frontend_path)), name="frontend")
