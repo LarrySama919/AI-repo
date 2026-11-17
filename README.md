@@ -18,16 +18,47 @@ Open the dashboard at <http://127.0.0.1:8000/frontend/User/dashboard.html>. The 
 
 ## TiDB database connection
 
-Install dependencies from `requirements.txt`. Copy `.env.example` to `.env`
-if it does not already exist. Fill `DB_USER` with the full TiDB username
-(including its prefix), and `DB_PASSWORD` with the generated password.
-Keep passwords quoted in `.env`; environment variables override this file.
+The password in the credential screenshot should be considered exposed. Ask the
+database owner to reset it before connecting, then use only the rotated value.
+Install dependencies from `requirements.txt` and copy the placeholder template:
+
+```powershell
+Copy-Item .env.example .env
+New-Item -ItemType Directory -Force certs
+```
+
+Fill `.env` using the fresh TiDB connection details. Use the full TiDB username
+(including its prefix) and keep the password quoted because it may contain
+special characters. `.env` is ignored by Git; do not share or commit it.
 
 Download the CA certificate from TiDB's Connect dialog. Set `DB_SSL_CA` to
 its absolute path (use forward slashes on Windows), or place it at
 `certs/isrgrootx1.pem`. Relative paths resolve from the repository root.
 The connection verifies the CA and server hostname and requires TLS.
 `.env` files and `certs/` are ignored by Git. Never put secrets in frontend JS.
+If the connection is rejected, ask the database owner to confirm that this
+computer's public IP is allowed by the TiDB cluster's network access settings.
+
+### User registration and login
+
+Set `AUTH_TOKEN_SECRET` in `.env` to a new random value (at least 32 bytes); do
+not reuse the database password. Generate one with:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+The API exposes `POST /api/auth/register` with JSON `{ "full_name": "...",
+"email": "...", "password": "..." }` and `POST /api/auth/login` with
+`{ "email": "...", "password": "..." }`. Passwords must be 12–128
+characters. Passwords are stored as scrypt hashes; the API uses parameterized
+SQL and the existing verified TLS connection. New accounts use the database
+defaults (`role=user`, `email_verified=0`, `account_status=active`); clients
+cannot choose their role. Successful responses include a 30-minute bearer
+token and public user fields, never the password hash. Duplicate registration
+returns 409; invalid login returns a generic 401. Email verification and
+rate-limiting are not implemented yet. Do not expose these endpoints publicly
+until you add rate limiting and email verification.
 
 Read-only connection check, without loading TensorFlow models:
 

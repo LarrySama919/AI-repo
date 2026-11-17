@@ -1,15 +1,44 @@
 import io
 import json
+import asyncio
+import logging
+from contextlib import asynccontextmanager
 from pathlib import Path
+import re
 import numpy as np
+import pymysql
+from pydantic import BaseModel, Field
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 import tensorflow as tf
-from database import check_database
+from database import (
+    authenticate_user,
+    check_database,
+    create_access_token,
+    register_user,
+    validate_auth_token_config,
+)
 
-app = FastAPI(title="Skinwise AI API", version="1.0")
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Probe with a short-lived read-only connection; don't prevent the API from
+    # starting if TiDB is temporarily unavailable or local credentials are absent.
+    try:
+        await asyncio.to_thread(check_database)
+        logger.info("TiDB connection verified with TLS.")
+    except Exception:
+        logger.warning(
+            "TiDB is unavailable at startup. Check .env, the CA file, and TiDB network access."
+        )
+    yield
+
+
+app = FastAPI(title="Skinwise AI API", version="1.0", lifespan=lifespan)
 
 # Enable CORS for frontend integration
 app.add_middleware(
@@ -19,6 +48,62 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class RegisterRequest(BaseModel):
+    full_name: str = Field(min_length=1, max_length=100)
+    email: str = Field(min_length=3, max_length=255)
+    password: str = Field(min_length=12, max_length=128)
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=255)
+    password: str = Field(min_length=1, max_length=128)
+
+
+def _clean_email(value: str) -> str:
+    email = value.strip().casefold()
+    if len(email) > 255 or not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email):
+        raise HTTPException(status_code=422, detail="Enter a valid email address.")
+    return email
+
+
+@app.post("/api/auth/register", status_code=201)
+def auth_register(request: RegisterRequest):
+    full_name = request.full_name.strip()
+    if not full_name or any(ord(char) < 32 for char in full_name):
+        raise HTTPException(status_code=422, detail="Enter a valid full name.")
+    email = _clean_email(request.email)
+    try:
+        validate_auth_token_config()
+        user = register_user(full_name, email, request.password)
+        token = create_access_token(user)
+    except pymysql.err.IntegrityError as error:
+        if error.args and error.args[0] == 1062:
+            raise HTTPException(status_code=409, detail="An account with this email already exists.") from None
+        logger.error("Database rejected user registration.")
+        raise HTTPException(status_code=503, detail="Registration is temporarily unavailable.") from None
+    except Exception:
+        logger.error("User registration failed.")
+        raise HTTPException(status_code=503, detail="Registration is temporarily unavailable.") from None
+    return {"access_token": token, "token_type": "bearer", "expires_in": 1800, "user": user}
+
+
+@app.post("/api/auth/login")
+def auth_login(request: LoginRequest):
+    email = _clean_email(request.email)
+    try:
+        validate_auth_token_config()
+        user = authenticate_user(email, request.password)
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid email or password.")
+        token = create_access_token(user)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("User login failed.")
+        raise HTTPException(status_code=503, detail="Login is temporarily unavailable.") from None
+    return {"access_token": token, "token_type": "bearer", "expires_in": 1800, "user": user}
 
 # Define class names (Update these if your HAM10000 classes differ)
 CLASS_NAMES = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
