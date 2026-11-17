@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 import tensorflow as tf
+from database import check_database
 
 app = FastAPI(title="Skinwise AI API", version="1.0")
 
@@ -70,6 +71,15 @@ except Exception as e:
 @app.get("/")
 def read_root():
     return {"message": "Skinwise AI Backend is running!", "model_loaded": model is not None}
+
+
+@app.get("/api/health/database")
+def database_health():
+    try:
+        return check_database()
+    except Exception:
+        # Do not expose connection strings, credentials, or driver errors.
+        raise HTTPException(status_code=503, detail="Database unavailable.") from None
 
 @app.post("/api/predict")
 async def predict_skin(file: UploadFile = File(...), mode: str = Form("condition")):

@@ -1,4 +1,8 @@
 .venv/
+.env
+.env.*
+certs/
+__pycache__/
 .venv-eda/
 dataset/
 charts/

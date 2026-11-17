@@ -16,6 +16,37 @@ python -m uvicorn main:app --reload
 
 Open the dashboard at <http://127.0.0.1:8000/frontend/User/dashboard.html>. The API status is at <http://127.0.0.1:8000/>. The root-level model files `skin_disease_model.keras` and `skin_cosmetic_model.keras` are loaded separately by the API.
 
+## TiDB database connection
+
+Install dependencies from `requirements.txt`. Copy `.env.example` to `.env`
+if it does not already exist. Fill `DB_USER` with the full TiDB username
+(including its prefix), and `DB_PASSWORD` with the generated password.
+Keep passwords quoted in `.env`; environment variables override this file.
+
+Download the CA certificate from TiDB's Connect dialog. Set `DB_SSL_CA` to
+its absolute path (use forward slashes on Windows), or place it at
+`certs/isrgrootx1.pem`. Relative paths resolve from the repository root.
+The connection verifies the CA and server hostname and requires TLS.
+`.env` files and `certs/` are ignored by Git. Never put secrets in frontend JS.
+
+Read-only connection check, without loading TensorFlow models:
+
+```powershell
+.\.venv\Scripts\python.exe database.py
+```
+
+After starting the API, `GET /api/health/database` returns a generic health
+response (503 on failure). Restart the API after editing `.env`.
+Offline checks: `python -m unittest test_database -v`.
+
+Use `database_connection()` in synchronous backend routes; it closes and rolls
+back uncommitted work on exit. Writes need an explicit `connection.commit()`.
+Use parameterized SQL (`cursor.execute(sql, params)`). No tables are created or
+changed automatically. Prediction history, login and reviews are not yet wired
+to database persistence. Before comparison writes are added, validate that the
+before/after analyses differ and belong to the requesting user; the TiDB schema
+does not have `chk_comparison_different`.
+
 ## Datasets and models
 
 The project has **2 image datasets used to train 2 classifier artifacts**:
