@@ -1,0 +1,263 @@
+{
+  "dataset": "dataset\\Hair Diseases",
+  "model": "skin_hair_disease_model.keras",
+  "architecture": "Frozen MobileNetV2 feature backbone from skin_disease_model.keras with a newly trained ten-class hair and scalp classification head",
+  "seed": 42,
+  "image_size": 128,
+  "class_names": [
+    "Alopecia Areata",
+    "Contact Dermatitis",
+    "Folliculitis",
+    "Head Lice",
+    "Lichen Planus",
+    "Male Pattern Baldness",
+    "Psoriasis",
+    "Seborrheic Dermatitis",
+    "Telogen Effluvium",
+    "Tinea Capitis"
+  ],
+  "split_counts": {
+    "train": {
+      "Alopecia Areata": 960,
+      "Contact Dermatitis": 960,
+      "Folliculitis": 960,
+      "Head Lice": 960,
+      "Lichen Planus": 960,
+      "Male Pattern Baldness": 960,
+      "Psoriasis": 960,
+      "Seborrheic Dermatitis": 960,
+      "Telogen Effluvium": 960,
+      "Tinea Capitis": 960
+    },
+    "val": {
+      "Alopecia Areata": 120,
+      "Contact Dermatitis": 120,
+      "Folliculitis": 120,
+      "Head Lice": 120,
+      "Lichen Planus": 120,
+      "Male Pattern Baldness": 120,
+      "Psoriasis": 120,
+      "Seborrheic Dermatitis": 120,
+      "Telogen Effluvium": 120,
+      "Tinea Capitis": 120
+    },
+    "test": {
+      "Alopecia Areata": 120,
+      "Contact Dermatitis": 120,
+      "Folliculitis": 120,
+      "Head Lice": 120,
+      "Lichen Planus": 120,
+      "Male Pattern Baldness": 120,
+      "Psoriasis": 120,
+      "Seborrheic Dermatitis": 120,
+      "Telogen Effluvium": 120,
+      "Tinea Capitis": 120
+    }
+  },
+  "epochs_requested": 15,
+  "epochs_completed": 15,
+  "test_loss": 0.09561020880937576,
+  "test_accuracy": 0.9691666960716248,
+  "test_classification_report": {
+    "Alopecia Areata": {
+      "precision": 1.0,
+      "recall": 0.975,
+      "f1-score": 0.9873417721518988,
+      "support": 120.0
+    },
+    "Contact Dermatitis": {
+      "precision": 0.9914529914529915,
+      "recall": 0.9666666666666667,
+      "f1-score": 0.9789029535864979,
+      "support": 120.0
+    },
+    "Folliculitis": {
+      "precision": 0.967479674796748,
+      "recall": 0.9916666666666667,
+      "f1-score": 0.9794238683127572,
+      "support": 120.0
+    },
+    "Head Lice": {
+      "precision": 0.9523809523809523,
+      "recall": 1.0,
+      "f1-score": 0.975609756097561,
+      "support": 120.0
+    },
+    "Lichen Planus": {
+      "precision": 0.9576271186440678,
+      "recall": 0.9416666666666667,
+      "f1-score": 0.9495798319327731,
+      "support": 120.0
+    },
+    "Male Pattern Baldness": {
+      "precision": 1.0,
+      "recall": 0.9833333333333333,
+      "f1-score": 0.9915966386554622,
+      "support": 120.0
+    },
+    "Psoriasis": {
+      "precision": 0.9590163934426229,
+      "recall": 0.975,
+      "f1-score": 0.9669421487603306,
+      "support": 120.0
+    },
+    "Seborrheic Dermatitis": {
+      "precision": 0.9482758620689655,
+      "recall": 0.9166666666666666,
+      "f1-score": 0.9322033898305084,
+      "support": 120.0
+    },
+    "Telogen Effluvium": {
+      "precision": 0.9672131147540983,
+      "recall": 0.9833333333333333,
+      "f1-score": 0.9752066115702479,
+      "support": 120.0
+    },
+    "Tinea Capitis": {
+      "precision": 0.9504132231404959,
+      "recall": 0.9583333333333334,
+      "f1-score": 0.9543568464730291,
+      "support": 120.0
+    },
+    "accuracy": 0.9691666666666666,
+    "macro avg": {
+      "precision": 0.9693859330680942,
+      "recall": 0.9691666666666666,
+      "f1-score": 0.9691163817371067,
+      "support": 1200.0
+    },
+    "weighted avg": {
+      "precision": 0.9693859330680943,
+      "recall": 0.9691666666666666,
+      "f1-score": 0.9691163817371067,
+      "support": 1200.0
+    }
+  },
+  "test_confusion_matrix": [
+    [
+      117,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      116,
+      1,
+      0,
+      1,
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      119,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      120,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      4,
+      113,
+      0,
+      0,
+      0,
+      0,
+      3
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      118,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      117,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      2,
+      2,
+      0,
+      0,
+      3,
+      110,
+      2,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      118,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      3,
+      0,
+      115
+    ]
+  ],
+  "limitations": [
+    "Labels come from dataset folder names and are not clinician-confirmed.",
+    "The classifier is for educational exploration, not diagnosis or treatment.",
+    "Test metrics describe this dataset split and are not clinical validation."
+  ]
+}

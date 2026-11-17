@@ -316,6 +316,16 @@
     $("#scan-progress-fill").style.width = ((scanStepIndex + 1) / stepIds.length) * 100 + "%";
   }
 
+  function modeTitle(mode) {
+    if (mode === "hair") return "Hair & scalp analysis";
+    if (mode === "condition") return "Condition & risk assessment";
+    return "Skin care analysis";
+  }
+
+  function modePreview(mode) {
+    return mode === "skincare" ? "assets/face-scan.png" : "assets/body-scan.png";
+  }
+
   function showStep(id, dir = 1) {
     if (stepTween) stepTween.progress(1);
     const outgoing = $(".scan-step.is-active");
@@ -379,14 +389,14 @@
       $(".proc-state", li).textContent = "waiting";
     });
     $$(".mode-card").forEach((m) => m.classList.toggle("is-picked", m.dataset.mode === scanMode));
-    const preview = scanMode === "condition" ? "assets/body-scan.png" : "assets/face-scan.png";
+    const preview = modePreview(scanMode);
     $("#drop-preview").src = preview;
     $("#proc-preview").src = preview;
     $("#result-confidence").dataset.count = "0";
     $("#result-confidence").textContent = "0";
     $("#result-prediction").textContent = "Upload a photo to see the model prediction.";
     $("#result-confidence-detail").textContent = "Confidence will appear here after analysis.";
-    $("#result-summary").textContent = `${scanMode === "condition" ? "Condition & risk assessment" : "Skin care analysis"} · Ready for review`;
+    $("#result-summary").textContent = `${modeTitle(scanMode)} · Ready for review`;
     scanStepIndex = 0;
     setProgress();
   }
@@ -394,7 +404,7 @@
   function setMode(mode) {
     scanMode = mode;
     $$(".mode-card").forEach((m) => m.classList.toggle("is-picked", m.dataset.mode === mode));
-    $("#drop-preview").src = mode === "condition" ? "assets/body-scan.png" : "assets/face-scan.png";
+    $("#drop-preview").src = modePreview(mode);
     $("#proc-preview").src = $("#drop-preview").src;
   }
 
@@ -605,17 +615,21 @@
       ? `Model confidence: ${confidence}%.`
       : "Confidence will appear here after analysis.";
     const highConcern = predictionResult && scanMode === "condition" && ["mel", "bcc", "akiec"].includes(predictionResult.predicted_class);
-    $("#result-summary").textContent = `${scanMode === "condition" ? "Condition & risk assessment" : "Skin care analysis"} · Results ready`;
+    $("#result-summary").textContent = `${modeTitle(scanMode)} · Results ready`;
     const guidance = $("#step-result .result-grid article:nth-child(2)");
     if (highConcern) {
       $("#result-guidance-title").textContent = "Professional assessment recommended";
       $("#result-guidance-note").textContent = "This model signal is not a cancer probability or diagnosis. We are withholding product suggestions. Please arrange an assessment with a qualified clinician.";
       guidance.querySelector(".recs-row").hidden = true;
     } else {
-      $("#result-guidance-title").textContent = scanMode === "skincare" ? "General skin care" : "General care information";
-      $("#result-guidance-note").textContent = scanMode === "skincare"
-        ? "This broad image label is not a diagnosis. Pigmentation is not a melasma-specific class, and the sample product catalog is not personalized or medical advice."
-        : "No high-concern class was returned, but this does not rule out a medical condition. Seek care if the area changes or worries you.";
+      $("#result-guidance-title").textContent = scanMode === "hair"
+        ? "Hair & scalp information"
+        : scanMode === "skincare" ? "General skin care" : "General care information";
+      $("#result-guidance-note").textContent = scanMode === "hair"
+        ? "This dataset-label prediction is educational, not a diagnosis or treatment recommendation. A clinician can assess hair loss or scalp symptoms."
+        : scanMode === "skincare"
+          ? "This broad image label is not a diagnosis. Pigmentation is not a melasma-specific class, and the sample product catalog is not personalized or medical advice."
+          : "No high-concern class was returned, but this does not rule out a medical condition. Seek care if the area changes or worries you.";
       guidance.querySelector(".recs-row").hidden = true;
     }
     const historyEntry = {
@@ -653,7 +667,9 @@
       : "No analyses saved yet.";
     list.innerHTML = entries.length ? entries.map((entry) => {
       const date = new Date(entry.createdAt).toLocaleString();
-      const title = entry.mode === "condition" ? "Skin condition & risk assessment" : "Skin care & cosmetic analysis";
+      const title = entry.mode === "hair"
+        ? "Hair & scalp analysis"
+        : entry.mode === "condition" ? "Skin condition & risk assessment" : "Skin care & cosmetic analysis";
       const status = entry.concern
         ? "Model signal needs professional assessment. No product suggestions were provided."
         : "Model output is informational only and is not a diagnosis.";

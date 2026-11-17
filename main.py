@@ -31,11 +31,14 @@ COSMETIC_CLASS_NAMES = [
     "pores",
     "wrinkles",
 ]
+HAIR_CLASS_NAMES: list[str] = []
 
 # Load the trained Keras model
 MODEL_PATH = Path(__file__).resolve().parent / "skin_disease_model.keras"
+PROJECT_DIR = Path(__file__).resolve().parent
 model = None
 cosmetic_model = None
+hair_model = None
 
 try:
     if MODEL_PATH.is_file():
@@ -60,16 +63,50 @@ try:
 except Exception as e:
     print(f"Error loading cosmetic model: {e}")
 
+HAIR_MODEL_PATH = PROJECT_DIR / "skin_hair_disease_model.keras"
+try:
+    if HAIR_MODEL_PATH.is_file():
+        hair_labels_path = PROJECT_DIR / "skin_hair_labels.json"
+        if not hair_labels_path.is_file():
+            raise FileNotFoundError(f"Hair model labels not found at {hair_labels_path}")
+        hair_class_names = json.loads(hair_labels_path.read_text(encoding="utf-8"))
+        if not isinstance(hair_class_names, list) or not all(
+            isinstance(name, str) for name in hair_class_names
+        ):
+            raise ValueError(f"Invalid hair model labels in {hair_labels_path}")
+        loaded_hair_model = tf.keras.models.load_model(HAIR_MODEL_PATH, compile=False)
+        if loaded_hair_model.output_shape[-1] != len(hair_class_names):
+            raise ValueError("Hair model output count does not match its label list.")
+        hair_model = loaded_hair_model
+        HAIR_CLASS_NAMES = hair_class_names
+        print(f"Successfully loaded hair and scalp model from {HAIR_MODEL_PATH}")
+    else:
+        print(f"Hair and scalp model not found at {HAIR_MODEL_PATH}")
+except Exception as e:
+    print(f"Error loading hair and scalp model: {e}")
+
 @app.get("/")
 def read_root():
-    return {"message": "Skinwise AI Backend is running!", "model_loaded": model is not None}
+    return {
+        "message": "Skinwise AI Backend is running!",
+        "model_loaded": model is not None,
+        "cosmetic_model_loaded": cosmetic_model is not None,
+        "hair_model_loaded": hair_model is not None,
+    }
 
 @app.post("/api/predict")
 async def predict_skin(file: UploadFile = File(...), mode: str = Form("condition")):
-    if mode not in {"condition", "skincare"}:
-        raise HTTPException(status_code=422, detail="Mode must be 'condition' or 'skincare'.")
-    active_model = cosmetic_model if mode == "skincare" else model
-    active_class_names = COSMETIC_CLASS_NAMES if mode == "skincare" else CLASS_NAMES
+    if mode not in {"condition", "skincare", "hair"}:
+        raise HTTPException(
+            status_code=422,
+            detail="Mode must be 'condition', 'skincare', or 'hair'.",
+        )
+    if mode == "skincare":
+        active_model, active_class_names = cosmetic_model, COSMETIC_CLASS_NAMES
+    elif mode == "hair":
+        active_model, active_class_names = hair_model, HAIR_CLASS_NAMES
+    else:
+        active_model, active_class_names = model, CLASS_NAMES
     if active_model is None:
         raise HTTPException(status_code=503, detail=f"The {mode} model is not loaded on the server.")
     
