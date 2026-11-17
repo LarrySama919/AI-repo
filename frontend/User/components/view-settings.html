@@ -10,9 +10,9 @@
     <article class="card settings-card" data-anim="card">
       <div class="card-head"><h3>Profile</h3></div>
       <div class="settings-row">
-        <span class="avatar avatar-lg">WL</span>
-        <div class="field"><label>Display name</label><input type="text" value="Win Lin Hein" /></div>
-        <div class="field"><label>Email</label><input type="email" value="win@example.com" /></div>
+        <span class="avatar avatar-lg" data-auth-initials></span>
+        <div class="field"><label>Display name</label><input type="text" data-auth-name-input readonly /></div>
+        <div class="field"><label>Email</label><input type="email" data-auth-email-input readonly /></div>
       </div>
       <button class="btn-primary" type="button" data-toast="Profile saved (demo) ✓">Save changes</button>
     </article>

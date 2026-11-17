@@ -5,6 +5,12 @@ Run `python database.py` for a read-only connection check (no model loading).
 
 import os
 import ssl
+import base64
+import hashlib
+import hmac
+import json
+import secrets
+import time
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -87,6 +93,100 @@ def check_database():
             if cursor.fetchone()["ok"] != 1:
                 raise RuntimeError("Database probe failed.")
     return {"status": "ok", "database": "connected", "tls": "verified"}
+
+
+def hash_password(password: str) -> str:
+    """Hash passwords with scrypt; output fits the users.password_hash column."""
+    salt = secrets.token_bytes(16)
+    digest = hashlib.scrypt(
+        password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1,
+        dklen=32, maxmem=64 * 1024 * 1024,
+    )
+    return "scrypt${}${}${}${}${}".format(
+        2**14, 8, 1,
+        base64.urlsafe_b64encode(salt).decode("ascii").rstrip("="),
+        base64.urlsafe_b64encode(digest).decode("ascii").rstrip("="),
+    )
+
+
+def verify_password(password: str, encoded: str) -> bool:
+    try:
+        algorithm, n, r, p, salt_text, digest_text = encoded.split("$")
+        if algorithm != "scrypt":
+            return False
+        decode = lambda value: base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+        salt, expected = decode(salt_text), decode(digest_text)
+        actual = hashlib.scrypt(
+            password.encode("utf-8"), salt=salt, n=int(n), r=int(r), p=int(p),
+            dklen=len(expected), maxmem=64 * 1024 * 1024,
+        )
+        return hmac.compare_digest(actual, expected)
+    except (ValueError, TypeError, UnicodeError):
+        return False
+
+
+def _auth_token_secret() -> bytes:
+    load_dotenv(ROOT / ".env", override=False, interpolate=False)
+    secret = os.environ.get("AUTH_TOKEN_SECRET", "")
+    if len(secret.encode("utf-8")) < 32:
+        raise DatabaseConfigurationError("AUTH_TOKEN_SECRET must contain at least 32 bytes.")
+    return secret.encode("utf-8")
+
+
+def validate_auth_token_config() -> None:
+    _auth_token_secret()
+
+
+def _b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).decode("ascii").rstrip("=")
+
+
+def create_access_token(user: dict) -> str:
+    now = int(time.time())
+    header = _b64url(json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode())
+    payload = _b64url(json.dumps({
+        "sub": str(user["user_id"]), "role": user["role"],
+        "iat": now, "exp": now + 1800,
+    }, separators=(",", ":")).encode())
+    signing_input = f"{header}.{payload}"
+    signature = _b64url(hmac.new(_auth_token_secret(), signing_input.encode("ascii"), hashlib.sha256).digest())
+    return f"{signing_input}.{signature}"
+
+
+def register_user(full_name: str, email: str, password: str) -> dict:
+    password_hash = hash_password(password)
+    with database_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO users (full_name, email, password_hash) VALUES (%s, %s, %s)",
+                (full_name, email, password_hash),
+            )
+            user_id = cursor.lastrowid
+            cursor.execute(
+                "SELECT user_id, full_name, email, role, email_verified, account_status "
+                "FROM users WHERE user_id = %s",
+                (user_id,),
+            )
+            user = cursor.fetchone()
+        connection.commit()
+    return user
+
+
+def authenticate_user(email: str, password: str) -> dict | None:
+    with database_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT user_id, full_name, email, password_hash, role, email_verified, account_status "
+                "FROM users WHERE email = %s LIMIT 1",
+                (email,),
+            )
+            user = cursor.fetchone()
+    if not user or not verify_password(password, user["password_hash"]):
+        return None
+    if user["account_status"] != "active":
+        return None
+    user.pop("password_hash", None)
+    return user
 
 
 if __name__ == "__main__":

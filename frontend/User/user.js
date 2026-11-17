@@ -1,7 +1,55 @@
-/* Skinwise dashboard — GSAP interactions (frontend demo, no backend) */
+/* Skinwise user dashboard */
 (async () => {
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+  const noAnimation = { kill() {}, progress() { return this; } };
+  const gsap = window.gsap || {
+    globalTimeline: { timeScale() {} },
+    to(_target, vars = {}) { vars.onUpdate?.(); vars.onComplete?.(); return noAnimation; },
+    fromTo(_target, _from, vars = {}) { vars.onUpdate?.(); vars.onComplete?.(); return noAnimation; },
+    set() {},
+    timeline() {
+      return {
+        add(callback) { if (typeof callback === "function") callback(); return this; },
+        to() { return this; },
+        kill() {},
+      };
+    },
+  };
+
+  function readAuthenticatedUser() {
+    for (const storageName of ["localStorage", "sessionStorage"]) {
+      try {
+        const storage = window[storageName];
+        const token = storage.getItem("skinwise.access_token");
+        const user = JSON.parse(storage.getItem("skinwise.user") || "null");
+        if (
+          token && user && typeof user.full_name === "string" && user.full_name.trim() &&
+          typeof user.email === "string" && user.email.trim()
+        ) {
+          return { storage, user };
+        }
+      } catch {
+        // Continue to the other storage, then send the visitor to sign in.
+      }
+    }
+    return null;
+  }
+
+  const auth = readAuthenticatedUser();
+  if (!auth) {
+    window.location.replace("../login/login.html");
+    return;
+  }
+
+  function initialsFor(name) {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return "U";
+    return (parts.length > 1
+      ? `${parts[0][0]}${parts[parts.length - 1][0]}`
+      : parts[0].slice(0, 2)
+    ).toLocaleUpperCase();
+  }
 
   const RING_LEN = 2 * Math.PI * 68; // r=68 score ring circumference
 
@@ -20,7 +68,7 @@
     const slots = $$("[data-include]");
     await Promise.all(
       slots.map(async (slot) => {
-        const res = await fetch(slot.dataset.include);
+        const res = await fetch(slot.dataset.include, { cache: "no-store" });
         if (!res.ok) throw new Error("Could not load " + slot.dataset.include);
         slot.outerHTML = await res.text();
       })
@@ -35,6 +83,29 @@
       '<p style="padding:48px;font:600 15px system-ui,sans-serif;color:#243932">Dashboard components failed to load. Serve the project over HTTP (e.g. <code>python -m http.server</code>) instead of opening the file directly.</p>';
     return;
   }
+
+  const displayName = auth.user.full_name.trim();
+  const displayEmail = auth.user.email;
+  const initials = initialsFor(displayName);
+  $$('[data-auth-name]').forEach((element) => { element.textContent = displayName; });
+  $$('[data-auth-email]').forEach((element) => { element.textContent = displayEmail; });
+  $$('[data-auth-initials]').forEach((element) => { element.textContent = initials; });
+  const nameInput = $("[data-auth-name-input]");
+  const emailInput = $("[data-auth-email-input]");
+  if (nameInput) nameInput.value = displayName;
+  if (emailInput) emailInput.value = displayEmail;
+
+  $(".side-logout")?.addEventListener("click", () => {
+    for (const storageName of ["localStorage", "sessionStorage"]) {
+      try {
+        window[storageName].removeItem("skinwise.access_token");
+        window[storageName].removeItem("skinwise.user");
+      } catch {
+        // Still leave the dashboard after logout if browser storage is unavailable.
+      }
+    }
+    window.location.replace("../login/login.html");
+  });
 
   /* ---------------- toast ---------------- */
   const toastEl = $("#toast");
@@ -333,7 +404,7 @@
     if (!pmCurrent) return;
     if (!pmRating) { toast("Pick a star rating first"); return; }
     const text = $("#pm-text").value.trim() || "Rating only — no written comments.";
-    PRODUCTS[pmCurrent].reviews.unshift({ init: "WL", name: "Win Lin Hein", stars: pmRating.toFixed(1), text, meta: "Just now · You" });
+    PRODUCTS[pmCurrent].reviews.unshift({ init: initials, name: displayName, stars: pmRating.toFixed(1), text, meta: "Just now · You" });
     renderPmReviews(PRODUCTS[pmCurrent]);
     $("#pm-text").value = "";
     pmRating = 0;

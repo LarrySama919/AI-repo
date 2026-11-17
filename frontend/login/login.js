@@ -45,8 +45,12 @@ if (authForm) {
     document.querySelector("#full-name").required = true;
     confirmGroup.hidden = false;
     confirmPassword.required = true;
+    confirmPassword.minLength = 12;
+    confirmPassword.maxLength = 128;
     password.autocomplete = "new-password";
     password.placeholder = "Create a password";
+    password.minLength = 12;
+    password.maxLength = 128;
     rememberRow.hidden = true;
     forgotTab.hidden = true;
     switchText.innerHTML = 'Already have an account? <a href="login.html">Sign in</a>';
@@ -145,7 +149,23 @@ if (authForm) {
     showMessage("Password reset is not connected yet. Your email has not been sent.");
   });
 
-  authForm.addEventListener("submit", (event) => {
+  function dashboardForRole(role) {
+    if (role === "admin") return "../Admin/dashboard.html";
+    if (role === "moderator") return "../Moderator/dashboard.html";
+    return "../User/dashboard.html";
+  }
+
+  function apiErrorMessage(payload, status) {
+    if (typeof payload?.detail === "string") return payload.detail;
+    if (Array.isArray(payload?.detail)) {
+      return payload.detail.map((item) => item.msg).filter(Boolean).join(" ");
+    }
+    if (status === 409) return "An account with this email already exists.";
+    if (status === 401) return "Invalid email or password.";
+    return "The request could not be completed. Please try again.";
+  }
+
+  authForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (isSignUp && password.value !== confirmPassword.value) {
@@ -154,10 +174,57 @@ if (authForm) {
       return;
     }
 
-    showMessage(
-      isSignUp
-        ? "Account creation is not connected yet. Your details were not sent."
-        : "Sign-in is not connected yet. Your details were not sent.",
-    );
+    const submitButton = authForm.querySelector(".submit-button");
+    const submitLabel = document.querySelector("#submit-label");
+    const originalLabel = submitLabel.textContent;
+    submitButton.disabled = true;
+    submitLabel.textContent = isSignUp ? "Creating account…" : "Signing in…";
+    showMessage("");
+
+    const formData = new FormData(authForm);
+    const endpoint = isSignUp ? "/api/auth/register" : "/api/auth/login";
+    const body = isSignUp
+      ? {
+          full_name: String(formData.get("name") || "").trim(),
+          email: String(formData.get("email") || "").trim(),
+          password: String(formData.get("password") || ""),
+        }
+      : {
+          email: String(formData.get("email") || "").trim(),
+          password: String(formData.get("password") || ""),
+        };
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(body),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        showMessage(apiErrorMessage(payload, response.status), "error");
+        return;
+      }
+      if (!payload.access_token || !payload.user) {
+        showMessage("The server returned an incomplete sign-in response. Please try again.", "error");
+        return;
+      }
+
+      const storage = !isSignUp && formData.get("remember") ? localStorage : sessionStorage;
+      const otherStorage = storage === localStorage ? sessionStorage : localStorage;
+      otherStorage.removeItem("skinwise.access_token");
+      otherStorage.removeItem("skinwise.user");
+      storage.setItem("skinwise.access_token", payload.access_token);
+      storage.setItem("skinwise.user", JSON.stringify(payload.user));
+      window.location.assign(dashboardForRole(payload.user.role));
+    } catch {
+      showMessage(
+        "Could not reach Skinwise. Start the FastAPI server and open this page through http://127.0.0.1:8000/frontend/.",
+        "error",
+      );
+    } finally {
+      submitButton.disabled = false;
+      submitLabel.textContent = originalLabel;
+    }
   });
 }
