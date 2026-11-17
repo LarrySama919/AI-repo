@@ -4,6 +4,8 @@ uvicorn>=0.30,<1
 python-multipart>=0.0.9
 Pillow>=10,<14
 numpy>=1.26,<3
+PyMySQL>=1.1.2,<2
+python-dotenv>=1.0,<2
 
 # TensorFlow stable supports Python 3.10–3.13. Python 3.14 currently requires
 # the matching preview wheel already used by this workspace's .venv.
