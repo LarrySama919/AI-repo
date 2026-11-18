@@ -118,18 +118,19 @@ function BubbleMenu({
                     href=${item.href}
                     aria-label=${item.ariaLabel || item.label}
                     aria-current=${active ? "page" : undefined}
-                    className=${`pill-link ${active ? "is-active" : ""}`}
+                    className=${`pill-link ${active ? "is-active" : ""} ${item.danger ? "is-danger" : ""}`}
                     style=${{
                       "--item-rot": `${item.rotation ?? 0}deg`,
                       "--item-y": `${item.offsetY ?? 0}px`,
-                      "--pill-bg": active ? "#243932" : menuBg,
-                      "--pill-color": active ? "#f4f1e8" : menuContentColor,
-                      "--hover-bg": (item.hoverStyles && item.hoverStyles.bgColor) || "#f3f4f6",
-                      "--hover-color": (item.hoverStyles && item.hoverStyles.textColor) || menuContentColor,
+                      "--pill-bg": item.danger ? "#c0392b" : (active ? "#243932" : menuBg),
+                      "--pill-color": item.danger ? "#ffffff" : (active ? "#f4f1e8" : menuContentColor),
+                      "--hover-bg": item.danger ? "#a5322a" : ((item.hoverStyles && item.hoverStyles.bgColor) || "#f3f4f6"),
+                      "--hover-color": item.danger ? "#ffffff" : ((item.hoverStyles && item.hoverStyles.textColor) || menuContentColor),
                     }}
                     onClick=${(e) => { e.preventDefault(); handleSelect(item); }}
                     ref=${(el) => { if (el) bubblesRef.current[idx] = el; }}
                   >
+                    ${item.icon ? html`<span className="pill-icon" dangerouslySetInnerHTML=${{ __html: item.icon }}></span>` : null}
                     <span className="pill-label" ref=${(el) => { if (el) labelRefs.current[idx] = el; }}>${item.label}</span>
                   </a>
                 </li>`;
@@ -140,20 +141,31 @@ function BubbleMenu({
   `;
 }
 
+const ICONS = {
+  overview: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="3" width="8" height="5" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="10" width="8" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.8"/></svg>',
+  scan: '<svg viewBox="0 0 24 24" fill="none"><path d="M8 3.5H6.5A3 3 0 0 0 3.5 6.5V8M16 3.5h1.5a3 3 0 0 1 3 3V8M20.5 16v1.5a3 3 0 0 1-3 3H16M8 20.5H6.5a3 3 0 0 1-3-3V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/></svg>',
+  history: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4.5V9H8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  progress: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 15l3.5-4 3 2.5L20 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  products: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14l-1 13H6L5 7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 10V6a3 3 0 0 1 6 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  settings: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56l-.06-.06a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.6"/></svg>',
+  logout: '<svg viewBox="0 0 24 24" fill="none"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l4-4-4-4m4 4H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
 const NAV_ITEMS = [
-  { label: "Overview", view: "overview", rotation: -6, offsetY: -14, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
-  { label: "AI Analysis", view: "scan", rotation: 4, offsetY: 10, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
-  { label: "History", view: "history", rotation: -3, offsetY: -6, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
-  { label: "Progress", view: "progress", rotation: 5, offsetY: 14, hoverStyles: { bgColor: "#cc795f", textColor: "#ffffff" } },
-  { label: "Products", view: "products", rotation: -5, offsetY: -11, hoverStyles: { bgColor: "#cc795f", textColor: "#ffffff" } },
-  { label: "Settings", view: "settings", rotation: 3, offsetY: 8, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
+  { label: "Overview", view: "overview", rotation: -6, offsetY: -14, icon: ICONS.overview, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
+  { label: "AI Analysis", view: "scan", rotation: 4, offsetY: 10, icon: ICONS.scan, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
+  { label: "History", view: "history", rotation: -3, offsetY: -6, icon: ICONS.history, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
+  { label: "Progress", view: "progress", rotation: 5, offsetY: 14, icon: ICONS.progress, hoverStyles: { bgColor: "#cc795f", textColor: "#ffffff" } },
+  { label: "Products", view: "products", rotation: -5, offsetY: -11, icon: ICONS.products, hoverStyles: { bgColor: "#cc795f", textColor: "#ffffff" } },
+  { label: "Settings", view: "settings", rotation: 3, offsetY: 8, icon: ICONS.settings, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
   {
     label: "Logout",
     href: "#logout",
     rotation: -4,
     offsetY: -16,
-    hoverStyles: { bgColor: "#b65f4a", textColor: "#ffffff" },
-    onSelect: () => window.skinwiseNav.toast("Logout is not connected yet (frontend demo)."),
+    icon: ICONS.logout,
+    danger: true,
+    onSelect: () => window.skinwiseNav.logout(),
   },
 ];
 NAV_ITEMS.forEach((item) => {

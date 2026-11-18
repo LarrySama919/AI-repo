@@ -178,6 +178,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: clamp(7px, 0.9vw, 11px);
   width: auto;
   min-height: clamp(60px, 8vh, 88px);
   padding: clamp(0.8rem, 1.4vw, 1.1rem) clamp(0.95rem, 1.8vw, 1.7rem);
@@ -204,6 +205,11 @@
   box-shadow: 0 20px 44px rgba(36, 57, 50, 0.34);
 }
 
+/* Logout reads as a destructive action: red pill (colors set inline) + red glow */
+.bubble-menu-items .pill-link.is-danger {
+  box-shadow: 0 18px 40px rgba(192, 57, 43, 0.36);
+}
+
 .bubble-menu-items .pill-link.is-active .pill-label::after {
   content: "";
   display: inline-block;
@@ -220,6 +226,19 @@
   will-change: transform, opacity;
 }
 
+.bubble-menu-items .pill-link .pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.bubble-menu-items .pill-link .pill-icon svg {
+  width: clamp(18px, 1.5vw, 22px);
+  height: clamp(18px, 1.5vw, 22px);
+  display: block;
+}
+
 /* desktop: tilt each pill by its own rotation on top of the uneven float, and lift on hover */
 @media (min-width: 900px) {
   .bubble-menu-items .pill-link {
@@ -230,6 +249,9 @@
     background: var(--hover-bg);
     color: var(--hover-color);
     box-shadow: 0 26px 52px rgba(36, 57, 50, 0.26);
+  }
+  .bubble-menu-items .pill-link.is-danger:hover {
+    box-shadow: 0 26px 52px rgba(165, 50, 42, 0.42);
   }
   .bubble-menu-items .pill-link:active {
     transform: translateY(var(--item-y)) rotate(var(--item-rot)) scale(0.95);

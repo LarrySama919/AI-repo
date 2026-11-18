@@ -9,14 +9,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="dashboard.css?v=20261118-analysis-results" />
+  <link rel="stylesheet" href="bubble-menu.css?v=20261118-bubble-dock" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="user.js?v=20261118-analysis-results" defer></script>
+  <script src="bubble-menu.js?v=20261118-bubble-dock" type="module"></script>
+  <script src="ambient-bg.js?v=20261118-bubble-dock" type="module"></script>
 </head>
 <body>
 
-<div class="app" id="app">
-  <div data-include="components/sidebar.html"></div>
-
+<div class="app" id="app" data-shell="dock">
   <div class="main">
     <div data-include="components/topbar.html"></div>
 
@@ -34,6 +35,7 @@
 <div data-include="components/scan-overlay.html"></div>
 <div data-include="components/product-modal.html"></div>
 <div data-include="components/toast.html"></div>
+<div id="bubble-root"></div>
 
 </body>
 </html>
