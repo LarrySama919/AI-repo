@@ -116,6 +116,14 @@ Amazon Beauty is an optional source in `eda.py` for product and review analysis.
 
 ## Train the models
 
+The User dashboard's AI Analysis flow posts skin images to `POST /api/analyze-skin`.
+The endpoint runs both skin classifiers and uses `skincare_products.json` to map
+accepted cosmetic labels to general product types. Recommendations are withheld
+for uncertain outputs, condition-mode scans, and concerning lesion-model
+candidates. Product data is illustrative and not a product endorsement. The
+cosmetic OOD threshold is preliminary; the lesion model remains Unknown/Uncertain
+until a separately calibrated `skin_disease_threshold.json` is supplied.
+
 HAM10000 model training and comparison:
 
 ```powershell

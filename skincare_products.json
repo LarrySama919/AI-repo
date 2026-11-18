@@ -1,0 +1,58 @@
+{
+  "label_to_concern": {
+    "dark spots": "hyperpigmentation",
+    "pigmentation": "hyperpigmentation",
+    "inflammatory acne": "acne",
+    "non inflammatory acne black heads": "acne",
+    "non inflammatory acne white heads": "acne",
+    "pores": "oily_skin",
+    "Redness": "sensitive_skin",
+    "wrinkles": "general",
+    "dryness": "dryness"
+  },
+  "products": [
+    {
+      "id": "gentle-cleanser",
+      "name": "Gentle fragrance-free cleanser",
+      "category": "Cleanser",
+      "description": "A mild, non-medicated cleanser for a simple daily routine.",
+      "concerns": ["acne", "oily_skin", "dryness", "hyperpigmentation", "sensitive_skin", "general"]
+    },
+    {
+      "id": "non-comedogenic-moisturizer",
+      "name": "Light non-comedogenic moisturizer",
+      "category": "Moisturizer",
+      "description": "A lightweight moisturizer labeled non-comedogenic; patch test before regular use.",
+      "concerns": ["acne", "oily_skin"]
+    },
+    {
+      "id": "barrier-moisturizer",
+      "name": "Fragrance-free barrier moisturizer",
+      "category": "Moisturizer",
+      "description": "A basic moisturizer for supporting skin comfort when it feels dry or tight.",
+      "concerns": ["dryness", "hyperpigmentation", "sensitive_skin"]
+    },
+    {
+      "id": "broad-spectrum-sunscreen",
+      "name": "Broad-spectrum SPF 30+ sunscreen",
+      "category": "Sun protection",
+      "description": "Daily sun protection; choose a formula that feels comfortable for your skin.",
+      "concerns": ["hyperpigmentation", "acne", "oily_skin", "dryness", "general"]
+    },
+    {
+      "id": "lightweight-moisturizer",
+      "name": "Lightweight oil-free moisturizer",
+      "category": "Moisturizer",
+      "description": "A simple lightweight option for skin that tends to feel oily.",
+      "concerns": ["oily_skin"]
+    },
+    {
+      "id": "rich-moisturizer",
+      "name": "Basic cream moisturizer",
+      "category": "Moisturizer",
+      "description": "A fragrance-free cream moisturizer for a simple dry-skin routine.",
+      "concerns": ["dryness"]
+    }
+  ],
+  "disclaimer": "Illustrative product types only, not a diagnosis, endorsement, or individualized treatment plan. Check ingredients, patch test, and seek professional advice for persistent or concerning symptoms."
+}
