@@ -95,7 +95,7 @@
   if (nameInput) nameInput.value = displayName;
   if (emailInput) emailInput.value = displayEmail;
 
-  $(".side-logout")?.addEventListener("click", () => {
+  function logout() {
     for (const storageName of ["localStorage", "sessionStorage"]) {
       try {
         window[storageName].removeItem("skinwise.access_token");
@@ -105,7 +105,8 @@
       }
     }
     window.location.replace("../login/login.html");
-  });
+  }
+  $(".side-logout")?.addEventListener("click", logout);
 
   /* ---------------- toast ---------------- */
   const toastEl = $("#toast");
@@ -231,11 +232,10 @@
       });
     }
     if (view.id === "view-history") {
-      gsap.fromTo(
-        $$(".tl-dot", view),
-        { scale: 0 },
-        { scale: 1, duration: 0.45, stagger: 0.12, delay: 0.25, ease: "back.out(2.4)" }
-      );
+      const dots = $$(".tl-dot", view);
+      if (dots.length) {
+        gsap.fromTo(dots, { scale: 0 }, { scale: 1, duration: 0.45, stagger: 0.12, delay: 0.25, ease: "back.out(2.4)" });
+      }
     }
   }
 
@@ -245,14 +245,10 @@
     const incoming = $("#view-" + name);
     if (!incoming || incoming === outgoing) return;
 
-    $$(".side-item").forEach((b) => b.classList.toggle("is-active", b.dataset.view === name));
-    const activeBtn = $(`.side-item[data-view="${name}"]`);
-    if (activeBtn) {
-      gsap.fromTo(activeBtn, { scale: 0.9 }, { scale: 1, duration: 0.5, ease: "back.out(3)", clearProps: "transform" });
-    }
     currentView = name;
     if (name !== "overview" && ghostDrift) { ghostDrift.kill(); ghostDrift = null; }
     history.replaceState(null, "", "#" + name);
+    document.dispatchEvent(new CustomEvent("skinwise:view", { detail: name }));
 
     const show = () => {
       outgoing.classList.remove("is-active");
@@ -268,13 +264,8 @@
         show();
       }});
     } else show();
-
-    $("#sidebar").classList.remove("open");
   }
 
-  $$(".side-item[data-view]").forEach((btn) =>
-    btn.addEventListener("click", () => switchView(btn.dataset.view))
-  );
   document.addEventListener("click", (e) => {
     const jump = e.target.closest("[data-view-jump]");
     if (jump) switchView(jump.dataset.viewJump);
@@ -1111,55 +1102,14 @@
   }
   renderHistory();
 
-  /* ---------------- mobile menu ---------------- */
-  $("#menu-toggle").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
-
-  /* ---------------- sidebar collapse ---------------- */
-  const app = $(".app");
-  const collapseBtn = $("#collapse-btn");
-  const mqDesktop = window.matchMedia("(min-width: 961px)");
-  let collapsed = false;
-
-  function setCollapse(next, animate = true) {
-    collapsed = next;
-    app.classList.toggle("collapsed", collapsed);
-    const label = collapsed ? "Expand sidebar" : "Collapse sidebar";
-    collapseBtn.setAttribute("aria-label", label);
-    collapseBtn.title = label;
-
-    // Collapse is desktop-only; the mobile drawer uses the hamburger instead.
-    if (!mqDesktop.matches) { app.style.removeProperty("--sidebar-w"); return; }
-
-    gsap.to(app, { "--sidebar-w": collapsed ? "86px" : "264px", duration: animate ? 0.6 : 0, ease: "power4.inOut" });
-
-    if (animate) {
-      gsap.fromTo(
-        ".side-item svg, .side-logout svg",
-        { scale: 1, rotate: 0 },
-        { scale: 1.3, rotate: -9, duration: 0.16, yoyo: true, repeat: 1, stagger: 0.045, ease: "power2.inOut", clearProps: "scale,rotate" }
-      );
-      gsap.fromTo(
-        ".side-item",
-        { x: collapsed ? 10 : -10, opacity: 0.4 },
-        { x: 0, opacity: 1, duration: 0.5, stagger: 0.04, ease: "power3.out", clearProps: "transform,opacity" }
-      );
-    }
-  }
-
-  collapseBtn.addEventListener("click", () => setCollapse(!collapsed));
-  const onMQChange = (e) => { if (!e.matches && collapsed) setCollapse(false, false); };
-  if (mqDesktop.addEventListener) mqDesktop.addEventListener("change", onMQChange);
-  else if (mqDesktop.addListener) mqDesktop.addListener(onMQChange);
+  /* ---------------- bubble menu bridge ---------------- */
+  // The React Bits bubble menu (bubble-menu.js) drives navigation through this hook.
+  window.skinwiseNav = { switchView, toast, currentView: () => currentView, logout };
 
   /* ---------------- entrance ---------------- */
   // Components are already in the DOM by this point, so run immediately
   // rather than waiting for the window load event.
   (function enter() {
-    if (window.matchMedia("(min-width: 961px)").matches) {
-      gsap.fromTo(".sidebar", { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "power3.out" });
-    } else {
-      gsap.fromTo(".sidebar", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power3.out" });
-    }
     gsap.fromTo(".topbar", { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, delay: 0.1, ease: "power3.out" });
     const initial = location.hash.replace("#", "");
     if (initial === "scan-start") openScan();
