@@ -122,26 +122,20 @@
         <article class="result-block">
           <h3>What we found</h3>
           <ul class="result-list" aria-live="polite">
-            <li id="result-prediction">Upload a photo to see the model prediction.</li>
-            <li id="result-confidence-detail">Confidence will appear here after analysis.</li>
+            <li><strong>Lesion model:</strong> <span id="result-disease-label">Awaiting image</span><br /><small id="result-disease-detail"></small></li>
+            <li><strong>Cosmetic model:</strong> <span id="result-cosmetic-label">Awaiting image</span><br /><small id="result-cosmetic-detail"></small></li>
+            <li id="result-prediction">Upload a photo to see the model predictions.</li>
+            <li id="result-confidence-detail">Model scores will appear here after analysis.</li>
             <li><span class="pill pill-soft">Note</span> This AI result is informational and is not a medical diagnosis.</li>
           </ul>
         </article>
         <article class="result-block">
           <h3 id="result-guidance-title">General care ideas</h3>
           <p id="result-guidance-note" class="lede">Suggestions are general information, not a treatment plan.</p>
-          <div class="recs-row recs-col">
-            <button class="rec-card" data-open-product="hydra" data-close-scan>
-              <span class="rec-emoji">🧴</span>
-              <strong>Hydra Barrier Cream</strong>
-              <small>Targets the dryness found today</small>
-            </button>
-            <button class="rec-card" data-open-product="spf" data-close-scan>
-              <span class="rec-emoji">☀️</span>
-              <strong>Mineral SPF 50</strong>
-              <small>Prevents dark spots from worsening</small>
-            </button>
-          </div>
+          <ul id="skincare-tips" class="result-list" hidden></ul>
+          <h4 id="product-results-title" hidden>Product ideas</h4>
+          <div id="analysis-products" class="analysis-products" aria-live="polite"></div>
+          <p id="product-disclaimer" class="product-disclaimer" hidden></p>
         </article>
       </div>
       <div class="scan-step-actions">

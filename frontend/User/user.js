@@ -509,8 +509,19 @@
     $("#proc-preview").src = preview;
     $("#result-confidence").dataset.count = "0";
     $("#result-confidence").textContent = "0";
-    $("#result-prediction").textContent = "Upload a photo to see the model prediction.";
-    $("#result-confidence-detail").textContent = "Confidence will appear here after analysis.";
+    $("#result-disease-label").textContent = "Awaiting image";
+    $("#result-disease-detail").textContent = "";
+    $("#result-cosmetic-label").textContent = "Awaiting image";
+    $("#result-cosmetic-detail").textContent = "";
+    $("#result-prediction").textContent = "Upload a photo to see the model predictions.";
+    $("#result-confidence-detail").textContent = "Model scores will appear here after analysis.";
+    $("#skincare-tips").replaceChildren();
+    $("#skincare-tips").hidden = true;
+    $("#analysis-products").replaceChildren();
+    $("#analysis-products").hidden = true;
+    $("#product-results-title").hidden = true;
+    $("#product-disclaimer").textContent = "";
+    $("#product-disclaimer").hidden = true;
     $("#result-summary").textContent = `${modeTitle(scanMode)} · Ready for review`;
     scanStepIndex = 0;
     setProgress();
@@ -575,7 +586,9 @@
     const qc = $("#quality-check");
     const beam = $("#drop-beam");
     qc.className = "quality-check show";
-    $("#quality-text").textContent = "Uploading photo and analyzing…";
+    $("#quality-text").textContent = scanMode === "hair"
+      ? "Analyzing photo with the hair model…"
+      : "Analyzing photo with the skin models…";
     dropzone.classList.add("is-scanning");
 
     const controller = new AbortController();
@@ -586,7 +599,8 @@
 
     gsap.fromTo(beam, { top: "-34%" }, { top: "104%", duration: 1.1, ease: "power1.inOut", repeat: 1, yoyo: true });
     try {
-      const response = await fetch("/api/predict", {
+      const endpoint = scanMode === "hair" ? "/api/predict" : "/api/analyze-skin";
+      const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
         signal: controller.signal,
@@ -600,16 +614,16 @@
       if (!response.ok) {
         throw new Error(result && typeof result.detail === "string" ? result.detail : "The prediction service could not analyze this image.");
       }
-      if (
-        !result ||
-        typeof result !== "object" ||
-        result.success !== true ||
-        typeof result.predicted_class !== "string" ||
-        !result.predicted_class.trim() ||
-        !Number.isFinite(result.confidence) ||
-        result.confidence < 0 ||
-        result.confidence > 1
-      ) {
+      const validScore = (value) => Number.isFinite(value) && value >= 0 && value <= 1;
+      const validDualResult = result && result.success === true &&
+        result.disease && result.cosmetic &&
+        typeof result.disease.label === "string" && typeof result.cosmetic.label === "string" &&
+        validScore(result.disease.confidence) && validScore(result.cosmetic.confidence) &&
+        typeof result.disease.is_known === "boolean" && typeof result.cosmetic.is_known === "boolean";
+      const validHairResult = result && result.success === true &&
+        typeof result.predicted_class === "string" && result.predicted_class.trim() &&
+        validScore(result.confidence);
+      if (scanMode === "hair" ? !validHairResult : !validDualResult) {
         throw new Error("The prediction service returned incomplete prediction data.");
       }
       if (uploadController !== controller) return;
@@ -778,49 +792,113 @@
       "pores": "Visible pores",
       "wrinkles": "Wrinkles",
     };
-    const confidence = predictionResult ? Math.round(predictionResult.confidence * 100) : 0;
-    const isUnknown = Boolean(predictionResult && predictionResult.is_known === false);
-    const candidateName = predictionResult
-      ? classNames[predictionResult.candidate_class || predictionResult.predicted_class] || (predictionResult.candidate_class || predictionResult.predicted_class).replace(/[_-]+/g, " ")
-      : "No live prediction available. Upload a photo to run an analysis.";
-    const prediction = isUnknown
-      ? "Unknown / uncertain"
-      : candidateName;
-    $("#result-prediction").textContent = predictionResult
-      ? isUnknown
-        ? "No supported category was accepted for this image."
-        : `Model prediction: ${prediction}.`
-      : prediction;
-    $("#result-confidence-detail").textContent = predictionResult
-      ? isUnknown
-        ? `Closest class: ${candidateName} (${confidence}% model score), below the calibrated acceptance threshold. This score is not a probability of disease.`
-        : `Top-class model score: ${confidence}%. This is not a probability of disease.`
-      : "Confidence will appear here after analysis.";
-    const highConcern = predictionResult && scanMode === "condition" && ["mel", "bcc", "akiec"].includes(predictionResult.predicted_class);
+    const dualResult = Boolean(predictionResult?.disease && predictionResult?.cosmetic);
+    const selectedResult = dualResult
+      ? scanMode === "condition" ? predictionResult.disease : predictionResult.cosmetic
+      : null;
+    const confidence = predictionResult
+      ? Math.round((selectedResult?.confidence ?? predictionResult.confidence) * 100)
+      : 0;
+    const isUnknown = dualResult
+      ? !selectedResult.is_known
+      : Boolean(predictionResult && predictionResult.is_known === false);
+    const displayLabel = (label) =>
+      classNames[label] || String(label || "Unknown / uncertain").replace(/[_-]+/g, " ");
+    const describeModel = (result) => {
+      const score = Math.round(result.confidence * 100);
+      if (!result.is_known) {
+        const candidate = displayLabel(result.candidate_label);
+        return result.uncertainty_reason === "no_calibrated_threshold"
+          ? `Unaccepted candidate: ${candidate} · ${score}% model score · no calibrated OOD threshold is configured.`
+          : `Closest candidate: ${candidate} · ${score}% model score · below the calibrated threshold.`;
+      }
+      return `${score}% top-class model score; this is not a probability of disease.`;
+    };
+
+    if (dualResult) {
+      $("#result-disease-label").textContent = predictionResult.disease.label === "Unknown / uncertain"
+        ? predictionResult.disease.label : displayLabel(predictionResult.disease.label);
+      $("#result-disease-detail").textContent = describeModel(predictionResult.disease);
+      $("#result-cosmetic-label").textContent = predictionResult.cosmetic.label === "Unknown / uncertain"
+        ? predictionResult.cosmetic.label : displayLabel(predictionResult.cosmetic.label);
+      $("#result-cosmetic-detail").textContent = describeModel(predictionResult.cosmetic);
+      $("#result-prediction").textContent = "The two models classify different image categories; neither output is a diagnosis.";
+      $("#result-confidence-detail").textContent = predictionResult.safety?.message || predictionResult.disclaimer;
+    } else {
+      const candidateName = predictionResult
+        ? displayLabel(predictionResult.candidate_class || predictionResult.predicted_class)
+        : "No live prediction available. Upload a photo to run an analysis.";
+      $("#result-prediction").textContent = predictionResult
+        ? isUnknown ? `Unknown / uncertain. Closest candidate: ${candidateName}.` : `Model prediction: ${candidateName}.`
+        : candidateName;
+      $("#result-confidence-detail").textContent = predictionResult
+        ? `Top-class model score: ${confidence}%. This score is not a probability of disease.`
+        : "Confidence will appear here after analysis.";
+    }
+    const highConcern = dualResult
+      ? Boolean(predictionResult.safety?.professional_review_recommended)
+      : Boolean(predictionResult && scanMode === "condition" && ["mel", "bcc", "akiec"].includes(predictionResult.predicted_class));
     $("#result-summary").textContent = `${modeTitle(scanMode)} · Results ready`;
     const guidance = $("#step-result .result-grid article:nth-child(2)");
+    const tipsList = $("#skincare-tips");
+    tipsList.replaceChildren();
+    const skincareTips = dualResult && scanMode === "skincare" && Array.isArray(predictionResult.skincare_tips)
+      ? predictionResult.skincare_tips : [];
+    skincareTips.forEach((tip) => {
+      const item = document.createElement("li");
+      item.textContent = tip;
+      tipsList.append(item);
+    });
+    tipsList.hidden = skincareTips.length === 0;
+    const productContainer = $("#analysis-products");
+    const productDisclaimer = $("#product-disclaimer");
+    const recommendationData = dualResult ? predictionResult.product_recommendations : null;
+    const recommendedProducts = scanMode === "skincare" && !isUnknown && !highConcern && Array.isArray(recommendationData?.products)
+      ? recommendationData.products : [];
+    recommendedProducts.forEach((product) => {
+      const card = document.createElement("article");
+      card.className = "analysis-product";
+      const category = document.createElement("span");
+      category.textContent = product.category || "Product type";
+      const name = document.createElement("h4");
+      name.textContent = product.name || "Skincare product type";
+      const description = document.createElement("p");
+      description.textContent = product.description || "General product information.";
+      card.append(category, name, description);
+      productContainer.append(card);
+    });
+    productContainer.hidden = recommendedProducts.length === 0;
+    $("#product-results-title").hidden = recommendedProducts.length === 0;
+    if (recommendedProducts.length) {
+      const concernTitle = String(recommendationData.concern || "skin care").replace(/_/g, " ");
+      $("#product-results-title").textContent = `Product ideas for ${concernTitle}`;
+      productDisclaimer.textContent = predictionResult.product_disclaimer || "Product types are general information, not individualized treatment.";
+      productDisclaimer.hidden = false;
+    } else {
+      productDisclaimer.hidden = true;
+    }
     if (isUnknown) {
       $("#result-guidance-title").textContent = "No supported class recognized";
-      $("#result-guidance-note").textContent = "Try a clear, well-lit photo that matches one of the supported skin concern categories. If the area is changing or worrying you, contact a qualified clinician. No product suggestions are shown for an uncertain result.";
-      guidance.querySelector(".recs-row").hidden = true;
+      $("#result-guidance-note").textContent = highConcern
+        ? (predictionResult.safety?.message || "A model signal warrants professional review. Product suggestions are withheld.")
+        : "This model has not accepted the selected output. No tailored skincare tips are shown; contact a qualified clinician about a changing or concerning area.";
     } else if (highConcern) {
       $("#result-guidance-title").textContent = "Professional assessment recommended";
-      $("#result-guidance-note").textContent = "This model signal is not a cancer probability or diagnosis. We are withholding product suggestions. Please arrange an assessment with a qualified clinician.";
-      guidance.querySelector(".recs-row").hidden = true;
+      $("#result-guidance-note").textContent = predictionResult.safety?.message || "A model signal warrants professional review. It is not a diagnosis or cancer probability; product suggestions are withheld.";
     } else {
       $("#result-guidance-title").textContent = scanMode === "hair"
         ? "Hair & scalp information"
-        : scanMode === "skincare" ? "General skin care" : "General care information";
+        : "General skincare tips";
       $("#result-guidance-note").textContent = scanMode === "hair"
         ? "This dataset-label prediction is educational, not a diagnosis or treatment recommendation. A clinician can assess hair loss or scalp symptoms."
-        : scanMode === "skincare"
-          ? "This broad image label is not a diagnosis. Pigmentation is not a melasma-specific class, and the sample product catalog is not personalized or medical advice."
-          : "No high-concern class was returned, but this does not rule out a medical condition. Seek care if the area changes or worries you.";
-      guidance.querySelector(".recs-row").hidden = true;
+        : predictionResult.disclaimer || "General information only; these tips are not a diagnosis or treatment plan.";
     }
+    const historyLabel = dualResult
+      ? (isUnknown ? "Unknown / uncertain" : displayLabel(selectedResult.label))
+      : (isUnknown ? "Unknown / uncertain" : predictionResult ? displayLabel(predictionResult.predicted_class) : "No model result");
     const historyEntry = {
       mode: scanMode,
-      label: isUnknown ? "Unknown / uncertain" : predictionResult ? (classNames[predictionResult.predicted_class] || predictionResult.predicted_class) : "No model result",
+      label: historyLabel,
       confidence,
       createdAt: new Date().toISOString(),
       concern: Boolean(highConcern || isUnknown)

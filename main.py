@@ -11,7 +11,8 @@ from pydantic import BaseModel, Field
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from PIL import Image
+from PIL import Image, ImageOps, UnidentifiedImageError
+from starlette.concurrency import run_in_threadpool
 import tensorflow as tf
 from database import (
     authenticate_user,
@@ -139,6 +140,14 @@ except Exception as e:
 COSMETIC_MODEL_PATH = Path(__file__).resolve().parent / "skin_cosmetic_model.keras"
 COSMETIC_THRESHOLD_PATH = Path(__file__).resolve().parent / "skin_cosmetic_threshold.json"
 COSMETIC_UNKNOWN_THRESHOLD = None
+DISEASE_THRESHOLD_PATH = Path(__file__).resolve().parent / "skin_disease_threshold.json"
+DISEASE_UNKNOWN_THRESHOLD = None
+PRODUCT_CATALOG_PATH = Path(__file__).resolve().parent / "skincare_products.json"
+try:
+    PRODUCT_CATALOG = json.loads(PRODUCT_CATALOG_PATH.read_text(encoding="utf-8"))
+except (OSError, json.JSONDecodeError):
+    PRODUCT_CATALOG = {"label_to_concern": {}, "products": [], "disclaimer": ""}
+    logger.warning("Skincare product catalog could not be loaded.")
 try:
     if COSMETIC_MODEL_PATH.is_file():
         cosmetic_model = tf.keras.models.load_model(COSMETIC_MODEL_PATH, compile=False)
@@ -155,6 +164,18 @@ try:
         print(f"Cosmetic model not found at {COSMETIC_MODEL_PATH}")
 except Exception as e:
     print(f"Error loading cosmetic model: {e}")
+
+# No disease threshold is bundled currently. Keep that model's result uncertain
+# until it has a threshold calibrated from separate in-distribution and OOD data.
+if DISEASE_THRESHOLD_PATH.is_file():
+    try:
+        disease_threshold_data = json.loads(DISEASE_THRESHOLD_PATH.read_text(encoding="utf-8"))
+        DISEASE_UNKNOWN_THRESHOLD = float(disease_threshold_data["threshold"])
+        if not 0.0 <= DISEASE_UNKNOWN_THRESHOLD <= 1.0:
+            raise ValueError("Disease threshold is out of range.")
+    except Exception:
+        DISEASE_UNKNOWN_THRESHOLD = None
+        logger.warning("Disease threshold is invalid; disease predictions will remain uncertain.")
 
 HAIR_MODEL_PATH = PROJECT_DIR / "skin_hair_disease_model.keras"
 try:
@@ -195,6 +216,132 @@ def database_health():
     except Exception:
         # Do not expose connection strings, credentials, or driver errors.
         raise HTTPException(status_code=503, detail="Database unavailable.") from None
+
+
+def _predict_skin_label(active_model, class_names: list[str], input_tensor: np.ndarray, threshold):
+    if active_model is None:
+        raise HTTPException(status_code=503, detail="A required skin model is not loaded.")
+    if len(class_names) != int(active_model.output_shape[-1]):
+        raise HTTPException(status_code=503, detail="A skin model's labels do not match its output.")
+    predictions = np.asarray(active_model.predict(input_tensor, verbose=0))
+    if predictions.ndim != 2 or predictions.shape != (1, len(class_names)):
+        raise HTTPException(status_code=503, detail="A skin model returned invalid output.")
+    scores = predictions[0].astype(float)
+    if not np.isfinite(scores).all() or (scores < 0).any() or (scores > 1).any():
+        raise HTTPException(status_code=503, detail="A skin model returned invalid confidence scores.")
+    best_index = int(np.argmax(scores))
+    confidence = float(scores[best_index])
+    is_known = threshold is not None and confidence >= threshold
+    return {
+        "label": class_names[best_index] if is_known else "Unknown / uncertain",
+        "candidate_label": class_names[best_index],
+        "confidence": confidence,
+        "is_known": bool(is_known),
+        "threshold": threshold,
+        "uncertainty_reason": None if is_known else (
+            "below_threshold" if threshold is not None else "no_calibrated_threshold"
+        ),
+    }
+
+
+def _skincare_tips(label: str) -> list[str]:
+    label = label.casefold()
+    if "black head" in label:
+        return [
+            "Avoid squeezing or scraping the area.",
+            "Choose non-comedogenic products and introduce new products gradually.",
+            "Stop using a product if it causes persistent irritation.",
+        ]
+    if "pigment" in label or "dark spot" in label:
+        return [
+            "Use broad-spectrum SPF 30+ sunscreen daily.",
+            "Avoid harsh or unverified bleaching products.",
+            "Ask a clinician about new, changing, or persistent patches.",
+        ]
+    if "acne" in label or "redness" in label:
+        return [
+            "Use a gentle, fragrance-free cleanser and moisturizer.",
+            "Avoid squeezing spots and stop products that cause persistent irritation.",
+            "Seek professional advice for painful, worsening, or persistent symptoms.",
+        ]
+    return [
+        "Use a gentle, fragrance-free cleanser and moisturizer.",
+        "Use broad-spectrum SPF 30+ sunscreen on exposed skin each day.",
+        "Avoid harsh scrubs and introduce new products one at a time.",
+    ]
+
+
+def _products_for_label(label: str) -> dict:
+    label_to_concern = PRODUCT_CATALOG.get("label_to_concern", {})
+    concern = label_to_concern.get(label)
+    if not concern:
+        return {"concern": None, "matched_label": label, "products": []}
+    products = [
+        product for product in PRODUCT_CATALOG.get("products", [])
+        if concern in product.get("concerns", [])
+    ]
+    return {"concern": concern, "matched_label": label, "products": products}
+
+
+@app.post("/api/analyze-skin")
+async def analyze_skin(file: UploadFile = File(...), mode: str = Form("skincare")):
+    """Run both skin models and return informational, non-diagnostic results."""
+    if mode not in {"skincare", "condition"}:
+        raise HTTPException(status_code=422, detail="Mode must be 'skincare' or 'condition'.")
+    if model is None or cosmetic_model is None:
+        raise HTTPException(status_code=503, detail="Both skin analysis models must be loaded.")
+    try:
+        image_bytes = await file.read(10 * 1024 * 1024 + 1)
+        if not image_bytes:
+            raise HTTPException(status_code=422, detail="Choose an image to analyze.")
+        if len(image_bytes) > 10 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="Image must be 10 MB or smaller.")
+        with Image.open(io.BytesIO(image_bytes)) as source:
+            if source.width * source.height > 20_000_000:
+                raise HTTPException(status_code=413, detail="Image dimensions are too large.")
+            image = ImageOps.exif_transpose(source).convert("RGB")
+            image = image.resize((128, 128), Image.Resampling.BILINEAR)
+        input_tensor = np.expand_dims(np.asarray(image, dtype=np.float32) / 255.0, axis=0)
+        disease_result, cosmetic_result = await run_in_threadpool(
+            lambda: (
+                _predict_skin_label(model, CLASS_NAMES, input_tensor, DISEASE_UNKNOWN_THRESHOLD),
+                _predict_skin_label(cosmetic_model, COSMETIC_CLASS_NAMES, input_tensor, COSMETIC_UNKNOWN_THRESHOLD),
+            )
+        )
+    except HTTPException:
+        raise
+    except (UnidentifiedImageError, OSError, ValueError):
+        raise HTTPException(status_code=422, detail="The uploaded file is not a supported image.") from None
+    except Exception:
+        logger.exception("Skin image analysis failed.")
+        raise HTTPException(status_code=503, detail="Skin analysis could not be completed.") from None
+
+    clinician_review = disease_result["candidate_label"] in {"mel", "bcc", "akiec"}
+    can_recommend = mode == "skincare" and cosmetic_result["is_known"] and not clinician_review
+    tips = _skincare_tips(cosmetic_result["candidate_label"]) if can_recommend else []
+    product_recommendations = (
+        _products_for_label(cosmetic_result["candidate_label"])
+        if can_recommend
+        else {"concern": None, "matched_label": cosmetic_result["candidate_label"], "products": []}
+    )
+    return {
+        "success": True,
+        "mode": mode,
+        "disease": disease_result,
+        "cosmetic": cosmetic_result,
+        "skincare_tips": tips,
+        "product_recommendations": product_recommendations,
+        "product_disclaimer": PRODUCT_CATALOG.get("disclaimer", ""),
+        "safety": {
+            "professional_review_recommended": clinician_review,
+            "message": (
+                "A lesion-model candidate warrants professional review. This uncalibrated model signal is not a cancer probability or diagnosis; product suggestions are withheld."
+                if clinician_review else
+                "These image-model outputs are informational only, are not diagnoses, and do not rule out a medical condition. Contact a qualified clinician for a changing or concerning area."
+            ),
+        },
+        "disclaimer": "AI image predictions are not medical diagnoses or a substitute for professional care.",
+    }
 
 @app.post("/api/predict")
 async def predict_skin(file: UploadFile = File(...), mode: str = Form("condition")):
