@@ -278,7 +278,7 @@
     if (chip) {
       chip.parentElement.querySelectorAll(".chip").forEach((c) => c.classList.remove("is-active"));
       chip.classList.add("is-active");
-      gsap.fromTo(chip, { scale: 0.9 }, { scale: 1, duration: 0.3, ease: "back.out(3)" });
+      gsap.fromTo(chip, { scale: 0.97 }, { scale: 1, duration: 0.2, ease: "power2.out" });
     }
   });
 
@@ -780,7 +780,7 @@
   $$(".symptom-chip").forEach((chip) =>
     chip.addEventListener("click", () => {
       chip.classList.toggle("is-picked");
-      gsap.fromTo(chip, { scale: 0.9 }, { scale: 1, duration: 0.35, ease: "back.out(3)" });
+      gsap.fromTo(chip, { scale: 0.97 }, { scale: 1, duration: 0.2, ease: "power2.out" });
     })
   );
 
@@ -1074,20 +1074,25 @@
       const coords = confs.map((v, i) => [xFor(i), yFor(v)]);
       const d = smoothPath(coords);
       lineEl.setAttribute("d", d);
+      lineEl.style.strokeDasharray = "none";
+      lineEl.style.strokeDashoffset = "0";
       const base = TREND_H - TREND_PAD_B;
       areaEl.setAttribute("d", `${d} L ${coords[coords.length - 1][0].toFixed(1)} ${base} L ${coords[0][0].toFixed(1)} ${base} Z`);
+      areaEl.style.opacity = "1";
 
       coords.forEach(([x, y]) => {
         const dot = document.createElementNS(SVG_NS, "circle");
         dot.setAttribute("cx", x.toFixed(1));
         dot.setAttribute("cy", y.toFixed(1));
         dot.setAttribute("r", "4.6");
+        dot.style.opacity = "1";
         dotsG.appendChild(dot);
       });
 
       pts.forEach((s) => {
         const span = document.createElement("span");
         span.textContent = new Date(s.createdAt).toLocaleDateString(undefined, { month: "numeric", day: "numeric" });
+        span.style.opacity = "1";
         xRow.appendChild(span);
       });
 
@@ -1146,7 +1151,7 @@
       findList.innerHTML = top
         .map(([label, n]) => `<div class="find-row">
           <span class="find-name" title="${esc(label)}">${esc(label)}</span>
-          <span class="find-track"><span class="find-fill" data-w="${Math.round((n / max) * 100)}%"></span></span>
+          <span class="find-track"><span class="find-fill" data-w="${Math.round((n / max) * 100)}%" style="width:${Math.round((n / max) * 100)}%"></span></span>
           <span class="find-count">${n}</span>
         </div>`)
         .join("");
