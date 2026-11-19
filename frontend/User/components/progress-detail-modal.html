@@ -1,0 +1,87 @@
+<div class="progress-detail-overlay" id="progress-detail-overlay" aria-hidden="true">
+  <section class="progress-detail-panel" role="dialog" aria-modal="true" aria-labelledby="progress-detail-title">
+    <header class="progress-detail-header">
+      <div>
+        <p class="progress-detail-eyebrow"><span></span> TRACKED ANALYSIS</p>
+        <p class="progress-detail-date" id="progress-detail-date"></p>
+      </div>
+      <button class="progress-detail-close" type="button" data-close-progress-detail aria-label="Close scan details">×</button>
+    </header>
+    <div class="progress-detail-body">
+      <div class="progress-detail-title-row">
+        <div>
+          <h2 id="progress-detail-title" tabindex="-1">Scan details</h2>
+          <p id="progress-detail-mode" class="progress-detail-mode"></p>
+        </div>
+        <div class="progress-detail-score">
+          <strong id="progress-detail-score">—</strong>
+          <small>Match score</small>
+        </div>
+      </div>
+      <section class="progress-detail-finding">
+        <span class="progress-detail-label">SAVED RESULT</span>
+        <p id="progress-detail-finding"></p>
+      </section>
+      <section class="progress-detail-guidance">
+        <h3 id="progress-detail-guidance-title">About this result</h3>
+        <p id="progress-detail-guidance-note"></p>
+      </section>
+      <section class="progress-detail-section" id="progress-detail-tips-section" hidden>
+        <h3>Care ideas</h3>
+        <ul id="progress-detail-tips"></ul>
+      </section>
+      <section class="progress-detail-section" id="progress-detail-products-section" hidden>
+        <h3 id="progress-detail-products-title">Product ideas</h3>
+        <div id="progress-detail-products" class="progress-detail-products"></div>
+        <p id="progress-detail-product-note"></p>
+      </section>
+      <form class="progress-followup" id="progress-followup-form">
+        <div class="progress-followup-heading">
+          <div>
+            <span class="progress-detail-label">PERSONAL CHECK-IN</span>
+            <h3>How have things been?</h3>
+          </div>
+          <span class="progress-followup-saved" id="progress-followup-saved" aria-live="polite"></span>
+        </div>
+        <p class="progress-followup-intro">Your own notes help you remember changes between scans. This check-in is not a medical assessment.</p>
+        <div class="progress-followup-grid">
+          <label class="progress-followup-field">
+            <span>Since this scan, your concern is…</span>
+            <select id="progress-followup-change" required>
+              <option value="">Choose one</option>
+              <option value="better">Getting better</option>
+              <option value="same">About the same</option>
+              <option value="worse">Getting worse</option>
+              <option value="unsure">Not sure</option>
+            </select>
+          </label>
+          <label class="progress-followup-field">
+            <span>How long have you used these products?</span>
+            <select id="progress-followup-duration">
+              <option value="">Choose a duration</option>
+              <option value="not-using">I’m not using any</option>
+              <option value="under-week">Less than a week</option>
+              <option value="1-4-weeks">1–4 weeks</option>
+              <option value="1-3-months">1–3 months</option>
+              <option value="over-3-months">More than 3 months</option>
+            </select>
+          </label>
+          <label class="progress-followup-field progress-followup-wide">
+            <span>What skin-care or cosmetic products are you using?</span>
+            <textarea id="progress-followup-products" rows="2" maxlength="500" placeholder="Product names or types (optional)"></textarea>
+          </label>
+          <label class="progress-followup-field progress-followup-wide">
+            <span>Anything else you’ve noticed? <small>Optional</small></span>
+            <textarea id="progress-followup-notes" rows="2" maxlength="500" placeholder="Changes, reactions, or a note for your next check-in"></textarea>
+          </label>
+        </div>
+        <button class="btn-primary progress-followup-save" type="submit">Save check-in</button>
+      </form>
+      <p class="progress-detail-disclaimer">AI image results are informational only and are not medical diagnoses or a measure of health or change over time.</p>
+    </div>
+    <footer class="progress-detail-actions">
+      <button class="btn-ghost" type="button" data-untrack-progress-detail>Untrack scan</button>
+      <button class="btn-primary" type="button" data-close-progress-detail>Done</button>
+    </footer>
+  </section>
+</div>

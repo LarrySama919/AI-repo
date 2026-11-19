@@ -1,13 +1,56 @@
-<section class="view" id="view-progress">
+<section class="view progress-view" id="view-progress">
   <div class="view-head">
     <div>
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Progress tracker</p>
-      <h1>Your skin <em>timeline.</em></h1>
-      <p class="lede">A trend is not available yet. This model does not measure hydration, clarity or skin health scores.</p>
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Your personal dashboard</p>
+      <h1>Progress <em>tracker.</em></h1>
+      <p class="lede">A clear place for the analyses you choose to keep close.</p>
     </div>
   </div>
-  <article class="card" data-anim="card">
-    <div class="card-head"><h3>Saved analyses</h3><button class="link-btn" data-view-jump="history" type="button">View history →</button></div>
-    <p>Use your analysis history to review past model outputs. Compare images or symptoms with a clinician rather than relying on model confidence to track a condition.</p>
-  </article>
+
+  <section class="progress-hero" aria-label="Progress tracker overview">
+    <div class="progress-hero-copy">
+      <span class="progress-hero-kicker"><span></span> YOUR TRACKED ANALYSES</span>
+      <h2>Your journey,<br /><em>at a glance.</em></h2>
+      <p>Keep useful scan results together, revisit their details, and decide what stays in your tracker.</p>
+      <button class="progress-history-link" type="button" data-view-jump="history">Explore scan history <span aria-hidden="true">→</span></button>
+    </div>
+    <div class="progress-orbit" aria-hidden="true">
+      <div class="progress-orbit-ring progress-orbit-ring-back"></div>
+      <div class="progress-orbit-ring progress-orbit-ring-front"></div>
+      <div class="progress-orbit-core"><span>✦</span></div>
+      <i class="progress-orbit-dot progress-orbit-dot-one"></i>
+      <i class="progress-orbit-dot progress-orbit-dot-two"></i>
+      <i class="progress-orbit-dot progress-orbit-dot-three"></i>
+    </div>
+    <div class="progress-stats">
+      <article class="progress-stat">
+        <span class="progress-stat-icon">◎</span>
+        <small>Tracked scans</small>
+        <strong id="progress-tracked-count">0</strong>
+      </article>
+      <article class="progress-stat">
+        <span class="progress-stat-icon">↗</span>
+        <small>Average match score</small>
+        <strong id="progress-average-score">—</strong>
+      </article>
+      <article class="progress-stat">
+        <span class="progress-stat-icon">◷</span>
+        <small>Most recent</small>
+        <strong class="progress-stat-date" id="progress-latest-date">No scans yet</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="progress-timeline-section" aria-labelledby="progress-timeline-title">
+    <div class="progress-section-head">
+      <div>
+        <p class="progress-section-kicker">YOUR COLLECTION</p>
+        <h2 id="progress-timeline-title">Tracked scans</h2>
+        <p>Open a scan for its saved result and recommendations.</p>
+      </div>
+      <span class="progress-live-tag"><i></i> Saved on this device</span>
+    </div>
+    <div class="tracked-scans-list" id="tracked-scans-list" aria-live="polite"></div>
+    <p class="progress-disclaimer">Match scores are AI estimates, not medical measurements or a measure of change over time. This tracker is for organizing saved results only.</p>
+  </section>
 </section>

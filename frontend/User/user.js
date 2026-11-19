@@ -223,6 +223,7 @@
       }
     }
     if (view.id === "view-progress") {
+      renderProgressList();
       runCounters(view);
       $$(".bar", view).forEach((bar, i) => {
         gsap.to(bar, { height: bar.dataset.h, duration: 1.1, delay: 0.25 + i * 0.12, ease: "power3.out" });
@@ -453,6 +454,18 @@
   let predictionResult = null;
   let imagePreviewUrl = null;
   let uploadController = null;
+  let activeHistoryEntryId = null;
+
+  function createScanId() {
+    return `scan-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  function updateProgressButton() {
+    const scan = getScans().find((entry) => entry.id === activeHistoryEntryId);
+    $("#result-progress-button").textContent = scan?.tracked
+      ? "View in progress tracker →"
+      : "Track progress →";
+  }
 
   function setProgress() {
     $("#scan-progress-fill").style.width = ((scanStepIndex + 1) / stepIds.length) * 100 + "%";
@@ -520,6 +533,7 @@
     stopWebcam();
     selectedImage = null;
     predictionResult = null;
+    activeHistoryEntryId = null;
     if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
     imagePreviewUrl = null;
     $("#scan-file-input").value = "";
@@ -926,13 +940,31 @@
       ? (isUnknown ? "Unknown / uncertain" : displayLabel(selectedResult.label))
       : (isUnknown ? "Unknown / uncertain" : predictionResult ? displayLabel(predictionResult.predicted_class) : "No model result");
     const historyEntry = {
+      id: createScanId(),
       mode: scanMode,
       label: historyLabel,
       confidence,
       createdAt: new Date().toISOString(),
-      concern: Boolean(highConcern || isUnknown)
+      tracked: false,
+      concern: Boolean(highConcern || isUnknown),
+      guidanceTitle: $("#result-guidance-title").textContent,
+      guidanceNote: $("#result-guidance-note").textContent,
+      skincareTips,
+      productTitle: recommendedProducts.length ? $("#product-results-title").textContent : "",
+      products: recommendedProducts.map((product) => ({
+        category: product.category || "Product type",
+        name: product.name || "Skincare product type",
+        description: product.description || "General product information."
+      })),
+      productDisclaimer: recommendedProducts.length
+        ? predictionResult.product_disclaimer || "Product types are general information, not individualized treatment."
+        : ""
     };
-    if (predictionResult) saveScan(historyEntry);
+    if (predictionResult) {
+      activeHistoryEntryId = historyEntry.id;
+      saveScan(historyEntry);
+    }
+    updateProgressButton();
     $("#result-confidence").dataset.count = String(confidence);
     $("#result-confidence").dataset.suffix = "%";
     runCounters($("#step-result"));
@@ -1127,7 +1159,7 @@
     $("#dashboard-scan-count").textContent = entries.length
       ? `${entries.length} saved ${entries.length === 1 ? "analysis" : "analyses"}`
       : "No analyses saved yet.";
-    list.innerHTML = entries.length ? entries.map((entry) => {
+    list.innerHTML = entries.length ? entries.map((entry, index) => {
       const date = new Date(entry.createdAt).toLocaleString();
       const title = entry.mode === "hair"
         ? "Hair & scalp analysis"
@@ -1135,9 +1167,285 @@
       const status = entry.concern
         ? "Model signal needs professional assessment. No product suggestions were provided."
         : "Model output is informational only and is not a diagnosis.";
-      return `<article class="tl-item"><span class="tl-dot"></span><div class="tl-card"><span class="tl-date">${esc(date)}</span><h3>${esc(title)}</h3><p>${esc(entry.label)} · model confidence ${Number(entry.confidence)}%</p><p>${esc(status)}</p></div></article>`;
+      return `<article class="tl-item"><span class="tl-dot"></span><div class="tl-card" role="button" tabindex="0" data-history-index="${index}" aria-label="View saved analysis result"><span class="tl-date">${esc(date)}</span><h3>${esc(title)}</h3><p>${esc(entry.label)} · model confidence ${Number(entry.confidence)}%</p><p>${esc(status)}</p></div></article>`;
     }).join("") : '<article class="card"><h3>No saved analyses yet</h3><p>Start an analysis to add your first report here.</p></article>';
   }
+
+  function renderProgressList() {
+    const list = $("#tracked-scans-list");
+    if (!list) return;
+    const scans = getScans();
+    const trackedScans = scans
+      .map((entry, index) => ({ entry, index }))
+      .filter(({ entry }) => entry.tracked);
+    const scores = trackedScans
+      .map(({ entry }) => Number(entry.confidence))
+      .filter((score) => Number.isFinite(score));
+    $("#progress-tracked-count").textContent = String(trackedScans.length);
+    $("#progress-average-score").textContent = scores.length
+      ? `${Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)}%`
+      : "—";
+    $("#progress-latest-date").textContent = trackedScans.length
+      ? new Date(trackedScans[0].entry.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+      : "No scans yet";
+    if (!trackedScans.length) {
+      list.innerHTML = '<div class="tracked-scans-empty"><span class="tracked-scans-empty-icon" aria-hidden="true">✦</span><strong>Your timeline starts here</strong><p>Open any scan result and choose “Track progress” to add one.</p></div>';
+      return;
+    }
+
+    list.innerHTML = trackedScans.map(({ entry, index }) => {
+      const title = entry.mode === "hair"
+        ? "Hair & scalp analysis"
+        : entry.mode === "condition" ? "Skin condition analysis" : "Skin care analysis";
+      const date = new Date(entry.createdAt);
+      const day = Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString(undefined, { day: "2-digit" });
+      const month = Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString(undefined, { month: "short" });
+      const checkInLabels = { better: "Feeling better", same: "About the same", worse: "Feeling worse", unsure: "Unsure" };
+      const checkInSummary = entry.followUp?.change
+        ? ` · Check-in: ${checkInLabels[entry.followUp.change] || "Saved"}`
+        : "";
+      return `<article class="tracked-scan-row">
+        <div class="tracked-scan-date"><strong>${esc(day)}</strong><small>${esc(month)}</small></div>
+        <div class="tracked-scan-info">
+          <strong>${esc(title)}</strong>
+          <small>${esc(String(entry.label || "Unknown / uncertain"))} · ${esc(date.toLocaleString())}${esc(checkInSummary)}</small>
+        </div>
+        <div class="tracked-scan-meta">
+          <span class="tracked-scan-score">${Math.round(Number(entry.confidence) || 0)}% match</span>
+          <div class="tracked-scan-actions">
+            <button class="btn-ghost" type="button" data-progress-detail-index="${index}">View details</button>
+            <button class="btn-ghost progress-untrack" type="button" data-untrack-index="${index}" aria-label="Untrack ${esc(title)}">Untrack</button>
+          </div>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  function setScanTracked(id, tracked) {
+    const scans = getScans();
+    const scan = scans.find((entry) => entry.id === id);
+    if (!scan || Boolean(scan.tracked) === tracked) return;
+    scan.tracked = tracked;
+    localStorage.setItem("skinwise.scans", JSON.stringify(scans));
+    renderProgressList();
+    updateProgressButton();
+  }
+
+  const progressDetailOverlay = $("#progress-detail-overlay");
+  let progressDetailReturnFocus = null;
+
+  function closeProgressDetail() {
+    progressDetailOverlay.classList.remove("is-open");
+    progressDetailOverlay.setAttribute("aria-hidden", "true");
+    if (!overlay.classList.contains("is-open") && !pmOverlay.classList.contains("is-open")) {
+      document.body.style.overflow = "";
+    }
+    const focusTarget = progressDetailReturnFocus && progressDetailReturnFocus.isConnected
+      ? progressDetailReturnFocus
+      : $("#progress-timeline-title");
+    progressDetailReturnFocus = null;
+    focusTarget?.focus();
+  }
+
+  function openProgressDetail(index) {
+    const scans = getScans();
+    const entry = scans[index];
+    if (!entry || !entry.tracked || !["skincare", "condition", "hair"].includes(entry.mode)) return;
+    if (typeof entry.id !== "string" || !entry.id) {
+      entry.id = createScanId();
+      localStorage.setItem("skinwise.scans", JSON.stringify(scans));
+    }
+    progressDetailReturnFocus = document.activeElement;
+    progressDetailOverlay.dataset.scanIndex = String(index);
+    const date = new Date(entry.createdAt);
+    const title = entry.mode === "hair"
+      ? "Hair & scalp analysis"
+      : entry.mode === "condition" ? "Skin condition analysis" : "Skin care analysis";
+    const score = Math.max(0, Math.min(100, Math.round(Number(entry.confidence) || 0)));
+    $("#progress-detail-date").textContent = Number.isNaN(date.getTime()) ? "Saved analysis" : date.toLocaleString();
+    $("#progress-detail-title").textContent = String(entry.label || "Unknown / uncertain");
+    $("#progress-detail-mode").textContent = title;
+    $("#progress-detail-score").textContent = `${score}%`;
+    $("#progress-detail-finding").textContent = String(entry.label || "Unknown / uncertain");
+    $("#progress-detail-guidance-title").textContent = String(entry.guidanceTitle || (
+      entry.concern ? "Professional assessment recommended" : "About this result"
+    ));
+    $("#progress-detail-guidance-note").textContent = String(entry.guidanceNote || (
+      entry.concern
+        ? "This saved result was flagged for professional assessment. It is not a diagnosis."
+        : "Care ideas were not saved for this older analysis. This result is informational and is not a diagnosis."
+    ));
+
+    const tips = Array.isArray(entry.skincareTips) ? entry.skincareTips : [];
+    const tipsSection = $("#progress-detail-tips-section");
+    const tipsList = $("#progress-detail-tips");
+    tipsList.replaceChildren();
+    tips.forEach((tip) => {
+      const item = document.createElement("li");
+      item.textContent = String(tip);
+      tipsList.append(item);
+    });
+    tipsSection.hidden = tips.length === 0;
+
+    const products = Array.isArray(entry.products) ? entry.products : [];
+    const productsSection = $("#progress-detail-products-section");
+    const productsList = $("#progress-detail-products");
+    productsList.replaceChildren();
+    products.forEach((product) => {
+      const card = document.createElement("article");
+      card.className = "progress-detail-product";
+      const category = document.createElement("small");
+      category.textContent = String(product.category || "Product type");
+      const name = document.createElement("strong");
+      name.textContent = String(product.name || "Skincare product type");
+      const description = document.createElement("p");
+      description.textContent = String(product.description || "General product information.");
+      card.append(category, name, description);
+      productsList.append(card);
+    });
+    productsSection.hidden = products.length === 0;
+    $("#progress-detail-products-title").textContent = String(entry.productTitle || "Product ideas");
+    $("#progress-detail-product-note").textContent = String(entry.productDisclaimer || "");
+    const followUp = entry.followUp && typeof entry.followUp === "object" ? entry.followUp : {};
+    $("#progress-followup-change").value = typeof followUp.change === "string" ? followUp.change : "";
+    $("#progress-followup-duration").value = typeof followUp.duration === "string" ? followUp.duration : "";
+    $("#progress-followup-products").value = typeof followUp.products === "string" ? followUp.products : "";
+    $("#progress-followup-notes").value = typeof followUp.notes === "string" ? followUp.notes : "";
+    $("#progress-followup-saved").textContent = followUp.updatedAt
+      ? `Last saved ${new Date(followUp.updatedAt).toLocaleString()}`
+      : "Not saved yet";
+    progressDetailOverlay.classList.add("is-open");
+    progressDetailOverlay.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    $("[data-close-progress-detail]", progressDetailOverlay).focus();
+  }
+
+  function openHistoryResult(index) {
+    const scans = getScans();
+    const entry = scans[index];
+    if (!entry || !["skincare", "condition", "hair"].includes(entry.mode)) return;
+    const confidence = Number(entry.confidence);
+    if (!Number.isFinite(confidence)) return;
+
+    if (typeof entry.id !== "string" || !entry.id) {
+      entry.id = createScanId();
+      localStorage.setItem("skinwise.scans", JSON.stringify(scans));
+    }
+    setMode(entry.mode);
+    resetScanFlow();
+    activeHistoryEntryId = entry.id;
+    overlay.classList.add("is-open");
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    showStep("step-result");
+
+    const score = Math.max(0, Math.min(100, Math.round(confidence)));
+    const label = String(entry.label || "Unknown / uncertain");
+    $("#result-disease-label").textContent = entry.mode === "condition" ? label : "Not included in this analysis";
+    $("#result-disease-detail").textContent = entry.mode === "condition" ? `${score}% model score` : "";
+    $("#result-cosmetic-label").textContent = entry.mode === "skincare" ? label : "Not included in this analysis";
+    $("#result-cosmetic-detail").textContent = entry.mode === "skincare" ? `${score}% model score` : "";
+    $("#result-prediction").textContent = "Saved result from your analysis.";
+    $("#result-confidence-detail").textContent = `${score}% model confidence. This is informational only, not a diagnosis.`;
+    $("#result-summary").textContent = `${modeTitle(entry.mode)} · Saved result`;
+    $("#result-guidance-title").textContent = entry.guidanceTitle || (entry.concern
+      ? "Professional assessment recommended"
+      : entry.mode === "hair" ? "Hair & scalp information" : "General care ideas");
+    $("#result-guidance-note").textContent = entry.guidanceNote || (entry.concern
+      ? "This saved result was flagged for professional assessment. It is not a diagnosis."
+      : "Care ideas were not saved for this older analysis. This result is informational and is not a diagnosis.");
+    const tipsList = $("#skincare-tips");
+    tipsList.replaceChildren();
+    (Array.isArray(entry.skincareTips) ? entry.skincareTips : []).forEach((tip) => {
+      const item = document.createElement("li");
+      item.textContent = String(tip);
+      tipsList.append(item);
+    });
+    tipsList.hidden = tipsList.children.length === 0;
+    const products = Array.isArray(entry.products) ? entry.products : [];
+    const productContainer = $("#analysis-products");
+    productContainer.replaceChildren();
+    products.forEach((product) => {
+      const card = document.createElement("article");
+      card.className = "analysis-product";
+      const category = document.createElement("span");
+      category.textContent = String(product.category || "Product type");
+      const name = document.createElement("h4");
+      name.textContent = String(product.name || "Skincare product type");
+      const description = document.createElement("p");
+      description.textContent = String(product.description || "General product information.");
+      card.append(category, name, description);
+      productContainer.append(card);
+    });
+    productContainer.hidden = products.length === 0;
+    const productTitle = $("#product-results-title");
+    productTitle.textContent = entry.productTitle || "Product ideas";
+    productTitle.hidden = products.length === 0;
+    const productDisclaimer = $("#product-disclaimer");
+    productDisclaimer.textContent = entry.productDisclaimer || "";
+    productDisclaimer.hidden = products.length === 0 || !entry.productDisclaimer;
+    $("#result-confidence").dataset.count = String(score);
+    $("#result-confidence").dataset.suffix = "%";
+    runCounters($("#step-result"));
+    drawRing($(".ring-result", $("#step-result")), score, 0.3);
+    updateProgressButton();
+  }
+
+  const historyList = $("#history-list");
+  historyList.addEventListener("click", (event) => {
+    const item = event.target.closest("[data-history-index]");
+    if (item) openHistoryResult(Number(item.dataset.historyIndex));
+  });
+  historyList.addEventListener("keydown", (event) => {
+    const item = event.target.closest("[data-history-index]");
+    if (!item || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    openHistoryResult(Number(item.dataset.historyIndex));
+  });
+  $("#tracked-scans-list").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-untrack-index]");
+    if (button) {
+      const scan = getScans()[Number(button.dataset.untrackIndex)];
+      if (scan) setScanTracked(scan.id, false);
+      return;
+    }
+    const details = event.target.closest("[data-progress-detail-index]");
+    if (details) openProgressDetail(Number(details.dataset.progressDetailIndex));
+  });
+  $("#progress-followup-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const scans = getScans();
+    const scan = scans[Number(progressDetailOverlay.dataset.scanIndex)];
+    if (!scan || !scan.tracked) return;
+    scan.followUp = {
+      change: $("#progress-followup-change").value,
+      duration: $("#progress-followup-duration").value,
+      products: $("#progress-followup-products").value.trim(),
+      notes: $("#progress-followup-notes").value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+    localStorage.setItem("skinwise.scans", JSON.stringify(scans));
+    $("#progress-followup-saved").textContent = "Saved just now";
+    renderProgressList();
+  });
+  progressDetailOverlay.addEventListener("click", (event) => {
+    if (event.target === progressDetailOverlay || event.target.closest("[data-close-progress-detail]")) {
+      closeProgressDetail();
+    }
+    if (event.target.closest("[data-untrack-progress-detail]")) {
+      const scan = getScans()[Number(progressDetailOverlay.dataset.scanIndex)];
+      if (scan) setScanTracked(scan.id, false);
+      closeProgressDetail();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && progressDetailOverlay.classList.contains("is-open")) {
+      closeProgressDetail();
+    }
+  });
+  $("#result-progress-button").addEventListener("click", () => {
+    setScanTracked(activeHistoryEntryId, true);
+  });
   renderHistory();
 
   /* ---------------- bubble menu bridge ---------------- */
