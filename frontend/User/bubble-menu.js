@@ -9,17 +9,15 @@ const html = htm.bind(React.createElement);
 const gsap = window.gsap;
 
 function BubbleMenu({
-  logo,
-  logoHref = "#",
   onMenuClick,
   menuAriaLabel = "Toggle menu",
   menuBg = "#fff",
   menuContentColor = "#111",
   items,
   activeView = "",
-  animationEase = "back.out(1.5)",
-  animationDuration = 0.5,
-  staggerDelay = 0.12,
+  animationEase = "power3.out",
+  animationDuration = 0.36,
+  staggerDelay = 0.055,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -56,12 +54,12 @@ function BubbleMenu({
       bubbles.forEach((bubble, i) => {
         const item = items[i] || {};
         const restY = item.offsetY ?? 0;
-        const delay = i * staggerDelay + gsap.utils.random(-0.04, 0.04);
+        const delay = i * staggerDelay + gsap.utils.random(-0.02, 0.02);
         const tl = gsap.timeline({ delay });
         // rise up from below the dock into its uneven floating slot
         tl.fromTo(
           bubble,
-          { y: restY + 130, scale: 0.5, autoAlpha: 0, transformOrigin: "50% 100%" },
+          { y: restY + 90, scale: 0.78, autoAlpha: 0, transformOrigin: "50% 100%" },
           {
             y: restY, scale: 1, autoAlpha: 1,
             duration: animationDuration, ease: animationEase,
@@ -75,11 +73,11 @@ function BubbleMenu({
       });
     } else if (showOverlay) {
       gsap.killTweensOf([...bubbles, ...labels]);
-      if (backdrop) gsap.to(backdrop, { opacity: 0, duration: 0.24, ease: "power2.in" });
-      gsap.to(labels, { y: 16, autoAlpha: 0, duration: 0.18, ease: "power3.in" });
+      if (backdrop) gsap.to(backdrop, { opacity: 0, duration: 0.2, ease: "power2.in" });
+      gsap.to(labels, { y: 12, autoAlpha: 0, duration: 0.16, ease: "power2.in" });
       gsap.to(bubbles, {
-        y: "+=110", scale: 0.55, autoAlpha: 0, transformOrigin: "50% 100%",
-        duration: 0.26, ease: "power3.in", stagger: 0.03,
+        y: "+=80", scale: 0.82, autoAlpha: 0, transformOrigin: "50% 100%",
+        duration: 0.22, ease: "power2.in", stagger: 0.02,
         onComplete: () => setShowOverlay(false),
       });
     }
@@ -88,11 +86,6 @@ function BubbleMenu({
   return html`
     <${React.Fragment}>
       <nav className="bubble-menu fixed" aria-label="Main navigation">
-        <a className="bubble logo-bubble" href=${logoHref} aria-label="Skinwise home">
-          <span className="logo-content">
-            <img src=${logo} alt="Skinwise" className="bubble-logo" />
-          </span>
-        </a>
         <button
           type="button"
           className=${`bubble toggle-bubble menu-btn ${isMenuOpen ? "open" : ""}`}
@@ -183,8 +176,6 @@ function BubbleNav() {
   }, []);
 
   return html`<${BubbleMenu}
-    logo="assets/skinwise-scan-logo.png"
-    logoHref="../landing/landing_page.html"
     menuBg="rgba(255,255,255,0.92)"
     menuContentColor="#243932"
     items=${NAV_ITEMS}
