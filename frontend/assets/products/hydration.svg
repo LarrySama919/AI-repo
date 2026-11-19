@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="Hydrating serum illustration">
+  <rect width="160" height="120" rx="20" fill="#eeeefa"/>
+  <circle cx="80" cy="60" r="39" fill="#dddff1"/>
+  <path d="M75 25h10v8H75zm-5 8h20v8H70zm-4 8h28v45H66z" fill="#fff" stroke="#777d9e" stroke-width="2"/>
+  <path d="M80 51c-6 8-8 11-8 15a8 8 0 0 0 16 0c0-4-2-7-8-15z" fill="#c7ccec"/>
+</svg>

@@ -1,11 +1,13 @@
 {
   "label_to_concern": {
     "dark spots": "hyperpigmentation",
+    "hyperpigmentation": "hyperpigmentation",
     "pigmentation": "hyperpigmentation",
     "inflammatory acne": "acne",
     "non inflammatory acne black heads": "acne",
     "non inflammatory acne white heads": "acne",
     "pores": "oily_skin",
+    "oily skin": "oily_skin",
     "Redness": "sensitive_skin",
     "wrinkles": "general",
     "dryness": "dryness"
@@ -16,6 +18,7 @@
       "name": "Gentle fragrance-free cleanser",
       "category": "Cleanser",
       "description": "A mild, non-medicated cleanser for a simple daily routine.",
+      "image": "/frontend/assets/products/cleanser.svg",
       "concerns": ["acne", "oily_skin", "dryness", "hyperpigmentation", "sensitive_skin", "general"]
     },
     {
@@ -23,6 +26,7 @@
       "name": "Light non-comedogenic moisturizer",
       "category": "Moisturizer",
       "description": "A lightweight moisturizer labeled non-comedogenic; patch test before regular use.",
+      "image": "/frontend/assets/products/moisturizer.svg",
       "concerns": ["acne", "oily_skin"]
     },
     {
@@ -30,6 +34,7 @@
       "name": "Fragrance-free barrier moisturizer",
       "category": "Moisturizer",
       "description": "A basic moisturizer for supporting skin comfort when it feels dry or tight.",
+      "image": "/frontend/assets/products/moisturizer.svg",
       "concerns": ["dryness", "hyperpigmentation", "sensitive_skin"]
     },
     {
@@ -37,6 +42,7 @@
       "name": "Broad-spectrum SPF 30+ sunscreen",
       "category": "Sun protection",
       "description": "Daily sun protection; choose a formula that feels comfortable for your skin.",
+      "image": "/frontend/assets/products/sunscreen.svg",
       "concerns": ["hyperpigmentation", "acne", "oily_skin", "dryness", "general"]
     },
     {
@@ -44,6 +50,7 @@
       "name": "Lightweight oil-free moisturizer",
       "category": "Moisturizer",
       "description": "A simple lightweight option for skin that tends to feel oily.",
+      "image": "/frontend/assets/products/moisturizer.svg",
       "concerns": ["oily_skin"]
     },
     {
@@ -51,7 +58,56 @@
       "name": "Basic cream moisturizer",
       "category": "Moisturizer",
       "description": "A fragrance-free cream moisturizer for a simple dry-skin routine.",
+      "image": "/frontend/assets/products/moisturizer.svg",
       "concerns": ["dryness"]
+    },
+    {
+      "id": "blemish-patches",
+      "name": "Non-medicated blemish patches",
+      "category": "Spot cover",
+      "description": "Simple hydrocolloid-style patches to cover individual spots; use only as directed on the package.",
+      "image": "/frontend/assets/products/spot-cover.svg",
+      "concerns": ["acne"]
+    },
+    {
+      "id": "oil-blotting-sheets",
+      "name": "Oil-absorbing blotting sheets",
+      "category": "Oil control",
+      "description": "A disposable, non-medicated option for reducing surface shine during the day.",
+      "image": "/frontend/assets/products/oil-control.svg",
+      "concerns": ["oily_skin"]
+    },
+    {
+      "id": "tinted-sunscreen",
+      "name": "Tinted broad-spectrum SPF 30+ sunscreen",
+      "category": "Sun protection",
+      "description": "A tinted daily sunscreen option; choose a shade and formula suitable for your skin.",
+      "image": "/frontend/assets/products/sunscreen.svg",
+      "concerns": ["hyperpigmentation", "sensitive_skin"]
+    },
+    {
+      "id": "hydrating-serum",
+      "name": "Simple hydrating serum",
+      "category": "Hydration",
+      "description": "A fragrance-free, non-medicated hydrating layer for skin that feels dry or tight.",
+      "image": "/frontend/assets/products/hydration.svg",
+      "concerns": ["dryness", "sensitive_skin"]
+    },
+    {
+      "id": "cream-cleanser",
+      "name": "Cream cleanser for dry or sensitive skin",
+      "category": "Cleanser",
+      "description": "A gentle, non-medicated cleanser option for a simple routine.",
+      "image": "/frontend/assets/products/cleanser.svg",
+      "concerns": ["dryness", "sensitive_skin"]
+    },
+    {
+      "id": "simple-daily-moisturizer",
+      "name": "Simple daily face moisturizer",
+      "category": "Moisturizer",
+      "description": "A basic fragrance-free moisturizer for a straightforward daily routine.",
+      "image": "/frontend/assets/products/moisturizer.svg",
+      "concerns": ["general", "sensitive_skin"]
     }
   ],
   "disclaimer": "Illustrative product types only, not a diagnosis, endorsement, or individualized treatment plan. Check ingredients, patch test, and seek professional advice for persistent or concerning symptoms."

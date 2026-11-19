@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="Skincare product illustration">
+  <rect width="160" height="120" rx="20" fill="#edf2ea"/>
+  <circle cx="80" cy="60" r="38" fill="#dce7d8"/>
+  <path d="M67 39h26v8H67zm-5 9h36l4 38H58z" fill="#fff" stroke="#587361" stroke-width="2"/>
+  <path d="M69 65h22" stroke="#9bb29d" stroke-width="4" stroke-linecap="round"/>
+</svg>

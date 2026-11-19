@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="Blemish patch illustration">
+  <rect width="160" height="120" rx="20" fill="#f4edf0"/>
+  <circle cx="80" cy="60" r="39" fill="#eadbe2"/>
+  <rect x="48" y="39" width="64" height="43" rx="8" fill="#fff" stroke="#a88498" stroke-width="2"/>
+  <circle cx="65" cy="55" r="7" fill="#ecd9e2" stroke="#c6a9b7"/>
+  <circle cx="95" cy="55" r="7" fill="#ecd9e2" stroke="#c6a9b7"/>
+  <circle cx="80" cy="68" r="7" fill="#ecd9e2" stroke="#c6a9b7"/>
+</svg>

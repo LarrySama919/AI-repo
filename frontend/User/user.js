@@ -901,13 +901,33 @@
     recommendedProducts.forEach((product) => {
       const card = document.createElement("article");
       card.className = "analysis-product";
+      const imageFrame = document.createElement("div");
+      imageFrame.className = "analysis-product-image";
+      const image = document.createElement("img");
+      image.alt = "";
+      image.loading = "lazy";
+      image.decoding = "async";
+      const fallbackImage = "/frontend/assets/products/default-product.svg";
+      const imagePath = typeof product.image === "string" &&
+        product.image.startsWith("/frontend/assets/products/") &&
+        !product.image.split("/").includes("..") && !product.image.includes("\\")
+        ? product.image : fallbackImage;
+      image.onerror = () => {
+        image.onerror = null;
+        image.src = fallbackImage;
+      };
+      image.src = imagePath;
+      imageFrame.append(image);
+      const content = document.createElement("div");
+      content.className = "analysis-product-content";
       const category = document.createElement("span");
       category.textContent = product.category || "Product type";
       const name = document.createElement("h4");
       name.textContent = product.name || "Skincare product type";
       const description = document.createElement("p");
       description.textContent = product.description || "General product information.";
-      card.append(category, name, description);
+      content.append(category, name, description);
+      card.append(imageFrame, content);
       productContainer.append(card);
     });
     productContainer.hidden = recommendedProducts.length === 0;

@@ -273,13 +273,29 @@ def _skincare_tips(label: str) -> list[str]:
 
 def _products_for_label(label: str) -> dict:
     label_to_concern = PRODUCT_CATALOG.get("label_to_concern", {})
-    concern = label_to_concern.get(label)
+    normalized_label = label.strip().casefold()
+    concern = next(
+        (value for key, value in label_to_concern.items() if key.strip().casefold() == normalized_label),
+        None,
+    )
     if not concern:
         return {"concern": None, "matched_label": label, "products": []}
-    products = [
-        product for product in PRODUCT_CATALOG.get("products", [])
-        if concern in product.get("concerns", [])
-    ]
+    image_prefix = "/frontend/assets/products/"
+    fallback_image = image_prefix + "default-product.svg"
+    products = []
+    for product in PRODUCT_CATALOG.get("products", []):
+        if concern not in product.get("concerns", []):
+            continue
+        image = product.get("image")
+        image_name = image[len(image_prefix):] if isinstance(image, str) and image.startswith(image_prefix) else ""
+        valid_image_path = (
+            bool(image_name)
+            and image_name not in {".", ".."}
+            and "/" not in image_name
+            and "\\" not in image_name
+            and image.lower().endswith((".svg", ".png", ".jpg", ".jpeg", ".webp"))
+        )
+        products.append({**product, "image": image if valid_image_path else fallback_image})
     return {"concern": concern, "matched_label": label, "products": products}
 
 

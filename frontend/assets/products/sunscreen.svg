@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="Sunscreen illustration">
+  <rect width="160" height="120" rx="20" fill="#f8efe2"/>
+  <circle cx="80" cy="60" r="39" fill="#f4dfbb"/>
+  <path d="M70 31h20v8H70zm-7 9h34l-6 53H69z" fill="#fff" stroke="#b28a52" stroke-width="2"/>
+  <circle cx="80" cy="64" r="11" fill="#f0c873"/>
+  <path d="M80 47v-5m0 44v-5m17-17h5m-44 0h5m29-12 4-4m-31 31-4 4m31 0-4-4m-23-23-4-4" stroke="#b28a52" stroke-width="2" stroke-linecap="round"/>
+</svg>

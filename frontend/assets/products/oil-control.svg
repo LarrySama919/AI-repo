@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="Oil blotting sheets illustration">
+  <rect width="160" height="120" rx="20" fill="#edf1f4"/>
+  <circle cx="80" cy="60" r="39" fill="#dce5eb"/>
+  <path d="m58 43 42-8 10 42-42 8z" fill="#fff" stroke="#7891a0" stroke-width="2"/>
+  <path d="m53 50 42-8 10 42-42 8z" fill="#f9fcfd" stroke="#9aadb7" stroke-width="2"/>
+  <path d="m68 66 13-3m-11 9 20-4" stroke="#9aadb7" stroke-width="2" stroke-linecap="round"/>
+</svg>

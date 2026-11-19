@@ -642,11 +642,15 @@ img { max-width: 100%; }
 .result-list li { display: block; font-size: 14px; color: var(--ink-soft); line-height: 1.75; overflow-wrap: anywhere; }
 .result-list li strong { color: var(--ink); }
 .result-list li small { display: inline-block; margin-top: 4px; color: var(--ink-soft); font-size: 12px; line-height: 1.6; }
-.analysis-products { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 20px; }
-.analysis-product { padding: 17px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
-.analysis-product span { display: inline-block; margin-bottom: 8px; color: var(--green); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.analysis-product h4 { margin-bottom: 7px; font: 700 14px var(--display); color: var(--ink); }
-.analysis-product p { font-size: 12px; line-height: 1.65; color: var(--ink-soft); }
+.analysis-products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 20px; }
+.analysis-products[hidden] { display: none; }
+.analysis-product { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 16px; min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 5px 18px rgba(36,57,50,.055); }
+.analysis-product-image { display: grid; place-items: center; width: 92px; aspect-ratio: 1; overflow: hidden; border-radius: 15px; background: var(--paper); }
+.analysis-product-image img { display: block; width: 100%; height: 100%; padding: 4px; object-fit: contain; }
+.analysis-product-content { min-width: 0; }
+.analysis-product span { display: inline-block; margin-bottom: 7px; color: var(--green); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.analysis-product h4 { margin: 0 0 7px; font: 700 14px/1.4 var(--display); color: var(--ink); overflow-wrap: anywhere; }
+.analysis-product p { font-size: 12px; line-height: 1.65; color: var(--ink-soft); overflow-wrap: anywhere; }
 .product-disclaimer { margin-top: 12px; color: var(--ink-soft); font-size: 11px; line-height: 1.6; }
 .result-list .pill { margin-top: 1px; }
 .recs-col { grid-template-columns: 1fr; }
@@ -701,6 +705,9 @@ img { max-width: 100%; }
   .result-block { padding: 22px; }
   .result-banner { flex-wrap: wrap; }
   .result-score { margin-left: 0; }
+  .analysis-products { grid-template-columns: 1fr; }
+  .analysis-product { grid-template-columns: 76px minmax(0, 1fr); gap: 13px; padding: 13px; }
+  .analysis-product-image { width: 76px; }
   .profile-form-grid { grid-template-columns: 1fr; }
   .profile-field-wide { grid-column: auto; }
   .profile-identity { align-items: flex-start; flex-wrap: wrap; }
