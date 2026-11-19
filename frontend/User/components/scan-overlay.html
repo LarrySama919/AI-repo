@@ -115,15 +115,15 @@
             <circle class="ring-bg" cx="80" cy="80" r="68" />
             <circle class="ring-fg ring-result" cx="80" cy="80" r="68" />
           </svg>
-          <div class="score-center"><strong class="count" id="result-confidence" data-count="0" data-suffix="%">0</strong><small>Model confidence</small></div>
+          <div class="score-center"><strong class="count" id="result-confidence" data-count="0" data-suffix="%">0</strong><small>Confidence</small></div>
         </div>
       </div>
       <div class="result-grid">
         <article class="result-block">
           <h3>What we found</h3>
           <ul class="result-list" aria-live="polite">
-            <li><strong>Lesion model:</strong> <span id="result-disease-label">Awaiting image</span><br /><small id="result-disease-detail"></small></li>
-            <li><strong>Cosmetic model:</strong> <span id="result-cosmetic-label">Awaiting image</span><br /><small id="result-cosmetic-detail"></small></li>
+            <li><strong>Skin condition:</strong> <span id="result-disease-label">Awaiting image</span><br /><small id="result-disease-detail"></small></li>
+            <li><strong>Skin care concern:</strong> <span id="result-cosmetic-label">Awaiting image</span><br /><small id="result-cosmetic-detail"></small></li>
             <li id="result-prediction">Upload a photo to see the model predictions.</li>
             <li id="result-confidence-detail">Model scores will appear here after analysis.</li>
             <li><span class="pill pill-soft">Note</span> This AI result is informational and is not a medical diagnosis.</li>
@@ -140,7 +140,7 @@
       </div>
       <div class="scan-step-actions">
         <button class="btn-ghost" type="button" data-close-scan>Close</button>
-        <button class="btn-primary" type="button" data-view-jump="progress" data-close-scan>View progress tracker →</button>
+        <button class="btn-primary" id="result-progress-button" type="button" data-view-jump="progress" data-close-scan>Track progress →</button>
       </div>
     </div>
   </div>
