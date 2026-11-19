@@ -6,13 +6,22 @@
     <meta name="theme-color" content="#f7f6f0" />
     <meta name="description" content="Sign in to Skinwise and keep your skin check-ins together." />
     <title>Sign in — Skinwise</title>
+    <script>
+      document.documentElement.classList.add("auth-motion-pending");
+      window.authMotionFallback = window.setTimeout(() => document.documentElement.classList.remove("auth-motion-pending"), 2400);
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="login.css" />
-    <script src="login.js?v=20261118-auth-profile" defer></script>
+    <script src="login.js?v=20261119-auth-motion" defer></script>
   </head>
   <body class="auth-page">
+    <div class="auth-background" aria-hidden="true">
+      <img class="auth-grid-paper" src="../User/assets/grid_paper.png" alt="" />
+      <img class="auth-wave auth-wave--top" src="../User/assets/up_border.png" alt="" />
+      <img class="auth-wave auth-wave--bottom" src="../User/assets/down_border.png" alt="" />
+    </div>
     <header class="auth-header">
       <a class="brand auth-brand" href="../landing/landing_page.html" aria-label="Skinwise home">
         <img class="brand-logo" src="../User/assets/skinwise-scan-logo.png" alt="" aria-hidden="true" />

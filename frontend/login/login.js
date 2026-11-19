@@ -17,6 +17,9 @@ if (authForm) {
   const message = document.querySelector("#form-message");
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  window.clearTimeout(window.authMotionFallback);
+  document.documentElement.classList.remove("auth-motion-pending");
+
   function animateOnce(element, frames, options) {
     if (prefersReducedMotion || !element || typeof element.animate !== "function") return;
     const animation = element.animate(frames, { fill: "both", ...options });
@@ -57,17 +60,39 @@ if (authForm) {
   }
 
   const panel = document.querySelector(".auth-panel");
-  const cap = document.querySelector(".auth-card-cap");
-  const header = document.querySelector(".auth-header");
   const footer = document.querySelector(".auth-footer");
 
   animateOnce(
-    header,
+    document.querySelector(".auth-wave--top"),
+    [
+      { opacity: 0, transform: "translate(-50%, -105%)" },
+      { opacity: 1, transform: "translate(-50%, 0)" },
+    ],
+    { duration: 1250, easing: "cubic-bezier(.2,.8,.2,1)" },
+  );
+  animateOnce(
+    document.querySelector(".auth-wave--bottom"),
+    [
+      { opacity: 0, transform: "translate(-50%, 105%)" },
+      { opacity: 1, transform: "translate(-50%, 0)" },
+    ],
+    { duration: 1370, delay: 120, easing: "cubic-bezier(.2,.8,.2,1)" },
+  );
+  animateOnce(
+    document.querySelector(".auth-brand"),
     [
       { opacity: 0, transform: "translateY(-8px)" },
       { opacity: 1, transform: "translateY(0)" },
     ],
-    { duration: 480, easing: "cubic-bezier(.2,.8,.2,1)" },
+    { duration: 670, delay: 690, easing: "cubic-bezier(.2,.8,.2,1)" },
+  );
+  animateOnce(
+    document.querySelector(".back-link"),
+    [
+      { opacity: 0, transform: "translateY(-7px)" },
+      { opacity: 1, transform: "translateY(0)" },
+    ],
+    { duration: 430, delay: 510, easing: "cubic-bezier(.2,.8,.2,1)" },
   );
   animateOnce(
     panel,
@@ -75,15 +100,7 @@ if (authForm) {
       { opacity: 0, transform: "translateY(20px) scale(.985)" },
       { opacity: 1, transform: "translateY(0) scale(1)" },
     ],
-    { duration: 620, easing: "cubic-bezier(.2,.8,.2,1)" },
-  );
-  animateOnce(
-    cap,
-    [
-      { opacity: 0, transform: "translate(-50%, -12px)" },
-      { opacity: 1, transform: "translate(-50%, 0)" },
-    ],
-    { duration: 430, delay: 130, easing: "cubic-bezier(.2,.8,.2,1)" },
+    { duration: 650, delay: 150, easing: "cubic-bezier(.2,.8,.2,1)" },
   );
 
   const visibleFields = [...authForm.querySelectorAll(".field-group:not([hidden])")];
@@ -103,8 +120,8 @@ if (authForm) {
     document.querySelector(".submit-button"),
     document.querySelector(".auth-switch"),
     document.querySelector(".auth-footnote"),
-    forgotTab,
-  ].filter((element) => element && !element.hidden);
+    isSignUp ? null : forgotPassword,
+  ].filter((element) => element && !element.hidden && !element.closest("[hidden]"));
 
   finishingElements.forEach((element, index) => {
     animateOnce(
