@@ -10,24 +10,32 @@
         <h2 id="pm-name">Hydra Barrier Cream</h2>
         <strong class="pm-price" id="pm-price">$24.00</strong>
       </div>
-      <p class="pm-desc" id="pm-desc">Ceramide-rich cream for dry, compromised barriers.</p>
-      <div class="pm-rating">
-        <span class="rec-stars" id="pm-stars">★★★★★ <em>4.8</em></span>
-        <small id="pm-count">Sample demo reviews</small>
+
+      <div class="pm-collapsible" id="pm-collapsible">
+        <p class="pm-desc" id="pm-desc">Ceramide-rich cream for dry, compromised barriers.</p>
+        <div class="pm-rating">
+          <span class="rec-stars" id="pm-stars">★★★★★ <em>4.8</em></span>
+          <small id="pm-count">Sample demo reviews</small>
+        </div>
+
+        <div class="pm-write">
+          <h3>Rate this product</h3>
+          <div class="star-input" id="pm-star-input">
+            <button type="button" data-star="1" aria-label="1 star">★</button>
+            <button type="button" data-star="2" aria-label="2 stars">★</button>
+            <button type="button" data-star="3" aria-label="3 stars">★</button>
+            <button type="button" data-star="4" aria-label="4 stars">★</button>
+            <button type="button" data-star="5" aria-label="5 stars">★</button>
+          </div>
+          <textarea id="pm-text" rows="2" placeholder="How did it work for your skin?"></textarea>
+          <button class="btn-primary" id="pm-submit" type="button">Submit review</button>
+        </div>
       </div>
 
-      <div class="pm-write">
-        <h3>Rate this product</h3>
-        <div class="star-input" id="pm-star-input">
-          <button type="button" data-star="1" aria-label="1 star">★</button>
-          <button type="button" data-star="2" aria-label="2 stars">★</button>
-          <button type="button" data-star="3" aria-label="3 stars">★</button>
-          <button type="button" data-star="4" aria-label="4 stars">★</button>
-          <button type="button" data-star="5" aria-label="5 stars">★</button>
-        </div>
-        <textarea id="pm-text" rows="2" placeholder="How did it work for your skin?"></textarea>
-        <button class="btn-primary" id="pm-submit" type="button">Submit review</button>
-      </div>
+      <button class="pm-collapse-toggle" id="pm-collapse-toggle" type="button" aria-expanded="true" aria-controls="pm-collapsible">
+        <span id="pm-toggle-text">Hide details</span>
+        <svg class="pm-toggle-chev" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
 
       <div class="pm-reviews">
         <h3>Sample community reviews</h3>

@@ -340,6 +340,26 @@
       </article>`).join("");
   }
 
+  const pmInfo = document.querySelector(".pm-info");
+  const pmToggle = $("#pm-collapse-toggle");
+  const pmToggleText = $("#pm-toggle-text");
+  function setPmCollapsed(collapsed) {
+    pmInfo.classList.toggle("is-collapsed", collapsed);
+    pmToggle.setAttribute("aria-expanded", String(!collapsed));
+    pmToggleText.textContent = collapsed ? "Show details" : "Hide details";
+  }
+  pmToggle.addEventListener("click", () => setPmCollapsed(!pmInfo.classList.contains("is-collapsed")));
+
+  const reviewScroller = document.querySelector(".pm-reviews");
+  const revealIO = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add("in-view"); revealIO.unobserve(en.target); }
+    });
+  }, { root: reviewScroller, threshold: 0.12 });
+  function observeReviews() {
+    $$("#pm-review-list .review-card").forEach((c) => { if (!c.classList.contains("in-view")) revealIO.observe(c); });
+  }
+
   function openProduct(id) {
     const p = PRODUCTS[id];
     if (!p) return;
@@ -355,10 +375,11 @@
     $("#pm-text").value = "";
     $$("#pm-star-input button").forEach((b) => b.classList.remove("lit"));
     renderPmReviews(p);
+    setPmCollapsed(false);
     pmOverlay.classList.add("is-open");
     pmOverlay.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    gsap.fromTo("#pm-review-list .review-card", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, delay: 0.2, ease: "power2.out" });
+    observeReviews();
   }
 
   function closeProduct() {
@@ -378,9 +399,12 @@
     const btn = e.target.closest("[data-star]");
     if (!btn) return;
     pmRating = +btn.dataset.star;
+    btn.classList.remove("pop");
+    void btn.offsetWidth;
+    btn.classList.add("pop");
     $$("button", pmStars).forEach((b, i) => {
       b.classList.toggle("lit", i < pmRating);
-      if (i < pmRating) gsap.fromTo(b, { scale: 0.6, rotate: -20 }, { scale: 1, rotate: 0, duration: 0.4, delay: i * 0.05, ease: "back.out(3)" });
+      if (i < pmRating) gsap.fromTo(b, { scale: 0.6, rotate: -20 }, { scale: 1, rotate: 0, duration: 0.4, delay: i * 0.05, ease: "back.out(3)", clearProps: "transform" });
     });
   });
   pmStars.addEventListener("mouseover", (e) => {
@@ -389,6 +413,19 @@
   });
   pmStars.addEventListener("mouseleave", () => {
     $$("button", pmStars).forEach((b, i) => b.classList.toggle("lit", i < pmRating));
+  });
+  // Peek-Rating style: the stars rise in a wave toward the pointer as it moves across them.
+  pmStars.addEventListener("pointermove", (e) => {
+    const sigma = 34;
+    $$("button", pmStars).forEach((b) => {
+      const r = b.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const lift = 10 * Math.exp(-(dx * dx) / (2 * sigma * sigma));
+      b.style.transform = `translateY(${-lift}px) scale(${1 + lift / 60})`;
+    });
+  });
+  pmStars.addEventListener("pointerleave", () => {
+    $$("button", pmStars).forEach((b) => { b.style.transform = ""; });
   });
 
   $("#pm-submit").addEventListener("click", () => {
@@ -399,8 +436,9 @@
     renderPmReviews(PRODUCTS[pmCurrent]);
     $("#pm-text").value = "";
     pmRating = 0;
-    $$("#pm-star-input button").forEach((b) => b.classList.remove("lit"));
-    gsap.fromTo("#pm-review-list .review-card:first-child", { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" });
+    $$("#pm-star-input button").forEach((b) => { b.classList.remove("lit"); b.style.transform = ""; });
+    observeReviews();
+    gsap.fromTo("#pm-review-list .review-card:first-child", { scale: 0.94 }, { scale: 1, duration: 0.5, ease: "back.out(2.4)", clearProps: "transform" });
     toast("Review submitted (demo) ✓");
   });
 
