@@ -1,147 +1,192 @@
-<div class="scan-overlay" id="scan-overlay" aria-hidden="true">
-  <div class="scan-panel">
-    <div class="scan-head">
-      <div class="scan-progress"><span class="scan-progress-fill" id="scan-progress-fill"></span></div>
+<div class="scan-flow" id="scan-flow">
+  <div class="scan-head">
+    <div class="scan-progress" role="progressbar" aria-label="Analysis progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+      <span class="scan-progress-fill" id="scan-progress-fill"></span>
+    </div>
+  </div>
+
+  <div class="scan-step is-active" id="step-upload">
+    <p class="eyebrow"><span class="eyebrow-dot"></span> Step 1 of 3 · Photo and symptoms</p>
+    <h2>Tell us what you’ve <em>noticed.</em></h2>
+    <p class="lede">Add a clear photo and share a little context. Your answers are saved with this scan; the image model analyzes the photo only.</p>
+
+    <div class="scan-intake-grid">
+      <section class="scan-photo-panel" aria-labelledby="scan-photo-title">
+        <div class="scan-section-heading">
+          <div>
+            <p class="scan-kicker">Your image</p>
+            <h3 id="scan-photo-title">Choose or take a photo</h3>
+          </div>
+          <button class="btn-ghost camera-button" id="camera-btn" type="button">Take a photo</button>
+        </div>
+
+        <div class="webcam" id="webcam">
+          <div class="webcam-frame">
+            <video id="webcam-video" autoplay playsinline muted></video>
+          </div>
+          <canvas id="webcam-canvas" hidden></canvas>
+          <p class="webcam-hint" id="webcam-hint">Position the area in the frame, then capture.</p>
+          <div class="webcam-actions">
+            <button class="btn-ghost" id="webcam-cancel" type="button">Cancel</button>
+            <button class="btn-primary" id="webcam-capture" type="button">Capture photo</button>
+          </div>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-frame">
+            <img class="drop-preview" id="drop-preview" src="assets/face-scan.png" alt="Photo preview" />
+            <span class="scan-beam" id="drop-beam"></span>
+          </div>
+          <p>Drop an image here or <button class="link-btn" id="browse-btn" type="button">choose a photo</button></p>
+          <small>Use natural light · keep the camera steady · include the area you’re concerned about</small>
+          <input id="scan-file-input" type="file" accept="image/*" capture="user" hidden />
+        </div>
+
+        <div class="quality-check" id="quality-check" aria-live="polite">
+          <span class="spinner"></span>
+          <p id="quality-text">Checking image quality…</p>
+        </div>
+      </section>
+
+      <section class="scan-symptom-panel" aria-labelledby="scan-symptoms-title">
+        <div class="scan-section-heading">
+          <div>
+            <p class="scan-kicker">A little context</p>
+            <h3 id="scan-symptoms-title">What symptoms have you noticed?</h3>
+          </div>
+        </div>
+        <p class="scan-section-note">Select all that apply. Every answer is optional.</p>
+
+        <div class="symptom-grid" id="symptom-grid" aria-label="Symptoms">
+          <button class="symptom-chip" data-symptom="redness" type="button" aria-pressed="false">Redness</button>
+          <button class="symptom-chip" data-symptom="dryness" type="button" aria-pressed="false">Dryness</button>
+          <button class="symptom-chip" data-symptom="bumps" type="button" aria-pressed="false">Bumps or blemishes</button>
+          <button class="symptom-chip" data-symptom="itching" type="button" aria-pressed="false">Itching</button>
+          <button class="symptom-chip" data-symptom="dark-spots" type="button" aria-pressed="false">Dark spots</button>
+          <button class="symptom-chip" data-symptom="oiliness" type="button" aria-pressed="false">Oiliness</button>
+          <button class="symptom-chip" data-symptom="rash" type="button" aria-pressed="false">Rash</button>
+          <button class="symptom-chip" data-symptom="flaking" type="button" aria-pressed="false">Flaking</button>
+          <button class="symptom-chip" data-symptom="burning" type="button" aria-pressed="false">Burning or stinging</button>
+          <button class="symptom-chip" data-symptom="tenderness" type="button" aria-pressed="false">Pain or tenderness</button>
+          <button class="symptom-chip" data-symptom="swelling" type="button" aria-pressed="false">Swelling</button>
+          <button class="symptom-chip" data-symptom="none" type="button" aria-pressed="false">None of these</button>
+        </div>
+
+        <div class="scan-questions">
+          <label class="scan-question-field" for="symptom-location">
+            <span>Where are you noticing it?</span>
+            <input id="symptom-location" type="text" maxlength="120" placeholder="For example, cheeks or forehead" />
+          </label>
+          <label class="scan-question-field" for="symptom-onset">
+            <span>When did it start?</span>
+            <select id="symptom-onset">
+              <option value="">Choose an answer</option>
+              <option>Today</option>
+              <option>1–3 days ago</option>
+              <option>About a week ago</option>
+              <option>More than a week ago</option>
+              <option>Not sure</option>
+            </select>
+          </label>
+          <label class="scan-question-field" for="symptom-change">
+            <span>How has it changed?</span>
+            <select id="symptom-change">
+              <option value="">Choose an answer</option>
+              <option>About the same</option>
+              <option>Getting better</option>
+              <option>Getting worse</option>
+              <option>Comes and goes</option>
+              <option>Not sure</option>
+            </select>
+          </label>
+          <label class="scan-question-field" for="symptom-severity">
+            <span>How noticeable is it?</span>
+            <select id="symptom-severity">
+              <option value="">Choose an answer</option>
+              <option>Mild</option>
+              <option>Moderate</option>
+              <option>Very noticeable</option>
+              <option>Not sure</option>
+            </select>
+          </label>
+          <label class="scan-question-field scan-question-wide" for="symptom-triggers">
+            <span>Any possible triggers or new products?</span>
+            <textarea id="symptom-triggers" rows="2" maxlength="500" placeholder="Optional"></textarea>
+          </label>
+          <label class="scan-question-field scan-question-wide" for="symptom-notes">
+            <span>Anything else you’d like to add?</span>
+            <textarea id="symptom-notes" rows="2" maxlength="500" placeholder="Optional"></textarea>
+          </label>
+        </div>
+      </section>
     </div>
 
-    <!-- step 1: choose mode -->
-    <div class="scan-step is-active" id="step-mode">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 1 of 5</p>
-      <h2>What are we <em>checking?</em></h2>
-      <p class="lede">Choose the image model for your photo. Hair and skin labels are educational only, not medical diagnoses.</p>
-      <div class="mode-cards">
-        <button class="mode-card" data-mode="skincare">
-          <img src="assets/face-scan.png" alt="" /><strong>Skin care analysis</strong><small>Cosmetic concerns</small>
-        </button>
-        <button class="mode-card" data-mode="condition">
-          <img src="assets/body-scan.png" alt="" /><strong>Condition &amp; risk</strong><small>Lesions or irritation</small>
-        </button>
-        <button class="mode-card" data-mode="hair">
-          <img src="assets/body-scan.png" alt="" /><strong>Hair &amp; scalp</strong><small>Hair and scalp conditions</small>
-        </button>
+    <div class="scan-submit-row">
+      <p>For sudden, severe, or worsening symptoms, contact a qualified healthcare professional.</p>
+      <button class="btn-primary" id="symptoms-next" type="button" disabled>View my results</button>
+    </div>
+  </div>
+
+  <div class="scan-step" id="step-processing">
+    <p class="eyebrow"><span class="eyebrow-dot"></span> Step 2 of 3 · Analysis</p>
+    <h2>Your scan is <em>underway.</em></h2>
+    <div class="proc-visual">
+      <div class="proc-frame">
+        <img id="proc-preview" src="assets/face-scan.png" alt="" />
+        <span class="scan-beam proc-beam"></span>
       </div>
     </div>
+    <ul class="proc-steps" id="proc-steps">
+      <li><span class="proc-icon">01</span> Preparing your photo <em class="proc-state">waiting</em></li>
+      <li><span class="proc-icon">02</span> Running image analysis <em class="proc-state">waiting</em></li>
+      <li><span class="proc-icon">03</span> Preparing your report <em class="proc-state">waiting</em></li>
+      <li><span class="proc-icon">04</span> Saving to your history <em class="proc-state">waiting</em></li>
+    </ul>
+  </div>
 
-    <!-- step 2: upload -->
-    <div class="scan-step" id="step-upload">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 2 of 5</p>
-      <h2>Add a <em>photo.</em></h2>
-      <p class="lede">Take a new photo with your device camera or choose an existing image.</p>
-      <div class="scan-step-actions"><button class="btn-ghost" id="camera-btn" type="button">📷 Take a photo</button></div>
-      <div class="webcam" id="webcam">
-        <div class="webcam-frame">
-          <video id="webcam-video" autoplay playsinline muted></video>
-        </div>
-        <canvas id="webcam-canvas" hidden></canvas>
-        <p class="webcam-hint" id="webcam-hint">Position the area in the frame, then capture.</p>
-        <div class="scan-step-actions">
-          <button class="btn-ghost" id="webcam-cancel" type="button">Cancel</button>
-          <button class="btn-primary" id="webcam-capture" type="button">Capture photo</button>
-        </div>
+  <div class="scan-step" id="step-result">
+    <p class="eyebrow"><span class="eyebrow-dot"></span> Step 3 of 3 · Your results</p>
+    <div class="result-banner">
+      <span class="result-check">✓</span>
+      <div>
+        <h2>Report <em>ready.</em></h2>
+        <p id="result-summary">Skin scan · Prediction results are ready</p>
       </div>
-      <div class="dropzone" id="dropzone">
-        <div class="dropzone-frame">
-          <img class="drop-preview" id="drop-preview" src="assets/face-scan.png" alt="Scan preview" />
-          <span class="scan-beam" id="drop-beam"></span>
-        </div>
-        <p>Drag a photo here, or <button class="link-btn" id="browse-btn" type="button">browse files</button></p>
-        <small>Use natural light · keep the camera steady · fill the frame</small>
-        <input id="scan-file-input" type="file" accept="image/*" capture="environment" hidden />
-      </div>
-      <div class="quality-check" id="quality-check" aria-live="polite">
-        <span class="spinner"></span>
-        <p id="quality-text">Checking image quality…</p>
-      </div>
-      <div class="scan-step-actions">
-        <button class="btn-ghost" data-scan-back type="button">← Back</button>
-        <button class="btn-primary" id="upload-next" type="button" disabled>Continue</button>
+      <div class="result-score">
+        <svg class="score-ring score-ring-sm" viewBox="0 0 160 160" aria-hidden="true">
+          <circle class="ring-bg" cx="80" cy="80" r="68" />
+          <circle class="ring-fg ring-result" cx="80" cy="80" r="68" />
+        </svg>
+        <div class="score-center"><strong class="count" id="result-confidence" data-count="0" data-suffix="%">0</strong><small>Model score</small></div>
       </div>
     </div>
-
-    <!-- step 3: symptoms -->
-    <div class="scan-step" id="step-symptoms">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 3 of 5</p>
-      <h2>Any <em>symptoms?</em></h2>
-      <p class="lede">Tell the AI what you've noticed. Select all that apply.</p>
-      <div class="symptom-grid" id="symptom-grid">
-        <button class="symptom-chip" type="button">🔴 Redness</button>
-        <button class="symptom-chip" type="button">🌵 Dryness</button>
-        <button class="symptom-chip" type="button">🫧 Bumps</button>
-        <button class="symptom-chip" type="button">😖 Itching</button>
-        <button class="symptom-chip" type="button">🟤 Dark spots</button>
-        <button class="symptom-chip" type="button">✨ Oily skin</button>
-        <button class="symptom-chip" type="button">🩹 Rash</button>
-        <button class="symptom-chip" type="button">🙅 None</button>
-      </div>
-      <div class="field" style="margin-top:18px">
-        <label for="symptom-days">How many days have you noticed this?</label>
-        <input id="symptom-days" type="text" placeholder="e.g. 3 days" />
-      </div>
-      <div class="scan-step-actions">
-        <button class="btn-ghost" data-scan-back type="button">← Back</button>
-        <button class="btn-primary" id="symptoms-next" type="button">Analyze my skin →</button>
-      </div>
+    <div class="result-grid">
+      <section class="result-section">
+        <h3>Image analysis</h3>
+        <ul class="result-list" aria-live="polite">
+          <li><strong>Skin condition:</strong> <span id="result-disease-label">Awaiting image</span><br /><small id="result-disease-detail"></small></li>
+          <li><strong>Skin care concern:</strong> <span id="result-cosmetic-label">Awaiting image</span><br /><small id="result-cosmetic-detail"></small></li>
+          <li id="result-prediction">Upload a photo to see the model predictions.</li>
+          <li id="result-confidence-detail">Model scores will appear here after analysis.</li>
+          <li><span class="pill pill-soft">Note</span> This AI result is informational and is not a medical diagnosis.</li>
+        </ul>
+      </section>
+      <section class="result-section result-guidance">
+        <h3 id="result-guidance-title">General care ideas</h3>
+        <p id="result-guidance-note" class="lede">Suggestions are general information, not a treatment plan.</p>
+        <ul id="skincare-tips" class="result-list" hidden></ul>
+        <h4 id="product-results-title" hidden>Product ideas</h4>
+        <div id="analysis-products" class="analysis-products" aria-live="polite"></div>
+        <p id="product-disclaimer" class="product-disclaimer" hidden></p>
+      </section>
     </div>
-
-    <!-- step 4: processing -->
-    <div class="scan-step" id="step-processing">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 4 of 5</p>
-      <h2>The AI is <em>working.</em></h2>
-      <div class="proc-visual">
-        <div class="proc-frame">
-          <img id="proc-preview" src="assets/face-scan.png" alt="" />
-          <span class="scan-beam proc-beam"></span>
-        </div>
-      </div>
-      <ul class="proc-steps" id="proc-steps">
-        <li><span class="proc-icon">🗜️</span> Data preprocessing <em class="proc-state">waiting</em></li>
-        <li><span class="proc-icon">🧠</span> AI model processing (CNN) <em class="proc-state">waiting</em></li>
-        <li><span class="proc-icon">📋</span> Generating report <em class="proc-state">waiting</em></li>
-        <li><span class="proc-icon">💾</span> Saving record to your history <em class="proc-state">waiting</em></li>
-      </ul>
-    </div>
-
-    <!-- step 5: result -->
-    <div class="scan-step" id="step-result">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Step 5 of 5</p>
-      <div class="result-banner">
-        <span class="result-check">✓</span>
-        <div>
-          <h2>Report <em>ready.</em></h2>
-          <p id="result-summary">Facial scan · Prediction results are ready</p>
-        </div>
-        <div class="result-score">
-          <svg class="score-ring score-ring-sm" viewBox="0 0 160 160">
-            <circle class="ring-bg" cx="80" cy="80" r="68" />
-            <circle class="ring-fg ring-result" cx="80" cy="80" r="68" />
-          </svg>
-          <div class="score-center"><strong class="count" id="result-confidence" data-count="0" data-suffix="%">0</strong><small>Confidence</small></div>
-        </div>
-      </div>
-      <div class="result-grid">
-        <article class="result-block">
-          <h3>What we found</h3>
-          <ul class="result-list" aria-live="polite">
-            <li><strong>Skin condition:</strong> <span id="result-disease-label">Awaiting image</span><br /><small id="result-disease-detail"></small></li>
-            <li><strong>Skin care concern:</strong> <span id="result-cosmetic-label">Awaiting image</span><br /><small id="result-cosmetic-detail"></small></li>
-            <li id="result-prediction">Upload a photo to see the model predictions.</li>
-            <li id="result-confidence-detail">Model scores will appear here after analysis.</li>
-            <li><span class="pill pill-soft">Note</span> This AI result is informational and is not a medical diagnosis.</li>
-          </ul>
-        </article>
-        <article class="result-block">
-          <h3 id="result-guidance-title">General care ideas</h3>
-          <p id="result-guidance-note" class="lede">Suggestions are general information, not a treatment plan.</p>
-          <ul id="skincare-tips" class="result-list" hidden></ul>
-          <h4 id="product-results-title" hidden>Product ideas</h4>
-          <div id="analysis-products" class="analysis-products" aria-live="polite"></div>
-          <p id="product-disclaimer" class="product-disclaimer" hidden></p>
-        </article>
-      </div>
-      <div class="scan-step-actions">
-        <button class="btn-ghost" type="button" data-close-scan>Close</button>
-        <button class="btn-primary" id="result-progress-button" type="button" data-view-jump="progress" data-close-scan>Track progress →</button>
-      </div>
+    <section class="result-section result-symptoms" id="result-symptoms-section" hidden>
+      <h3>What you shared</h3>
+      <ul class="result-list" id="result-symptom-summary"></ul>
+    </section>
+    <div class="scan-step-actions">
+      <button class="btn-ghost" id="new-scan-button" type="button">Start a new analysis</button>
+      <button class="btn-primary" id="result-progress-button" type="button" data-view-jump="progress">Track progress →</button>
     </div>
   </div>
 </div>
