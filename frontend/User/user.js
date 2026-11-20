@@ -62,17 +62,19 @@
   }
 
   /* ---------------- component partials ---------------- */
-  // The dashboard shell holds empty [data-include] slots; each is swapped for
-  // its component file before any element lookups below run.
+  // Load nested component slots before any element lookups below run.
   async function loadComponents() {
-    const slots = $$("[data-include]");
-    await Promise.all(
-      slots.map(async (slot) => {
-        const res = await fetch(slot.dataset.include, { cache: "no-store" });
-        if (!res.ok) throw new Error("Could not load " + slot.dataset.include);
-        slot.outerHTML = await res.text();
-      })
-    );
+    let slots = $$("[data-include]");
+    while (slots.length) {
+      await Promise.all(
+        slots.map(async (slot) => {
+          const res = await fetch(slot.dataset.include, { cache: "no-store" });
+          if (!res.ok) throw new Error("Could not load " + slot.dataset.include);
+          slot.outerHTML = await res.text();
+        })
+      );
+      slots = $$("[data-include]");
+    }
   }
 
   try {
@@ -386,7 +388,7 @@
   function closeProduct() {
     pmOverlay.classList.remove("is-open");
     pmOverlay.setAttribute("aria-hidden", "true");
-    if (!overlay.classList.contains("is-open")) document.body.style.overflow = "";
+    if (!progressDetailOverlay.classList.contains("is-open")) document.body.style.overflow = "";
   }
 
   document.addEventListener("click", (e) => {
@@ -443,9 +445,8 @@
     toast("Review submitted (demo) ✓");
   });
 
-  /* ---------------- scan flow overlay ---------------- */
-  const overlay = $("#scan-overlay");
-  const stepIds = ["step-mode", "step-upload", "step-symptoms", "step-processing", "step-result"];
+  /* ---------------- AI analysis flow ---------------- */
+  const stepIds = ["step-upload", "step-processing", "step-result"];
   let scanMode = "skincare";
   let scanStepIndex = 0;
   let stepTween = null;
@@ -468,7 +469,9 @@
   }
 
   function setProgress() {
-    $("#scan-progress-fill").style.width = ((scanStepIndex + 1) / stepIds.length) * 100 + "%";
+    const progress = $("#scan-progress-fill");
+    progress.style.width = ((scanStepIndex + 1) / stepIds.length) * 100 + "%";
+    progress.parentElement.setAttribute("aria-valuenow", String(scanStepIndex + 1));
   }
 
   function modeTitle(mode) {
@@ -507,29 +510,18 @@
     } else swap();
   }
 
-  function openScan(preMode) {
-    if (preMode) setMode(preMode);
-    overlay.classList.add("is-open");
-    overlay.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+  function beginScan() {
+    scanMode = "skincare";
     resetScanFlow();
-    showStep(preMode ? "step-upload" : "step-mode");
-    gsap.fromTo(".scan-panel", { y: 26, scale: 0.97 }, { y: 0, scale: 1, duration: 0.45, ease: "power3.out" });
-  }
-
-  function closeScan() {
-    overlay.classList.remove("is-open");
-    overlay.setAttribute("aria-hidden", "true");
-    if (!pmOverlay.classList.contains("is-open")) document.body.style.overflow = "";
-    if (processingTL) processingTL.kill();
-    if (uploadController) uploadController.abort();
-    uploadController = null;
-    stopWebcam();
+    switchView("scan");
+    showStep("step-upload");
   }
 
   function resetScanFlow() {
     if (uploadController) uploadController.abort();
     uploadController = null;
+    if (processingTL) processingTL.kill();
+    processingTL = null;
     stopWebcam();
     selectedImage = null;
     predictionResult = null;
@@ -537,16 +529,24 @@
     if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
     imagePreviewUrl = null;
     $("#scan-file-input").value = "";
-    $("#upload-next").disabled = true;
+    $("#symptoms-next").disabled = true;
     $("#quality-check").className = "quality-check";
     $("#quality-text").textContent = "Checking image quality…";
     dropzone.classList.remove("is-scanning");
-    $$(".symptom-chip").forEach((c) => c.classList.remove("is-picked"));
+    $$(".symptom-chip").forEach((chip) => {
+      chip.classList.remove("is-picked");
+      chip.setAttribute("aria-pressed", "false");
+    });
+    $("#symptom-location").value = "";
+    $("#symptom-onset").value = "";
+    $("#symptom-change").value = "";
+    $("#symptom-severity").value = "";
+    $("#symptom-triggers").value = "";
+    $("#symptom-notes").value = "";
     $$("#proc-steps li").forEach((li) => {
       li.className = "";
       $(".proc-state", li).textContent = "waiting";
     });
-    $$(".mode-card").forEach((m) => m.classList.toggle("is-picked", m.dataset.mode === scanMode));
     const preview = modePreview(scanMode);
     $("#drop-preview").src = preview;
     $("#proc-preview").src = preview;
@@ -558,6 +558,8 @@
     $("#result-cosmetic-detail").textContent = "";
     $("#result-prediction").textContent = "Upload a photo to see the model predictions.";
     $("#result-confidence-detail").textContent = "Model scores will appear here after analysis.";
+    $("#result-symptom-summary").replaceChildren();
+    $("#result-symptoms-section").hidden = true;
     $("#skincare-tips").replaceChildren();
     $("#skincare-tips").hidden = true;
     $("#analysis-products").replaceChildren();
@@ -570,29 +572,13 @@
     setProgress();
   }
 
-  function setMode(mode) {
-    scanMode = mode;
-    $$(".mode-card").forEach((m) => m.classList.toggle("is-picked", m.dataset.mode === mode));
-    $("#drop-preview").src = modePreview(mode);
-    $("#proc-preview").src = $("#drop-preview").src;
-  }
-
-  $$("[data-open-scan]").forEach((b) => b.addEventListener("click", () => openScan(b.dataset.openScan)));
-  $$(".mode-card").forEach((b) =>
-    b.addEventListener("click", () => {
-      setMode(b.dataset.mode);
-      gsap.fromTo(b, { scale: 0.94 }, { scale: 1, duration: 0.45, ease: "back.out(2.5)" });
-      setTimeout(() => showStep("step-upload"), 260);
-    })
-  );
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeScan(); });
-  document.addEventListener("click", (e) => {
-    if (e.target.closest("[data-close-scan]")) closeScan();
-  });
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (pmOverlay.classList.contains("is-open")) closeProduct();
-    else if (overlay.classList.contains("is-open")) closeScan();
+  });
+  document.addEventListener("skinwise:view", (event) => {
+    if (event.detail === "scan") return;
+    stopWebcam();
   });
   $$("[data-scan-back]").forEach((b) =>
     b.addEventListener("click", () => {
@@ -600,7 +586,8 @@
       showStep(prev, -1);
     })
   );
-  $("#quick-scan").addEventListener("click", () => openScan());
+  $("#quick-scan").addEventListener("click", beginScan);
+  $("#new-scan-button").addEventListener("click", beginScan);
 
   /* Upload the selected image to the prediction API. */
   const dropzone = $("#dropzone");
@@ -610,7 +597,7 @@
     uploadController = null;
     selectedImage = null;
     predictionResult = null;
-    $("#upload-next").disabled = true;
+    $("#symptoms-next").disabled = true;
     dropzone.classList.remove("is-scanning");
     if (!file.type.startsWith("image/")) {
       $("#quality-check").className = "quality-check show fail";
@@ -624,7 +611,7 @@
     imagePreviewUrl = URL.createObjectURL(file);
     $("#drop-preview").src = imagePreviewUrl;
     $("#proc-preview").src = imagePreviewUrl;
-    $("#upload-next").disabled = true;
+    $("#symptoms-next").disabled = true;
 
     const qc = $("#quality-check");
     const beam = $("#drop-beam");
@@ -674,10 +661,10 @@
       predictionResult = result;
       dropzone.classList.remove("is-scanning");
       qc.classList.add("pass");
-      $("#quality-text").textContent = "✓ Analysis complete. Continue to review your results.";
+      $("#quality-text").textContent = "✓ Photo analysis complete. Review your answers, then view results.";
       gsap.fromTo(qc, { scale: 0.96 }, { scale: 1, duration: 0.4, ease: "back.out(2)" });
-      $("#upload-next").disabled = false;
-      gsap.fromTo($("#upload-next"), { scale: 0.9 }, { scale: 1, duration: 0.5, ease: "back.out(2.5)" });
+      $("#symptoms-next").disabled = false;
+      gsap.fromTo($("#symptoms-next"), { scale: 0.96 }, { scale: 1, duration: 0.4, ease: "back.out(2)" });
     } catch (error) {
       if (controller.signal.aborted) return;
       dropzone.classList.remove("is-scanning");
@@ -772,22 +759,77 @@
     gsap.to(dropzone, { scale: 1, duration: 0.25 });
     uploadImage(e.dataTransfer.files[0]);
   });
-  $("#upload-next").addEventListener("click", () => {
-    if (selectedImage && predictionResult) showStep("step-symptoms");
-  });
-
   /* symptom chips */
   $$(".symptom-chip").forEach((chip) =>
     chip.addEventListener("click", () => {
-      chip.classList.toggle("is-picked");
+      const selected = !chip.classList.contains("is-picked");
+      if (chip.dataset.symptom === "none" && selected) {
+        $$(".symptom-chip").forEach((item) => {
+          item.classList.remove("is-picked");
+          item.setAttribute("aria-pressed", "false");
+        });
+      } else if (chip.dataset.symptom !== "none" && selected) {
+        const noneChip = $('.symptom-chip[data-symptom="none"]');
+        noneChip.classList.remove("is-picked");
+        noneChip.setAttribute("aria-pressed", "false");
+      }
+      chip.classList.toggle("is-picked", selected);
+      chip.setAttribute("aria-pressed", String(selected));
       gsap.fromTo(chip, { scale: 0.97 }, { scale: 1, duration: 0.2, ease: "power2.out" });
     })
   );
 
+  function collectSymptoms() {
+    return {
+      selected: $$(".symptom-chip.is-picked").map((chip) => chip.dataset.symptom),
+      location: $("#symptom-location").value.trim(),
+      onset: $("#symptom-onset").value,
+      change: $("#symptom-change").value,
+      severity: $("#symptom-severity").value,
+      possibleTriggers: $("#symptom-triggers").value.trim(),
+      notes: $("#symptom-notes").value.trim(),
+    };
+  }
+
+  function renderSymptomSummary(symptoms) {
+    const section = $("#result-symptoms-section");
+    const list = $("#result-symptom-summary");
+    list.replaceChildren();
+    if (!symptoms || typeof symptoms !== "object") {
+      section.hidden = true;
+      return;
+    }
+
+    const selected = Array.isArray(symptoms.selected)
+      ? symptoms.selected.map((value) => {
+        const chip = $$(".symptom-chip").find((item) => item.dataset.symptom === String(value));
+        return chip ? chip.textContent.trim() : "";
+      }).filter(Boolean)
+      : [];
+    const answers = [
+      ["Symptoms", selected.join(", ")],
+      ["Area", symptoms.location],
+      ["Started", symptoms.onset],
+      ["Changes", symptoms.change],
+      ["Severity", symptoms.severity],
+      ["Possible triggers", symptoms.possibleTriggers],
+      ["Additional notes", symptoms.notes],
+    ];
+    answers.forEach(([label, value]) => {
+      if (typeof value !== "string" || !value.trim()) return;
+      const item = document.createElement("li");
+      const strong = document.createElement("strong");
+      strong.textContent = `${label}: `;
+      item.append(strong, document.createTextNode(value));
+      list.append(item);
+    });
+    section.hidden = list.children.length === 0;
+  }
+
   /* processing timeline → result */
   $("#symptoms-next").addEventListener("click", () => {
-    if (!predictionResult) {
-      toast("Upload a photo and wait for the analysis to finish.");
+    if (!selectedImage || !predictionResult) {
+      toast("Choose a photo and wait for its analysis to finish.");
       return;
     }
     showStep("step-processing");
@@ -882,7 +924,8 @@
       ? Boolean(predictionResult.safety?.professional_review_recommended)
       : Boolean(predictionResult && scanMode === "condition" && ["mel", "bcc", "akiec"].includes(predictionResult.predicted_class));
     $("#result-summary").textContent = `${modeTitle(scanMode)} · Results ready`;
-    const guidance = $("#step-result .result-grid article:nth-child(2)");
+    const symptomAnswers = collectSymptoms();
+    renderSymptomSummary(symptomAnswers);
     const tipsList = $("#skincare-tips");
     tipsList.replaceChildren();
     const skincareTips = dualResult && scanMode === "skincare" && Array.isArray(predictionResult.skincare_tips)
@@ -967,6 +1010,7 @@
       createdAt: new Date().toISOString(),
       tracked: false,
       concern: Boolean(highConcern || isUnknown),
+      symptoms: symptomAnswers,
       guidanceTitle: $("#result-guidance-title").textContent,
       guidanceNote: $("#result-guidance-note").textContent,
       skincareTips,
@@ -990,7 +1034,7 @@
     runCounters($("#step-result"));
     drawRing($(".ring-result", $("#step-result")), confidence, 0.3);
     gsap.fromTo($(".result-check"), { scale: 0, rotate: -90 }, { scale: 1, rotate: 0, duration: 0.6, delay: 0.15, ease: "back.out(2)" });
-    gsap.fromTo($$("#step-result .result-block"), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, stagger: 0.12, delay: 0.25, ease: "power3.out" });
+    gsap.fromTo($$("#step-result .result-section"), { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.12, delay: 0.2, ease: "power3.out" });
   }
 
   /* ---------------- overview charts ---------------- */
@@ -1262,7 +1306,7 @@
   function closeProgressDetail() {
     progressDetailOverlay.classList.remove("is-open");
     progressDetailOverlay.setAttribute("aria-hidden", "true");
-    if (!overlay.classList.contains("is-open") && !pmOverlay.classList.contains("is-open")) {
+    if (!pmOverlay.classList.contains("is-open")) {
       document.body.style.overflow = "";
     }
     const focusTarget = progressDetailReturnFocus && progressDetailReturnFocus.isConnected
@@ -1356,12 +1400,10 @@
       entry.id = createScanId();
       localStorage.setItem("skinwise.scans", JSON.stringify(scans));
     }
-    setMode(entry.mode);
+    scanMode = entry.mode;
     resetScanFlow();
     activeHistoryEntryId = entry.id;
-    overlay.classList.add("is-open");
-    overlay.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+    switchView("scan");
     showStep("step-result");
 
     const score = Math.max(0, Math.min(100, Math.round(confidence)));
@@ -1373,6 +1415,7 @@
     $("#result-prediction").textContent = "Saved result from your analysis.";
     $("#result-confidence-detail").textContent = `${score}% model confidence. This is informational only, not a diagnosis.`;
     $("#result-summary").textContent = `${modeTitle(entry.mode)} · Saved result`;
+    renderSymptomSummary(entry.symptoms);
     $("#result-guidance-title").textContent = entry.guidanceTitle || (entry.concern
       ? "Professional assessment recommended"
       : entry.mode === "hair" ? "Hair & scalp information" : "General care ideas");
@@ -1483,9 +1526,9 @@
   (function enter() {
     gsap.fromTo(".topbar", { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, delay: 0.1, ease: "power3.out" });
     const initial = location.hash.replace("#", "");
-    if (initial === "scan-start") openScan();
+    if (initial === "scan-start") beginScan();
     else if (initial === "sample-report") {
-      openScan();
+      beginScan();
       showStep("step-result");
       presentResult();
     }
