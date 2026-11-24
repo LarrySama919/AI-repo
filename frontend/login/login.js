@@ -17,9 +17,6 @@ if (authForm) {
   const message = document.querySelector("#form-message");
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  window.clearTimeout(window.authMotionFallback);
-  document.documentElement.classList.remove("auth-motion-pending");
-
   function animateOnce(element, frames, options) {
     if (prefersReducedMotion || !element || typeof element.animate !== "function") return;
     const animation = element.animate(frames, { fill: "both", ...options });
@@ -84,7 +81,7 @@ if (authForm) {
       { opacity: 0, transform: "translateY(-8px)" },
       { opacity: 1, transform: "translateY(0)" },
     ],
-    { duration: 670, delay: 690, easing: "cubic-bezier(.2,.8,.2,1)" },
+    { duration: 520, delay: 690, easing: "cubic-bezier(.2,.8,.2,1)" },
   );
   animateOnce(
     document.querySelector(".back-link"),
@@ -92,7 +89,7 @@ if (authForm) {
       { opacity: 0, transform: "translateY(-7px)" },
       { opacity: 1, transform: "translateY(0)" },
     ],
-    { duration: 430, delay: 510, easing: "cubic-bezier(.2,.8,.2,1)" },
+    { duration: 520, delay: 790, easing: "cubic-bezier(.2,.8,.2,1)" },
   );
   animateOnce(
     panel,
@@ -143,6 +140,9 @@ if (authForm) {
     { duration: 420, delay: 250, easing: "ease-out" },
   );
 
+  window.clearTimeout(window.authMotionFallback);
+  document.documentElement.classList.remove("auth-motion-pending");
+
   document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
     toggle.addEventListener("click", () => {
       const target = toggle.closest(".password-wrap").querySelector("input");
@@ -162,8 +162,38 @@ if (authForm) {
     });
   });
 
+  const resetDialog = document.querySelector("#reset-dialog");
+  const resetForm = document.querySelector("#reset-form");
+  const resetEmail = document.querySelector("#reset-email");
+  const resetStatus = document.querySelector("#reset-status");
+
   forgotPassword.addEventListener("click", () => {
-    showMessage("Password reset is not connected yet. Your email has not been sent.");
+    resetEmail.value = document.querySelector("#email").value.trim();
+    resetStatus.hidden = true;
+    resetStatus.textContent = "";
+    resetDialog.showModal();
+    resetEmail.focus();
+  });
+
+  document.querySelectorAll("[data-reset-close]").forEach((button) => {
+    button.addEventListener("click", () => resetDialog.close());
+  });
+
+  resetDialog.addEventListener("click", (event) => {
+    if (event.target === resetDialog) resetDialog.close();
+  });
+
+  resetDialog.addEventListener("close", () => forgotPassword.focus());
+
+  resetForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    resetStatus.hidden = false;
+    resetStatus.textContent = "Password recovery is not available yet, so no email was sent.";
+  });
+
+  resetEmail.addEventListener("input", () => {
+    resetStatus.hidden = true;
+    resetStatus.textContent = "";
   });
 
   function dashboardForRole(role) {

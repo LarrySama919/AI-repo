@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="login.css" />
-    <script src="login.js?v=20261119-auth-motion" defer></script>
+    <script src="login.js?v=20261124-reset-dialog" defer></script>
   </head>
   <body class="auth-page">
     <div class="auth-background" aria-hidden="true">
@@ -98,7 +98,26 @@
     <footer class="auth-footer">
       <span>© Skinwise</span>
       <span>Take good care, at your own pace.</span>
-      <a href="../landing/landing_page.html#about">About Skinwise</a>
+      <a href="../landing/about.html">About Skinwise</a>
     </footer>
+
+    <dialog class="reset-dialog" id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-description">
+      <div class="reset-dialog-card">
+        <button class="reset-close" type="button" data-reset-close aria-label="Close password recovery">×</button>
+        <div class="form-eyebrow">Account recovery</div>
+        <h2 id="reset-title">Forgot your password?</h2>
+        <p class="reset-description" id="reset-description">Enter the email address linked to your account to get started.</p>
+        <form class="reset-form" id="reset-form">
+          <label for="reset-email">Email address</label>
+          <input id="reset-email" name="email" type="email" autocomplete="email" maxlength="255" placeholder="you@example.com" required />
+          <p class="reset-status" id="reset-status" role="status" aria-live="polite" hidden></p>
+          <div class="reset-actions">
+            <button class="reset-cancel" type="button" data-reset-close>Back to sign in</button>
+            <button class="reset-submit" type="submit">Continue <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+        <p class="reset-note">Password recovery is not connected yet. This form will not send or store your email.</p>
+      </div>
+    </dialog>
   </body>
 </html>
