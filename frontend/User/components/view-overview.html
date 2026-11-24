@@ -3,9 +3,35 @@
     <div>
       <p class="eyebrow"><span class="eyebrow-dot"></span> Your Skinwise dashboard</p>
       <h1>Take care of your <em>skin.</em></h1>
-      <p class="lede">Start an image analysis, review your saved results, and decide what to do next.</p>
+      <p class="lede">Choose a separate tool for skin analysis, skincare guidance, or finding a dermatologist.</p>
     </div>
-    <button class="btn-primary" id="quick-scan" type="button">Start an analysis →</button>
+    <button class="btn-primary" id="quick-scan" type="button">Start skin analysis →</button>
+  </div>
+  <div class="module-grid" aria-label="Available modules">
+    <article class="card module-card" data-anim="card" data-view-jump="scan">
+      <span class="module-number">01</span>
+      <div>
+        <h3>Skin disease classification</h3>
+        <p>Upload a photo and review an informational AI classification.</p>
+      </div>
+      <button class="module-link" type="button" data-view-jump="scan">Analyze a photo <span>→</span></button>
+    </article>
+    <article class="card module-card" data-anim="card" data-view-jump="scan">
+      <span class="module-number">02</span>
+      <div>
+        <h3>Skincare recommendation</h3>
+        <p>Answer a few questions to find products matched to your skin needs.</p>
+      </div>
+      <button class="module-link" type="button" data-view-jump="scan" data-ai-mode="recommendation">Build my routine <span>→</span></button>
+    </article>
+    <article class="card module-card" data-anim="card" data-view-jump="dermatologists">
+      <span class="module-number">03</span>
+      <div>
+        <h3>Dermatologist directory</h3>
+        <p>Search doctors, compare clinics, and view contact details.</p>
+      </div>
+      <button class="module-link" type="button" data-view-jump="dermatologists">Find a doctor <span>→</span></button>
+    </article>
   </div>
   <div class="bento overview-charts">
     <article class="card card-trend" data-anim="card">

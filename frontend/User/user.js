@@ -271,7 +271,29 @@
 
   document.addEventListener("click", (e) => {
     const jump = e.target.closest("[data-view-jump]");
-    if (jump) switchView(jump.dataset.viewJump);
+    if (jump) {
+      switchView(jump.dataset.viewJump);
+      if (jump.dataset.aiMode) setTimeout(() => setAiMode(jump.dataset.aiMode), 330);
+    }
+  });
+
+  function setAiMode(mode) {
+    const analysisPanel = $("#skin-analysis-panel");
+    const recommendationPanel = $("#skincare-recommendation-panel");
+    if (!analysisPanel || !recommendationPanel) return;
+    const showRecommendation = mode === "recommendation";
+    analysisPanel.hidden = showRecommendation;
+    recommendationPanel.hidden = !showRecommendation;
+    $$(".ai-module-card").forEach((card) => {
+      const active = card.dataset.aiMode === (showRecommendation ? "recommendation" : "analysis");
+      card.classList.toggle("is-active", active);
+      card.setAttribute("aria-pressed", String(active));
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    const aiCard = event.target.closest("[data-ai-mode]:not([data-view-jump])");
+    if (aiCard) setAiMode(aiCard.dataset.aiMode);
   });
 
   /* chip filters (visual only) */
@@ -282,6 +304,193 @@
       chip.classList.add("is-active");
       gsap.fromTo(chip, { scale: 0.97 }, { scale: 1, duration: 0.2, ease: "power2.out" });
     }
+  });
+
+  /* ---------------- collection pagination ---------------- */
+  const paginationStates = new WeakMap();
+
+  function setupPagination(container, nav, {
+    threshold = 6,
+    pageSize = 6,
+    predicate = () => true,
+    reset = false,
+  } = {}) {
+    if (!container || !nav) return;
+    let state = paginationStates.get(container);
+    if (!state || reset) {
+      state = { page: 1 };
+      paginationStates.set(container, state);
+    }
+
+    const items = [...container.children];
+    const matching = items.filter(predicate);
+    const totalPages = Math.ceil(matching.length / pageSize);
+    if (matching.length <= threshold) {
+      items.forEach((item) => { item.hidden = !predicate(item); });
+      nav.hidden = true;
+      nav.replaceChildren();
+      state.page = 1;
+      return;
+    }
+
+    state.page = Math.min(Math.max(1, state.page), totalPages);
+    nav.hidden = false;
+    const start = (state.page - 1) * pageSize;
+    const end = start + pageSize;
+    matching.forEach((item, index) => {
+      item.hidden = index < start || index >= end;
+    });
+    items.filter((item) => !predicate(item)).forEach((item) => { item.hidden = true; });
+
+    nav.innerHTML = `
+      <button type="button" data-page-action="prev" ${state.page === 1 ? "disabled" : ""} aria-label="Previous page">←</button>
+      ${Array.from({ length: totalPages }, (_, index) => `
+        <button type="button" data-page="${index + 1}" class="${state.page === index + 1 ? "is-active" : ""}" aria-label="Page ${index + 1}" ${state.page === index + 1 ? 'aria-current="page"' : ""}>${index + 1}</button>
+      `).join("")}
+      <button type="button" data-page-action="next" ${state.page === totalPages ? "disabled" : ""} aria-label="Next page">→</button>`;
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-page], [data-page-action]");
+    if (!button) return;
+    const nav = button.closest(".pagination");
+    const containerId = nav?.id === "history-pagination"
+      ? "history-list"
+      : nav?.id === "progress-pagination"
+        ? "tracked-scans-list"
+        : nav?.id === "products-pagination"
+          ? null
+          : nav?.id === "doctors-pagination"
+            ? "doctor-grid"
+            : null;
+    const container = containerId ? $("#" + containerId) : nav?.id === "products-pagination" ? $(".product-grid") : null;
+    if (!container) return;
+    const state = paginationStates.get(container);
+    if (!state) return;
+    if (button.dataset.page) state.page = Number(button.dataset.page);
+    if (button.dataset.pageAction === "prev") state.page -= 1;
+    if (button.dataset.pageAction === "next") state.page += 1;
+    if (nav.id === "doctors-pagination") filterDoctors();
+    else if (nav.id === "history-pagination") setupPagination(container, nav, { threshold: 6, pageSize: 6 });
+    else if (nav.id === "progress-pagination") setupPagination(container, nav, { threshold: 6, pageSize: 6 });
+    else setupPagination(container, nav, { threshold: 8, pageSize: 8 });
+  });
+
+  /* ---------------- skincare recommendation workflow ---------------- */
+  const recommendationForm = $("#recommendation-form");
+  if (recommendationForm) {
+    const generateButton = $("#generate-recommendations");
+    const skinTypeInputs = $$('input[name="skin-type"]', recommendationForm);
+    const concernInputs = $$('input[name="skin-concern"]', recommendationForm);
+
+    function updateRecommendationState() {
+      generateButton.disabled = !skinTypeInputs.some((input) => input.checked) ||
+        !concernInputs.some((input) => input.checked);
+    }
+    recommendationForm.addEventListener("change", updateRecommendationState);
+
+    recommendationForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const skinType = skinTypeInputs.find((input) => input.checked)?.value;
+      const concerns = concernInputs.filter((input) => input.checked).map((input) => input.value);
+      if (!skinType || !concerns.length) return;
+
+      const allergies = $("#recommendation-allergies").value.trim();
+      const currentProducts = $("#recommendation-products").value.trim();
+      const recommendations = [];
+      if (concerns.includes("Dryness") || skinType === "Dry" || skinType === "Sensitive") {
+        recommendations.push({
+          icon: "🧴",
+          name: "Barrier-support moisturizer",
+          description: "Look for ceramides, glycerin, or hyaluronic acid. Apply to slightly damp skin.",
+          usage: "Use morning and evening",
+        });
+      }
+      if (concerns.includes("Acne") || skinType === "Oily" || skinType === "Combination") {
+        recommendations.push({
+          icon: "🫧",
+          name: "Gentle gel cleanser",
+          description: "Choose a mild, fragrance-free cleanser that does not leave the skin tight.",
+          usage: "Use once or twice daily",
+        });
+      }
+      if (concerns.includes("Dark spots") || concerns.includes("Wrinkles")) {
+        recommendations.push({
+          icon: "✨",
+          name: "Even-tone serum",
+          description: "Consider niacinamide or vitamin C. Patch test first and introduce one product at a time.",
+          usage: "Use in the morning or evening as directed",
+        });
+      }
+      if (concerns.includes("Redness") || skinType === "Sensitive") {
+        recommendations.push({
+          icon: "🌿",
+          name: "Soothing fragrance-free formula",
+          description: "Look for centella or colloidal oat, and avoid known irritants.",
+          usage: "Apply after cleansing",
+        });
+      }
+      recommendations.push({
+        icon: "☀️",
+        name: "Broad-spectrum SPF 30+",
+        description: "Use a daily sunscreen suited to your skin type. Reapply outdoors according to the label.",
+        usage: "Use every morning",
+      });
+      if (allergies) {
+        recommendations.forEach((item) => {
+          item.description += ` Avoid your noted sensitivity: ${allergies}.`;
+        });
+      }
+
+      $("#recommendation-empty").hidden = true;
+      const output = $("#recommendation-output");
+      output.hidden = false;
+      output.innerHTML = `
+        <h3>Recommended for ${esc(skinType)} skin</h3>
+        <p class="recommendation-summary">Concerns: ${esc(concerns.join(", "))}${currentProducts ? `<br />Current products: ${esc(currentProducts)}` : ""}</p>
+        ${recommendations.slice(0, 5).map((item) => `
+          <article class="recommendation-product">
+            <span class="recommendation-product-icon">${item.icon}</span>
+            <div><h4>${esc(item.name)}</h4><p>${esc(item.description)}</p><small>${esc(item.usage)}</small></div>
+          </article>`).join("")}
+        <p class="directory-disclaimer">This routine is general guidance, not a diagnosis or prescription. Stop use and seek professional advice if irritation occurs.</p>`;
+      toast("Recommendations ready");
+    });
+  }
+
+  /* ---------------- dermatologist directory search ---------------- */
+  const doctorSearch = $("#doctor-search-input");
+  const doctorLocation = $("#doctor-location");
+  function filterDoctors(reset = false) {
+    if (!doctorSearch || !doctorLocation) return;
+    const query = doctorSearch.value.trim().toLowerCase();
+    const location = doctorLocation.value;
+    setupPagination(
+      $("#doctor-grid"),
+      $("#doctors-pagination"),
+      {
+        threshold: 6,
+        pageSize: 6,
+        reset,
+        predicate: (card) => (
+          (!query || card.dataset.search.includes(query)) &&
+          (location === "Any" || card.dataset.location === location)
+        ),
+      }
+    );
+  }
+  doctorSearch?.addEventListener("input", () => filterDoctors(true));
+  doctorLocation?.addEventListener("change", () => filterDoctors(true));
+  document.addEventListener("click", (event) => {
+    const profileButton = event.target.closest(".doctor-profile-button");
+    if (!profileButton) return;
+    const card = profileButton.closest(".doctor-card");
+    const details = card?.querySelector(".doctor-profile-details");
+    if (!details) return;
+    const willOpen = details.hidden;
+    details.hidden = !willOpen;
+    profileButton.setAttribute("aria-expanded", String(willOpen));
+    profileButton.textContent = willOpen ? "Hide profile ↑" : "View profile →";
   });
 
   /* ---------------- product detail modal ---------------- */
@@ -567,6 +776,8 @@
     $("#product-results-title").hidden = true;
     $("#product-disclaimer").textContent = "";
     $("#product-disclaimer").hidden = true;
+    const doctorButton = $("#result-doctor-button");
+    if (doctorButton) doctorButton.hidden = true;
     $("#result-summary").textContent = `${modeTitle(scanMode)} · Ready for review`;
     scanStepIndex = 0;
     setProgress();
@@ -988,9 +1199,13 @@
       $("#result-guidance-note").textContent = highConcern
         ? (predictionResult.safety?.message || "A model signal warrants professional review. Product suggestions are withheld.")
         : "This model has not accepted the selected output. No tailored skincare tips are shown; contact a qualified clinician about a changing or concerning area.";
+      const unknownDoctorButton = $("#result-doctor-button");
+      if (unknownDoctorButton) unknownDoctorButton.hidden = !highConcern;
     } else if (highConcern) {
       $("#result-guidance-title").textContent = "Professional assessment recommended";
       $("#result-guidance-note").textContent = predictionResult.safety?.message || "A model signal warrants professional review. It is not a diagnosis or cancer probability; product suggestions are withheld.";
+      const doctorButton = $("#result-doctor-button");
+      if (doctorButton) doctorButton.hidden = false;
     } else {
       $("#result-guidance-title").textContent = scanMode === "hair"
         ? "Hair & scalp information"
@@ -1238,6 +1453,7 @@
         : "Model output is informational only and is not a diagnosis.";
       return `<article class="tl-item"><span class="tl-dot"></span><div class="tl-card" role="button" tabindex="0" data-history-index="${index}" aria-label="View saved analysis result"><span class="tl-date">${esc(date)}</span><h3>${esc(title)}</h3><p>${esc(entry.label)} · model confidence ${Number(entry.confidence)}%</p><p>${esc(status)}</p></div></article>`;
     }).join("") : '<article class="card"><h3>No saved analyses yet</h3><p>Start an analysis to add your first report here.</p></article>';
+    setupPagination(list, $("#history-pagination"), { threshold: 6, pageSize: 6 });
   }
 
   function renderProgressList() {
@@ -1259,6 +1475,7 @@
       : "No scans yet";
     if (!trackedScans.length) {
       list.innerHTML = '<div class="tracked-scans-empty"><span class="tracked-scans-empty-icon" aria-hidden="true">✦</span><strong>Your timeline starts here</strong><p>Open any scan result and choose “Track progress” to add one.</p></div>';
+      setupPagination(list, $("#progress-pagination"), { threshold: 6, pageSize: 6 });
       return;
     }
 
@@ -1288,6 +1505,7 @@
         </div>
       </article>`;
     }).join("");
+    setupPagination(list, $("#progress-pagination"), { threshold: 6, pageSize: 6 });
   }
 
   function setScanTracked(id, tracked) {
@@ -1422,6 +1640,8 @@
     $("#result-guidance-note").textContent = entry.guidanceNote || (entry.concern
       ? "This saved result was flagged for professional assessment. It is not a diagnosis."
       : "Care ideas were not saved for this older analysis. This result is informational and is not a diagnosis.");
+    const savedDoctorButton = $("#result-doctor-button");
+    if (savedDoctorButton) savedDoctorButton.hidden = !entry.concern;
     const tipsList = $("#skincare-tips");
     tipsList.replaceChildren();
     (Array.isArray(entry.skincareTips) ? entry.skincareTips : []).forEach((tip) => {
@@ -1521,6 +1741,12 @@
   window.skinwiseNav = { switchView, toast, currentView: () => currentView, logout };
 
   /* ---------------- entrance ---------------- */
+  setupPagination($(".product-grid"), $("#products-pagination"), {
+    threshold: 8,
+    pageSize: 8,
+  });
+  if ($("#doctor-grid")) filterDoctors(true);
+
   // Components are already in the DOM by this point, so run immediately
   // rather than waiting for the window load event.
   (function enter() {

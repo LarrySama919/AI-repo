@@ -18,7 +18,7 @@
 .bubble-menu.fixed { position: fixed; }
 
 .bubble-menu .bubble {
-  --bubble-size: 50px;
+  --bubble-size: 44px;
   width: var(--bubble-size);
   height: var(--bubble-size);
   border-radius: 50%;
@@ -53,7 +53,7 @@
 }
 
 .bubble-menu .menu-line {
-  width: 24px;
+  width: 21px;
   height: 2px;
   background: #111;
   border-radius: 2px;
@@ -63,13 +63,13 @@
   transform-origin: center;
 }
 
-.bubble-menu .menu-line + .menu-line { margin-top: 6px; }
+.bubble-menu .menu-line + .menu-line { margin-top: 5px; }
 
 .bubble-menu .menu-btn.open .menu-line:first-child { transform: translateY(4px) rotate(45deg); }
 .bubble-menu .menu-btn.open .menu-line:last-child { transform: translateY(-4px) rotate(-45deg); }
 
 @media (min-width: 768px) {
-  .bubble-menu .bubble { --bubble-size: 58px; }
+  .bubble-menu .bubble { --bubble-size: 44px; }
 }
 
 /* ---------- pop-up dock: a horizontal bar of floating pills that rises from below ---------- */
@@ -106,17 +106,16 @@
   pointer-events: auto;
   list-style: none;
   margin: 0 auto;
-  width: 100%;
-  max-width: 1500px;
+  width: calc(100% - 28px);
+  max-width: 1520px;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: flex-end;
-  justify-content: flex-start;
   justify-content: safe center;
-  gap: clamp(8px, 1.1vw, 18px);
-  padding: 52px clamp(14px, 3vw, 34px)
-           calc(clamp(14px, 3vh, 26px) + var(--dock-h) + 26px);
+  gap: clamp(5px, 0.6vw, 10px);
+  padding: 52px clamp(8px, 1.5vw, 18px)
+           calc(clamp(12px, 2.5vh, 22px) + var(--dock-h) + 20px);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -142,12 +141,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(7px, 0.9vw, 11px);
+  gap: clamp(6px, 0.75vw, 10px);
   width: auto;
-  min-height: clamp(60px, 8vh, 88px);
-  padding: clamp(0.8rem, 1.4vw, 1.1rem) clamp(0.95rem, 1.8vw, 1.7rem);
+  min-height: clamp(46px, 5.8vh, 60px);
+  padding: 0.62rem clamp(0.6rem, 0.95vw, 1rem);
   font-family: var(--display);
-  font-size: clamp(0.9rem, 1.25vw, 1.2rem);
+  font-size: clamp(0.72rem, 0.88vw, 0.88rem);
   font-weight: 800;
   letter-spacing: -0.4px;
   line-height: 1;
@@ -199,8 +198,8 @@
 }
 
 .bubble-menu-items .pill-link .pill-icon svg {
-  width: clamp(18px, 1.5vw, 22px);
-  height: clamp(18px, 1.5vw, 22px);
+  width: clamp(16px, 1.3vw, 20px);
+  height: clamp(16px, 1.3vw, 20px);
   display: block;
 }
 
@@ -225,7 +224,7 @@
 
 @media (max-width: 899px) {
   .bubble-menu-items { --dock-h: 50px; }
-  .bubble-menu-items .pill-list { gap: 10px; padding-top: 40px; }
+  .bubble-menu-items .pill-list { gap: 7px; padding-top: 34px; }
   .bubble-menu-items .pill-link {
     min-height: 58px;
     font-size: clamp(0.85rem, 3.4vw, 1.05rem);
