@@ -1,0 +1,58 @@
+<section class="view" id="view-dermatologists">
+  <div class="view-head">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Module 3 · Dermatologist directory</p>
+      <h1>Find a <em>dermatologist.</em></h1>
+      <p class="lede">Search specialists, review clinic information, and contact a practice directly.</p>
+    </div>
+  </div>
+  <div class="doctor-directory">
+    <div class="doctor-search card">
+      <label for="doctor-search-input">Search name or specialty
+        <input id="doctor-search-input" type="search" placeholder="e.g. Dr. Lin, acne, general dermatology" />
+      </label>
+      <label for="doctor-location">Location
+        <select id="doctor-location">
+          <option value="Any">Any location</option>
+          <option value="Yangon">Yangon</option>
+          <option value="Mandalay">Mandalay</option>
+          <option value="Naypyidaw">Naypyidaw</option>
+        </select>
+      </label>
+    </div>
+    <div class="doctor-grid" id="doctor-grid">
+      <article class="card doctor-card" data-location="Yangon" data-search="general dermatology acne skin cancer dr aung min khant">
+        <div class="doctor-profile"><span class="doctor-avatar">AM</span><div><h3>Dr. Aung Min Khant</h3><p>General Dermatology · Skin Cancer</p></div></div>
+        <div class="doctor-meta"><span>Yangon</span><span>08:30–16:30</span></div>
+        <p class="doctor-clinic"><strong>Skinwell Clinic, Yangon</strong><br />No. 24, Kabar Aye Avenue, Yangon</p>
+        <div class="doctor-profile-details" hidden>
+          <strong>Special interests</strong>
+          <p>General skin checks, acne care, mole assessment, and sun-damage guidance.</p>
+        </div>
+        <div class="doctor-actions"><a class="btn-ghost" href="tel:+959123456789">Call clinic</a><button class="btn-primary doctor-profile-button" type="button" aria-expanded="false">View profile →</button></div>
+      </article>
+      <article class="card doctor-card" data-location="Mandalay" data-search="pediatric dermatology eczema allergies dr su su aung">
+        <div class="doctor-profile"><span class="doctor-avatar">SA</span><div><h3>Dr. Su Su Aung</h3><p>Pediatric Dermatology · Eczema</p></div></div>
+        <div class="doctor-meta"><span>Mandalay</span><span>09:00–17:00</span></div>
+        <p class="doctor-clinic"><strong>Mandalay Skin Care Centre</strong><br />No. 81, 27th Street, Mandalay</p>
+        <div class="doctor-profile-details" hidden>
+          <strong>Special interests</strong>
+          <p>Pediatric eczema, childhood allergies, rashes, and sensitive-skin care.</p>
+        </div>
+        <div class="doctor-actions"><a class="btn-ghost" href="tel:+959987654321">Call clinic</a><button class="btn-primary doctor-profile-button" type="button" aria-expanded="false">View profile →</button></div>
+      </article>
+      <article class="card doctor-card" data-location="Yangon" data-search="cosmetic dermatology acne pigmentation dr thiri zin">
+        <div class="doctor-profile"><span class="doctor-avatar">TZ</span><div><h3>Dr. Thiri Zin</h3><p>Acne · Pigmentation · Cosmetic Dermatology</p></div></div>
+        <div class="doctor-meta"><span>Yangon</span><span>10:00–18:00</span></div>
+        <p class="doctor-clinic"><strong>Clear Skin Medical</strong><br />No. 52, Inya Road, Yangon</p>
+        <div class="doctor-profile-details" hidden>
+          <strong>Special interests</strong>
+          <p>Acne treatment planning, melasma, pigmentation, and cosmetic skin consultations.</p>
+        </div>
+        <div class="doctor-actions"><a class="btn-ghost" href="tel:+959555123456">Call clinic</a><button class="btn-primary doctor-profile-button" type="button" aria-expanded="false">View profile →</button></div>
+      </article>
+    </div>
+    <nav class="pagination" id="doctors-pagination" aria-label="Dermatologist pages" hidden></nav>
+    <p class="directory-disclaimer">Directory listings are demo information. Verify the clinician, appointment availability, and clinic details before visiting.</p>
+  </div>
+</section>

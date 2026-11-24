@@ -141,6 +141,7 @@ const ICONS = {
   progress: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 15l3.5-4 3 2.5L20 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   products: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14l-1 13H6L5 7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 10V6a3 3 0 0 1 6 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   settings: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56l-.06-.06a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.6"/></svg>',
+  dermatologists: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 20c.7-4 3-6 6.5-6s5.8 2 6.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18 3v4M16 5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   logout: '<svg viewBox="0 0 24 24" fill="none"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l4-4-4-4m4 4H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 
@@ -150,6 +151,7 @@ const NAV_ITEMS = [
   { label: "History", view: "history", rotation: -3, offsetY: -6, icon: ICONS.history, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
   { label: "Progress", view: "progress", rotation: 5, offsetY: 14, icon: ICONS.progress, hoverStyles: { bgColor: "#cc795f", textColor: "#ffffff" } },
   { label: "Products", view: "products", rotation: -5, offsetY: -11, icon: ICONS.products, hoverStyles: { bgColor: "#cc795f", textColor: "#ffffff" } },
+  { label: "Dermatologists", view: "dermatologists", rotation: 4, offsetY: 10, icon: ICONS.dermatologists, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
   { label: "Settings", view: "settings", rotation: 3, offsetY: 8, icon: ICONS.settings, hoverStyles: { bgColor: "#324f43", textColor: "#f4f1e8" } },
   {
     label: "Logout",
