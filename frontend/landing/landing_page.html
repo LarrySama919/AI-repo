@@ -15,8 +15,12 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css?v=3d2" />
+    <script src="script.js?v=3d2" defer></script>
+    <script type="importmap">
+      { "imports": { "three": "./vendor/three.module.min.js" } }
+    </script>
+    <script type="module" src="./scan3d.js?v=3d2"></script>
   </head>
   <body>
     <header class="site-header">
@@ -68,24 +72,38 @@
           <div class="hero-note"><span class="shield-icon" aria-hidden="true">✳</span> Private by design <span class="note-divider">·</span> Informational, not a diagnosis</div>
         </div>
 
-        <div class="hero-art" aria-label="Illustration of a facial skin scan">
+        <div class="hero-art" data-mode="face" aria-label="Interactive 3D facial scan preview">
           <div class="art-orbit orbit-one"></div>
           <div class="art-orbit orbit-two"></div>
+          <div class="art-orbit orbit-three"></div>
           <div class="art-caption"><span class="live-dot"></span><span id="mode-caption">Facial check-in</span><span class="caption-time">~ 2 min</span></div>
-          <div class="face-frame">
-            <img class="face-illustration" src="../User/assets/face-pixel.png" alt="Pixel-art face for the facial skin scan" />
-            <img class="body-illustration" src="../User/assets/body-pixel.png" alt="Pixel-art body figure for the body skin scan" />
-            <span class="scan-beam" aria-hidden="true"></span>
-            <span class="scan-corners" aria-hidden="true">
-              <i class="scan-corner scan-corner-tl"></i>
-              <i class="scan-corner scan-corner-tr"></i>
-              <i class="scan-corner scan-corner-bl"></i>
-              <i class="scan-corner scan-corner-br"></i>
-            </span>
-            <span class="face-landmarks" aria-hidden="true"><i></i><i></i></span>
-          </div>
-          <div class="scan-pill"><span class="scan-sparkle">✦</span> Gentle, guided analysis</div>
           <div class="art-index">01 <span></span> 04</div>
+          <div class="scan-stage" id="scan-stage">
+            <canvas id="scan-canvas" aria-hidden="true"></canvas>
+            <img class="body-illustration" src="../User/assets/body-pixel.png" alt="Pixel-art body figure for the body skin scan" />
+          </div>
+          <div class="scan-card scan-card-note" aria-hidden="true">
+            <span class="scan-card-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M8 3.5H6.5A3 3 0 0 0 3.5 6.5V8M16 3.5h1.5a3 3 0 0 1 3 3V8M20.5 16v1.5a3 3 0 0 1-3 3H16M8 20.5H6.5a3 3 0 0 1-3-3V16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /><circle cx="12" cy="12" r="2.4" stroke="currentColor" stroke-width="1.7" /></svg>
+            </span>
+            <span class="scan-card-copy"><span class="scan-card-kicker">A clearer picture</span><span class="scan-card-title">Start with a check-in.</span></span>
+            <span class="scan-card-check"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+          </div>
+          <div class="scan-card scan-card-stats" aria-hidden="true">
+            <div class="scan-card-stats-head"><span class="scan-card-spark">✦</span><span>Made for your skin</span></div>
+            <p>Small details.<br /><em>New understanding.</em></p>
+            <div class="scan-bars"><i style="--h: 34%"></i><i style="--h: 58%"></i><i style="--h: 46%"></i><i style="--h: 84%"></i><i style="--h: 60%"></i><i style="--h: 96%"></i><i style="--h: 44%"></i><i style="--h: 72%"></i><i style="--h: 52%"></i></div>
+            <span class="scan-card-foot">Illustrative preview</span>
+          </div>
+          <p class="scan-hint" aria-hidden="true"><span>↗</span> Move your cursor to view perspective</p>
+          <div class="scan-controls">
+            <button class="scan-control scan-control-solid" id="scan-wireframe" type="button" aria-pressed="false" aria-label="Toggle mesh view">
+              <svg viewBox="0 0 24 24" fill="none"><path d="m12 3 7.4 4.2v9.6L12 21l-7.4-4.2V7.2L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><path d="m4.9 7.4 7.1 4 7.1-4M12 11.4V21" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+            </button>
+            <button class="scan-control scan-control-ghost" id="scan-pause" type="button" aria-pressed="false" aria-label="Pause scan animation">
+              <svg viewBox="0 0 24 24" fill="none"><path class="icon-pause" d="M9.5 6.5v11M14.5 6.5v11" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" /><path class="icon-play" d="M9 5.8v12.4L19 12 9 5.8Z" fill="currentColor" /></svg>
+            </button>
+          </div>
         </div>
       </section>
 

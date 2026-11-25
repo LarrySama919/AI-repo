@@ -8,7 +8,7 @@ import re
 import numpy as np
 import pymysql
 from pydantic import BaseModel, Field
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, Request, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageOps, UnidentifiedImageError
@@ -40,6 +40,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Skinwise AI API", version="1.0", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def revalidate_frontend_assets(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/frontend/"):
+        # Static UI files change often during development; always revalidate so
+        # browsers cannot mix an old stylesheet with new markup.
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
 
 # Enable CORS for frontend integration
 app.add_middleware(
