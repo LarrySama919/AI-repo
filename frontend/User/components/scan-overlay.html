@@ -1,4 +1,4 @@
-<div class="scan-flow" id="scan-flow">
+<div class="scan-flow" id="scan-flow" data-ai-tail="analysis">
   <div class="scan-head">
     <div class="scan-progress" role="progressbar" aria-label="Analysis progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
       <span class="scan-progress-fill" id="scan-progress-fill"></span>
@@ -43,7 +43,13 @@
         </div>
 
         <div class="quality-check" id="quality-check" aria-live="polite">
-          <span class="spinner"></span>
+          <span class="status-mark" id="quality-status-mark" data-status="waiting" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle class="status-mark-ring" cx="12" cy="12" r="9" />
+              <path class="status-mark-check" d="m7.5 12.5 3 3 6-7" />
+              <path class="status-mark-fail" d="m8.5 8.5 7 7m0-7-7 7" />
+            </svg>
+          </span>
           <p id="quality-text">Checking image quality…</p>
         </div>
       </section>
@@ -77,7 +83,7 @@
             <span>Where are you noticing it?</span>
             <input id="symptom-location" type="text" maxlength="120" placeholder="For example, cheeks or forehead" />
           </label>
-          <label class="scan-question-field" for="symptom-onset">
+          <div class="scan-question-field">
             <span>When did it start?</span>
             <select id="symptom-onset">
               <option value="">Choose an answer</option>
@@ -87,8 +93,8 @@
               <option>More than a week ago</option>
               <option>Not sure</option>
             </select>
-          </label>
-          <label class="scan-question-field" for="symptom-change">
+          </div>
+          <div class="scan-question-field">
             <span>How has it changed?</span>
             <select id="symptom-change">
               <option value="">Choose an answer</option>
@@ -98,8 +104,8 @@
               <option>Comes and goes</option>
               <option>Not sure</option>
             </select>
-          </label>
-          <label class="scan-question-field" for="symptom-severity">
+          </div>
+          <div class="scan-question-field">
             <span>How noticeable is it?</span>
             <select id="symptom-severity">
               <option value="">Choose an answer</option>
@@ -108,7 +114,7 @@
               <option>Very noticeable</option>
               <option>Not sure</option>
             </select>
-          </label>
+          </div>
           <label class="scan-question-field scan-question-wide" for="symptom-triggers">
             <span>Any possible triggers or new products?</span>
             <textarea id="symptom-triggers" rows="2" maxlength="500" placeholder="Optional"></textarea>
@@ -137,10 +143,10 @@
       </div>
     </div>
     <ul class="proc-steps" id="proc-steps">
-      <li><span class="proc-icon">01</span> Preparing your photo <em class="proc-state">waiting</em></li>
-      <li><span class="proc-icon">02</span> Running image analysis <em class="proc-state">waiting</em></li>
-      <li><span class="proc-icon">03</span> Preparing your report <em class="proc-state">waiting</em></li>
-      <li><span class="proc-icon">04</span> Saving to your history <em class="proc-state">waiting</em></li>
+      <li><span class="status-mark" data-status="waiting" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle class="status-mark-ring" cx="12" cy="12" r="9" /><path class="status-mark-check" d="m7.5 12.5 3 3 6-7" /><path class="status-mark-fail" d="m8.5 8.5 7 7m0-7-7 7" /></svg></span> Preparing your photo <em class="proc-state">waiting</em></li>
+      <li><span class="status-mark" data-status="waiting" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle class="status-mark-ring" cx="12" cy="12" r="9" /><path class="status-mark-check" d="m7.5 12.5 3 3 6-7" /><path class="status-mark-fail" d="m8.5 8.5 7 7m0-7-7 7" /></svg></span> Running image analysis <em class="proc-state">waiting</em></li>
+      <li><span class="status-mark" data-status="waiting" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle class="status-mark-ring" cx="12" cy="12" r="9" /><path class="status-mark-check" d="m7.5 12.5 3 3 6-7" /><path class="status-mark-fail" d="m8.5 8.5 7 7m0-7-7 7" /></svg></span> Preparing your report <em class="proc-state">waiting</em></li>
+      <li><span class="status-mark" data-status="waiting" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle class="status-mark-ring" cx="12" cy="12" r="9" /><path class="status-mark-check" d="m7.5 12.5 3 3 6-7" /><path class="status-mark-fail" d="m8.5 8.5 7 7m0-7-7 7" /></svg></span> Saving to your history <em class="proc-state">waiting</em></li>
     </ul>
   </div>
 
@@ -160,6 +166,12 @@
         <div class="score-center"><strong class="count" id="result-confidence" data-count="0" data-suffix="%">0</strong><small>Model score</small></div>
       </div>
     </div>
+    <aside class="result-worsening-warning" id="result-worsening-warning" role="alert" hidden>
+      <div>
+        <strong>You reported that your skin concern is getting worse.</strong>
+        <p>This AI scan can’t determine the cause or urgency. Consider contacting a qualified dermatologist or healthcare professional.</p>
+      </div>
+    </aside>
     <div class="result-grid">
       <section class="result-section">
         <h3>Image analysis</h3>
@@ -186,7 +198,7 @@
     </section>
     <div class="scan-step-actions">
       <button class="btn-ghost" id="new-scan-button" type="button">Start a new analysis</button>
-      <button class="btn-primary" id="result-doctor-button" type="button" data-view-jump="dermatologists" hidden>Find a dermatologist →</button>
+      <button class="btn-primary" id="result-doctor-button" type="button" data-view-jump="dermatologists" hidden>View dermatologists →</button>
       <button class="btn-primary" id="result-progress-button" type="button" data-view-jump="progress">Track progress →</button>
     </div>
   </div>

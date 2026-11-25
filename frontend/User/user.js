@@ -86,6 +86,292 @@
     return;
   }
 
+  const dropdownRecords = [];
+  const dropdownBySelect = new WeakMap();
+  const reduceDropdownMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    new URLSearchParams(location.search).has("static");
+
+  function syncAnimatedDropdown(record) {
+    const selectedIndex = record.select.selectedIndex;
+    const selectedOption = record.select.options[selectedIndex];
+    record.valueLabel.textContent = selectedOption ? selectedOption.textContent.trim() : "";
+    record.trigger.setAttribute(
+      "aria-label",
+      [record.labelText, record.valueLabel.textContent].filter(Boolean).join(": ")
+    );
+    record.options.forEach((optionButton, index) => {
+      optionButton.setAttribute("aria-selected", String(index === selectedIndex));
+    });
+    if (record.select.value) {
+      record.trigger.removeAttribute("aria-invalid");
+      record.trigger.removeAttribute("aria-describedby");
+      record.error.hidden = true;
+    }
+  }
+
+  function positionAnimatedDropdown(record) {
+    const bounds = record.trigger.getBoundingClientRect();
+    const viewportPadding = 8;
+    const width = Math.min(bounds.width, window.innerWidth - viewportPadding * 2);
+    const left = Math.max(viewportPadding, Math.min(bounds.left, window.innerWidth - width - viewportPadding));
+    record.menu.style.width = `${width}px`;
+    record.menu.style.left = `${left}px`;
+    record.menu.style.maxHeight = `${Math.max(120, Math.min(280, window.innerHeight - viewportPadding * 2))}px`;
+
+    const menuHeight = Math.min(record.menu.scrollHeight, window.innerHeight - viewportPadding * 2);
+    const roomBelow = window.innerHeight - bounds.bottom - viewportPadding;
+    const openAbove = roomBelow < menuHeight + 8 && bounds.top > menuHeight + viewportPadding;
+    const top = openAbove
+      ? bounds.top - menuHeight - 8
+      : Math.min(bounds.bottom + 8, window.innerHeight - menuHeight - viewportPadding);
+    record.menu.style.top = `${Math.max(viewportPadding, top)}px`;
+    record.menu.style.transformOrigin = openAbove ? "bottom center" : "top center";
+    record.menu.dataset.side = openAbove ? "top" : "bottom";
+  }
+
+  function closeAnimatedDropdown(record, restoreFocus = false) {
+    if (!record.open) return;
+    record.open = false;
+    record.trigger.setAttribute("aria-expanded", "false");
+    record.menu.setAttribute("aria-hidden", "true");
+    if (restoreFocus) record.trigger.focus();
+    record.menu.classList.remove("is-open");
+    clearTimeout(record.closeTimer);
+    if (reduceDropdownMotion) {
+      record.menu.hidden = true;
+      return;
+    }
+    record.closeTimer = setTimeout(() => {
+      if (!record.open) record.menu.hidden = true;
+    }, 230);
+  }
+
+  function focusAnimatedOption(record, index) {
+    const availableOptions = record.options
+      .map((option, optionIndex) => ({ option, optionIndex }))
+      .filter(({ option }) => !option.disabled);
+    if (!availableOptions.length) return;
+    const current = availableOptions.findIndex(({ optionIndex }) => optionIndex === index);
+    const selected = current >= 0 ? current : 0;
+    availableOptions[selected].option.focus();
+    availableOptions[selected].option.scrollIntoView({ block: "nearest" });
+  }
+
+  function openAnimatedDropdown(record, direction = 1) {
+    if (record.open) return;
+    dropdownRecords.forEach((other) => {
+      if (other !== record) closeAnimatedDropdown(other);
+    });
+    record.open = true;
+    clearTimeout(record.closeTimer);
+    record.menu.hidden = false;
+    record.menu.setAttribute("aria-hidden", "false");
+    record.trigger.setAttribute("aria-expanded", "true");
+    positionAnimatedDropdown(record);
+
+    requestAnimationFrame(() => {
+      if (!record.open) return;
+      record.menu.classList.add("is-open");
+      const selectedIndex = direction < 0 ? record.select.options.length - 1 : record.select.selectedIndex;
+      focusAnimatedOption(record, selectedIndex);
+    });
+  }
+
+  function initializeAnimatedDropdowns() {
+    $$("select").forEach((select, index) => {
+      const field = select.closest("label") || select.parentElement;
+      const required = select.required;
+      const visibleLabel = field?.querySelector(":scope > span")?.textContent.trim();
+      const textLabel = field
+        ? [...field.childNodes]
+            .filter((node) => node.nodeType === Node.TEXT_NODE)
+            .map((node) => node.textContent.trim())
+            .filter(Boolean)
+            .join(" ")
+        : "";
+      const labelText = visibleLabel || textLabel || "Choose an option";
+      const wrapper = document.createElement("div");
+      wrapper.className = "motion-dropdown";
+
+      const trigger = document.createElement("button");
+      trigger.className = "motion-dropdown-trigger";
+      trigger.id = `${select.id}-trigger`;
+      trigger.type = "button";
+      trigger.setAttribute("aria-haspopup", "listbox");
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.setAttribute("aria-required", String(select.required));
+
+      const valueLabel = document.createElement("span");
+      valueLabel.className = "motion-dropdown-value";
+      const chevron = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      chevron.setAttribute("viewBox", "0 0 16 16");
+      chevron.setAttribute("aria-hidden", "true");
+      chevron.classList.add("motion-dropdown-chevron");
+      const chevronPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      chevronPath.setAttribute("d", "m4 6 4 4 4-4");
+      chevronPath.setAttribute("fill", "none");
+      chevronPath.setAttribute("stroke", "currentColor");
+      chevronPath.setAttribute("stroke-linecap", "round");
+      chevronPath.setAttribute("stroke-linejoin", "round");
+      chevronPath.setAttribute("stroke-width", "1.6");
+      chevron.append(chevronPath);
+      trigger.append(valueLabel, chevron);
+
+      const menu = document.createElement("div");
+      menu.className = "motion-dropdown-menu";
+      menu.id = `motion-dropdown-menu-${index + 1}`;
+      menu.setAttribute("role", "listbox");
+      menu.setAttribute("aria-label", labelText);
+      menu.setAttribute("aria-hidden", "true");
+      menu.hidden = true;
+
+      const error = document.createElement("span");
+      error.className = "motion-dropdown-error";
+      error.id = `${menu.id}-error`;
+      error.setAttribute("role", "alert");
+      error.textContent = "Choose an option to continue.";
+      error.hidden = true;
+
+      const record = {
+        select,
+        trigger,
+        valueLabel,
+        menu,
+        error,
+        labelText,
+        options: [],
+        open: false,
+        typeahead: "",
+        typeaheadTimer: 0,
+        closeTimer: 0,
+      };
+      trigger.setAttribute("aria-controls", menu.id);
+      select.classList.add("motion-dropdown-native");
+      select.setAttribute("aria-hidden", "true");
+      select.tabIndex = -1;
+      if (required) select.required = false;
+      select.insertAdjacentElement("afterend", wrapper);
+      wrapper.append(trigger);
+      if (required) wrapper.append(error);
+      document.body.append(menu);
+
+      [...select.options].forEach((option, optionIndex) => {
+        const optionButton = document.createElement("button");
+        optionButton.type = "button";
+        optionButton.className = "motion-dropdown-option";
+        optionButton.setAttribute("role", "option");
+        optionButton.setAttribute("aria-selected", "false");
+        optionButton.textContent = option.textContent.trim();
+        optionButton.disabled = option.disabled;
+        optionButton.tabIndex = -1;
+        optionButton.addEventListener("click", () => {
+          if (optionButton.disabled) return;
+          select.selectedIndex = optionIndex;
+          select.dispatchEvent(new Event("input", { bubbles: true }));
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          syncAnimatedDropdown(record);
+          closeAnimatedDropdown(record, true);
+        });
+        menu.append(optionButton);
+        record.options.push(optionButton);
+      });
+
+      trigger.addEventListener("click", () => {
+        if (record.open) closeAnimatedDropdown(record);
+        else openAnimatedDropdown(record);
+      });
+      trigger.addEventListener("keydown", (event) => {
+        if (!["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) return;
+        event.preventDefault();
+        openAnimatedDropdown(record, event.key === "ArrowUp" ? -1 : 1);
+      });
+      select.addEventListener("change", () => syncAnimatedDropdown(record));
+      menu.addEventListener("keydown", (event) => {
+        const activeIndex = record.options.indexOf(document.activeElement);
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          closeAnimatedDropdown(record, true);
+        } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const direction = event.key === "ArrowDown" ? 1 : -1;
+          let nextIndex = activeIndex + direction;
+          while (
+            nextIndex >= 0 &&
+            nextIndex < record.options.length &&
+            record.options[nextIndex].disabled
+          ) nextIndex += direction;
+          if (nextIndex < 0) nextIndex = record.options.length - 1;
+          if (nextIndex >= record.options.length) nextIndex = 0;
+          focusAnimatedOption(record, nextIndex);
+        } else if (event.key === "Home" || event.key === "End") {
+          event.preventDefault();
+          focusAnimatedOption(record, event.key === "Home" ? 0 : record.options.length - 1);
+        } else if (event.key === "Tab") {
+          const focusable = [...document.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )].filter((element) =>
+            !element.closest('[hidden], [aria-hidden="true"]') && element.getClientRects().length
+          );
+          const triggerIndex = focusable.indexOf(trigger);
+          const nextFocus = focusable[triggerIndex + (event.shiftKey ? -1 : 1)];
+          closeAnimatedDropdown(record);
+          if (nextFocus) {
+            event.preventDefault();
+            nextFocus.focus();
+          }
+        } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+          record.typeahead += event.key.toLocaleLowerCase();
+          clearTimeout(record.typeaheadTimer);
+          record.typeaheadTimer = setTimeout(() => { record.typeahead = ""; }, 600);
+          const match = record.options.findIndex((option) =>
+            !option.disabled && option.textContent.toLocaleLowerCase().startsWith(record.typeahead)
+          );
+          if (match >= 0) focusAnimatedOption(record, match);
+        }
+      });
+      dropdownBySelect.set(select, record);
+      dropdownRecords.push(record);
+      syncAnimatedDropdown(record);
+    });
+
+    document.addEventListener("click", (event) => {
+      dropdownRecords.forEach((record) => {
+        if (record.open && !record.trigger.contains(event.target) && !record.menu.contains(event.target)) {
+          closeAnimatedDropdown(record);
+        }
+      });
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        const openRecord = dropdownRecords.find((record) => record.open);
+        if (openRecord) {
+          event.preventDefault();
+          event.stopPropagation();
+          closeAnimatedDropdown(openRecord, true);
+        }
+        return;
+      }
+      if (event.key !== "Tab") return;
+      dropdownRecords.forEach((record) => {
+        if (record.open && !record.menu.contains(event.target)) closeAnimatedDropdown(record);
+      });
+    });
+    window.addEventListener("resize", () => {
+      dropdownRecords.filter((record) => record.open).forEach(positionAnimatedDropdown);
+    });
+    window.addEventListener("scroll", () => {
+      dropdownRecords.filter((record) => record.open).forEach(positionAnimatedDropdown);
+    }, true);
+  }
+
+  function refreshAnimatedDropdown(select) {
+    const record = dropdownBySelect.get(select);
+    if (record) syncAnimatedDropdown(record);
+  }
+
+  initializeAnimatedDropdowns();
+
   const displayName = auth.user.full_name.trim();
   const displayEmail = auth.user.email;
   const initials = initialsFor(displayName);
@@ -277,23 +563,80 @@
     }
   });
 
-  function setAiMode(mode) {
-    const analysisPanel = $("#skin-analysis-panel");
+
+  function setAiMode(mode, fromCard) {
+    const analysisPanel      = $("#skin-analysis-panel");
     const recommendationPanel = $("#skincare-recommendation-panel");
     if (!analysisPanel || !recommendationPanel) return;
+
     const showRecommendation = mode === "recommendation";
-    analysisPanel.hidden = showRecommendation;
-    recommendationPanel.hidden = !showRecommendation;
+
+    /* --- update active tab state --- */
     $$(".ai-module-card").forEach((card) => {
-      const active = card.dataset.aiMode === (showRecommendation ? "recommendation" : "analysis");
+      const active = card.dataset.aiMode === mode;
       card.classList.toggle("is-active", active);
       card.setAttribute("aria-pressed", String(active));
     });
+
+    /* --- determine which content card to animate in --- */
+    const incomingPanel = showRecommendation ? recommendationPanel : analysisPanel;
+    const outgoingPanel = showRecommendation ? analysisPanel : recommendationPanel;
+
+    /* --- pick the animatable card element inside each panel --- */
+    const incomingCard = showRecommendation
+      ? $("#recommendation-msg-card")
+      : $("#scan-flow");
+
+    /* hide outgoing first */
+    outgoingPanel.hidden = true;
+
+    /* update tail direction on the incoming card */
+    if (incomingCard) incomingCard.dataset.aiTail = mode;
+
+    /* show incoming panel (hidden:false needed before measuring) */
+    incomingPanel.hidden = false;
+
+    /* --- GSAP: card shoots down from the clicked tab --- */
+    if (fromCard && incomingCard && typeof gsap !== "undefined") {
+      const tabRect  = fromCard.getBoundingClientRect();
+      const cardRect = incomingCard.getBoundingClientRect();
+
+      /* vertical travel: from bottom of tab to card's natural position */
+      const dy = tabRect.bottom - cardRect.top + 10;
+
+      gsap.killTweensOf(incomingCard);
+
+      gsap.fromTo(
+        incomingCard,
+        {
+          y: dy,
+          scaleY: 0.55,
+          scaleX: 0.92,
+          opacity: 0,
+          transformOrigin: "top center",
+        },
+        {
+          y: 0,
+          scaleY: 1,
+          scaleX: 1,
+          opacity: 1,
+          duration: 0.5,
+          ease: "back.out(1.3)",
+        }
+      );
+    } else if (incomingCard && typeof gsap !== "undefined") {
+      /* soft fade-in if no card ref (e.g. view-jump path) */
+      gsap.fromTo(
+        incomingCard,
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }
+      );
+    }
   }
 
   document.addEventListener("click", (event) => {
     const aiCard = event.target.closest("[data-ai-mode]:not([data-view-jump])");
-    if (aiCard) setAiMode(aiCard.dataset.aiMode);
+    if (aiCard) setAiMode(aiCard.dataset.aiMode, aiCard);
   });
 
   /* chip filters (visual only) */
@@ -740,6 +1083,7 @@
     $("#scan-file-input").value = "";
     $("#symptoms-next").disabled = true;
     $("#quality-check").className = "quality-check";
+    $("#quality-status-mark").dataset.status = "waiting";
     $("#quality-text").textContent = "Checking image quality…";
     dropzone.classList.remove("is-scanning");
     $$(".symptom-chip").forEach((chip) => {
@@ -750,10 +1094,14 @@
     $("#symptom-onset").value = "";
     $("#symptom-change").value = "";
     $("#symptom-severity").value = "";
+    refreshAnimatedDropdown($("#symptom-onset"));
+    refreshAnimatedDropdown($("#symptom-change"));
+    refreshAnimatedDropdown($("#symptom-severity"));
     $("#symptom-triggers").value = "";
     $("#symptom-notes").value = "";
     $$("#proc-steps li").forEach((li) => {
       li.className = "";
+      $(".status-mark", li).dataset.status = "waiting";
       $(".proc-state", li).textContent = "waiting";
     });
     const preview = modePreview(scanMode);
@@ -769,6 +1117,7 @@
     $("#result-confidence-detail").textContent = "Model scores will appear here after analysis.";
     $("#result-symptom-summary").replaceChildren();
     $("#result-symptoms-section").hidden = true;
+    $("#result-worsening-warning").hidden = true;
     $("#skincare-tips").replaceChildren();
     $("#skincare-tips").hidden = true;
     $("#analysis-products").replaceChildren();
@@ -812,6 +1161,7 @@
     dropzone.classList.remove("is-scanning");
     if (!file.type.startsWith("image/")) {
       $("#quality-check").className = "quality-check show fail";
+      $("#quality-status-mark").dataset.status = "fail";
       $("#quality-text").textContent = "Please choose a valid image file.";
       return;
     }
@@ -827,6 +1177,7 @@
     const qc = $("#quality-check");
     const beam = $("#drop-beam");
     qc.className = "quality-check show";
+    $("#quality-status-mark").dataset.status = "loading";
     $("#quality-text").textContent = scanMode === "hair"
       ? "Analyzing photo with the hair model…"
       : "Analyzing photo with the skin models…";
@@ -872,7 +1223,8 @@
       predictionResult = result;
       dropzone.classList.remove("is-scanning");
       qc.classList.add("pass");
-      $("#quality-text").textContent = "✓ Photo analysis complete. Review your answers, then view results.";
+      $("#quality-status-mark").dataset.status = "done";
+      $("#quality-text").textContent = "Photo analysis complete. Review your answers, then view results.";
       gsap.fromTo(qc, { scale: 0.96 }, { scale: 1, duration: 0.4, ease: "back.out(2)" });
       $("#symptoms-next").disabled = false;
       gsap.fromTo($("#symptoms-next"), { scale: 0.96 }, { scale: 1, duration: 0.4, ease: "back.out(2)" });
@@ -880,6 +1232,7 @@
       if (controller.signal.aborted) return;
       dropzone.classList.remove("is-scanning");
       qc.className = "quality-check show fail";
+      $("#quality-status-mark").dataset.status = "fail";
       const message = error instanceof Error ? error.message : "An unexpected error occurred.";
       $("#quality-text").textContent = `Analysis failed: ${message} Choose another photo to retry.`;
     } finally {
@@ -1051,6 +1404,7 @@
       processingTL.add(() => {
         items.forEach((x) => x.classList.remove("doing"));
         li.classList.add("doing");
+        $(".status-mark", li).dataset.status = "loading";
         $(".proc-state", li).textContent = "running…";
         gsap.fromTo(li, { x: 0 }, { x: 6, duration: 0.3 });
       });
@@ -1058,7 +1412,8 @@
       processingTL.add(() => {
         li.classList.remove("doing");
         li.classList.add("done");
-        $(".proc-state", li).textContent = "done ✓";
+        $(".status-mark", li).dataset.status = "done";
+        $(".proc-state", li).textContent = "done";
       });
     });
 
@@ -1136,6 +1491,8 @@
       : Boolean(predictionResult && scanMode === "condition" && ["mel", "bcc", "akiec"].includes(predictionResult.predicted_class));
     $("#result-summary").textContent = `${modeTitle(scanMode)} · Results ready`;
     const symptomAnswers = collectSymptoms();
+    const reportedWorsening = scanMode !== "hair" && symptomAnswers.change === "Getting worse";
+    $("#result-worsening-warning").hidden = !reportedWorsening;
     renderSymptomSummary(symptomAnswers);
     const tipsList = $("#skincare-tips");
     tipsList.replaceChildren();
@@ -1199,13 +1556,9 @@
       $("#result-guidance-note").textContent = highConcern
         ? (predictionResult.safety?.message || "A model signal warrants professional review. Product suggestions are withheld.")
         : "This model has not accepted the selected output. No tailored skincare tips are shown; contact a qualified clinician about a changing or concerning area.";
-      const unknownDoctorButton = $("#result-doctor-button");
-      if (unknownDoctorButton) unknownDoctorButton.hidden = !highConcern;
     } else if (highConcern) {
       $("#result-guidance-title").textContent = "Professional assessment recommended";
       $("#result-guidance-note").textContent = predictionResult.safety?.message || "A model signal warrants professional review. It is not a diagnosis or cancer probability; product suggestions are withheld.";
-      const doctorButton = $("#result-doctor-button");
-      if (doctorButton) doctorButton.hidden = false;
     } else {
       $("#result-guidance-title").textContent = scanMode === "hair"
         ? "Hair & scalp information"
@@ -1214,6 +1567,8 @@
         ? "This dataset-label prediction is educational, not a diagnosis or treatment recommendation. A clinician can assess hair loss or scalp symptoms."
         : predictionResult.disclaimer || "General information only; these tips are not a diagnosis or treatment plan.";
     }
+    const doctorButton = $("#result-doctor-button");
+    if (doctorButton) doctorButton.hidden = !(highConcern || reportedWorsening);
     const historyLabel = dualResult
       ? (isUnknown ? "Unknown / uncertain" : displayLabel(selectedResult.label))
       : (isUnknown ? "Unknown / uncertain" : predictionResult ? displayLabel(predictionResult.predicted_class) : "No model result");
@@ -1596,6 +1951,8 @@
     const followUp = entry.followUp && typeof entry.followUp === "object" ? entry.followUp : {};
     $("#progress-followup-change").value = typeof followUp.change === "string" ? followUp.change : "";
     $("#progress-followup-duration").value = typeof followUp.duration === "string" ? followUp.duration : "";
+    refreshAnimatedDropdown($("#progress-followup-change"));
+    refreshAnimatedDropdown($("#progress-followup-duration"));
     $("#progress-followup-products").value = typeof followUp.products === "string" ? followUp.products : "";
     $("#progress-followup-notes").value = typeof followUp.notes === "string" ? followUp.notes : "";
     $("#progress-followup-saved").textContent = followUp.updatedAt
@@ -1640,8 +1997,10 @@
     $("#result-guidance-note").textContent = entry.guidanceNote || (entry.concern
       ? "This saved result was flagged for professional assessment. It is not a diagnosis."
       : "Care ideas were not saved for this older analysis. This result is informational and is not a diagnosis.");
+    const reportedWorsening = entry.mode !== "hair" && entry.symptoms?.change === "Getting worse";
+    $("#result-worsening-warning").hidden = !reportedWorsening;
     const savedDoctorButton = $("#result-doctor-button");
-    if (savedDoctorButton) savedDoctorButton.hidden = !entry.concern;
+    if (savedDoctorButton) savedDoctorButton.hidden = !(entry.concern || reportedWorsening);
     const tipsList = $("#skincare-tips");
     tipsList.replaceChildren();
     (Array.isArray(entry.skincareTips) ? entry.skincareTips : []).forEach((tip) => {
@@ -1702,6 +2061,17 @@
   });
   $("#progress-followup-form").addEventListener("submit", (event) => {
     event.preventDefault();
+    const changeSelect = $("#progress-followup-change");
+    const changeDropdown = dropdownBySelect.get(changeSelect);
+    if (!changeSelect.value) {
+      if (changeDropdown) {
+        changeDropdown.trigger.setAttribute("aria-invalid", "true");
+        changeDropdown.trigger.setAttribute("aria-describedby", changeDropdown.error.id);
+        changeDropdown.error.hidden = false;
+        changeDropdown.trigger.focus();
+      }
+      return;
+    }
     const scans = getScans();
     const scan = scans[Number(progressDetailOverlay.dataset.scanIndex)];
     if (!scan || !scan.tracked) return;

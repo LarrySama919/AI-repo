@@ -6,66 +6,70 @@
       <p class="lede">Choose whether to analyze a photo or build a skincare product recommendation.</p>
     </div>
   </div>
-  <div class="ai-module-grid">
-    <button class="card ai-module-card is-active" type="button" data-ai-mode="analysis" aria-pressed="true">
-      <span class="ai-module-icon">◎</span>
-      <span><strong>Skin analysis</strong><small>Upload a photo and review an informational AI result.</small></span>
-      <span class="ai-module-arrow">→</span>
-    </button>
-    <button class="card ai-module-card" type="button" data-ai-mode="recommendation" aria-pressed="false">
-      <span class="ai-module-icon">✦</span>
-      <span><strong>Skincare product recommendation</strong><small>Answer questions based on skin type and concerns.</small></span>
-      <span class="ai-module-arrow">→</span>
-    </button>
-  </div>
-  <div id="skin-analysis-panel">
-    <div data-include="components/scan-overlay.html"></div>
-    <p class="sample-link">AI image results are informational and cannot diagnose skin conditions. Seek a clinician for concerning symptoms.</p>
-  </div>
-  <div id="skincare-recommendation-panel" hidden>
-    <div class="recommendation-layout">
-      <form class="card recommendation-form" id="recommendation-form">
-        <fieldset>
-          <legend><span>1</span> What is your skin type?</legend>
-          <div class="option-grid">
-            <label><input type="radio" name="skin-type" value="Oily" /><span>Oily</span></label>
-            <label><input type="radio" name="skin-type" value="Dry" /><span>Dry</span></label>
-            <label><input type="radio" name="skin-type" value="Combination" /><span>Combination</span></label>
-            <label><input type="radio" name="skin-type" value="Normal" /><span>Normal</span></label>
-            <label><input type="radio" name="skin-type" value="Sensitive" /><span>Sensitive</span></label>
+  <div class="ai-analysis-shell">
+    <div class="ai-module-grid" id="ai-module-grid">
+      <button class="ai-module-card is-active" type="button" data-ai-mode="analysis" aria-pressed="true">
+        <span class="ai-module-icon">◎</span>
+        <span><strong>Skin analysis</strong><small>Upload a photo and review an informational AI result.</small></span>
+      </button>
+      <button class="ai-module-card" type="button" data-ai-mode="recommendation" aria-pressed="false">
+        <span class="ai-module-icon">✦</span>
+        <span><strong>Skincare product recommendation</strong><small>Answer questions based on skin type and concerns.</small></span>
+      </button>
+    </div>
+    <div class="ai-analysis-content">
+      <div id="skin-analysis-panel">
+        <div data-include="components/scan-overlay.html"></div>
+        <p class="sample-link">AI image results are informational and cannot diagnose skin conditions. Seek a clinician for concerning symptoms.</p>
+      </div>
+      <div id="skincare-recommendation-panel" hidden>
+        <div class="ai-msg-card" id="recommendation-msg-card" data-ai-tail="recommendation">
+          <div class="recommendation-layout">
+            <form class="card recommendation-form" id="recommendation-form">
+              <fieldset>
+                <legend><span>1</span> What is your skin type?</legend>
+                <div class="option-grid">
+                  <label><input type="radio" name="skin-type" value="Oily" /><span>Oily</span></label>
+                  <label><input type="radio" name="skin-type" value="Dry" /><span>Dry</span></label>
+                  <label><input type="radio" name="skin-type" value="Combination" /><span>Combination</span></label>
+                  <label><input type="radio" name="skin-type" value="Normal" /><span>Normal</span></label>
+                  <label><input type="radio" name="skin-type" value="Sensitive" /><span>Sensitive</span></label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend><span>2</span> What concerns would you like to address?</legend>
+                <div class="option-grid">
+                  <label><input type="checkbox" name="skin-concern" value="Acne" /><span>Acne</span></label>
+                  <label><input type="checkbox" name="skin-concern" value="Dark spots" /><span>Dark spots</span></label>
+                  <label><input type="checkbox" name="skin-concern" value="Dryness" /><span>Dryness</span></label>
+                  <label><input type="checkbox" name="skin-concern" value="Wrinkles" /><span>Wrinkles</span></label>
+                  <label><input type="checkbox" name="skin-concern" value="Redness" /><span>Redness</span></label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend><span>3</span> Anything else should we consider?</legend>
+                <div class="recommendation-fields">
+                  <label>Known allergies or ingredient sensitivities
+                    <input type="text" id="recommendation-allergies" placeholder="e.g. fragrance, retinoids" />
+                  </label>
+                  <label>Current skincare products
+                    <input type="text" id="recommendation-products" placeholder="Optional" />
+                  </label>
+                </div>
+              </fieldset>
+              <button class="btn-primary" id="generate-recommendations" type="submit" disabled>View my recommendations →</button>
+            </form>
+            <aside class="card recommendation-results" aria-live="polite">
+              <div id="recommendation-empty">
+                <span class="recommendation-empty-icon">✦</span>
+                <h3>Your matches will appear here</h3>
+                <p>Complete the questions to generate a suitable product routine.</p>
+              </div>
+              <div id="recommendation-output" hidden></div>
+            </aside>
           </div>
-        </fieldset>
-        <fieldset>
-          <legend><span>2</span> What concerns would you like to address?</legend>
-          <div class="option-grid">
-            <label><input type="checkbox" name="skin-concern" value="Acne" /><span>Acne</span></label>
-            <label><input type="checkbox" name="skin-concern" value="Dark spots" /><span>Dark spots</span></label>
-            <label><input type="checkbox" name="skin-concern" value="Dryness" /><span>Dryness</span></label>
-            <label><input type="checkbox" name="skin-concern" value="Wrinkles" /><span>Wrinkles</span></label>
-            <label><input type="checkbox" name="skin-concern" value="Redness" /><span>Redness</span></label>
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend><span>3</span> Anything else should we consider?</legend>
-          <div class="recommendation-fields">
-            <label>Known allergies or ingredient sensitivities
-              <input type="text" id="recommendation-allergies" placeholder="e.g. fragrance, retinoids" />
-            </label>
-            <label>Current skincare products
-              <input type="text" id="recommendation-products" placeholder="Optional" />
-            </label>
-          </div>
-        </fieldset>
-        <button class="btn-primary" id="generate-recommendations" type="submit" disabled>View my recommendations →</button>
-      </form>
-      <aside class="card recommendation-results" aria-live="polite">
-        <div id="recommendation-empty">
-          <span class="recommendation-empty-icon">✦</span>
-          <h3>Your matches will appear here</h3>
-          <p>Complete the questions to generate a suitable product routine.</p>
         </div>
-        <div id="recommendation-output" hidden></div>
-      </aside>
+      </div>
     </div>
   </div>
 </section>
