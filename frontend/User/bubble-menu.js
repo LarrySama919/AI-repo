@@ -24,15 +24,104 @@ function BubbleMenu({
 
   const overlayRef = useRef(null);
   const backdropRef = useRef(null);
+  const toggleRef = useRef(null);
   const bubblesRef = useRef([]);
   const labelRefs = useRef([]);
 
   const handleToggle = () => {
     const nextState = !isMenuOpen;
+    if (toggleRef.current && gsap && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.killTweensOf(toggleRef.current, "scale");
+      gsap.fromTo(
+        toggleRef.current,
+        { scale: 0.88 },
+        { scale: 1, duration: 0.55, ease: "back.out(2)", clearProps: "transform" }
+      );
+    }
     if (nextState) setShowOverlay(true);
     setIsMenuOpen(nextState);
     if (onMenuClick) onMenuClick(nextState);
   };
+
+  const handleTogglePointerMove = (event) => {
+    if (event.pointerType === "touch") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width) * 100;
+    const y = ((event.clientY - bounds.top) / bounds.height) * 100;
+    event.currentTarget.style.setProperty("--specular-x", `${x}%`);
+    event.currentTarget.style.setProperty("--specular-y", `${y}%`);
+  };
+
+  const resetTogglePointer = (event) => {
+    event.currentTarget.style.removeProperty("--specular-x");
+    event.currentTarget.style.removeProperty("--specular-y");
+  };
+
+  useEffect(() => {
+    const button = toggleRef.current;
+    const sweep = button?.querySelector(".specular-sweep-line");
+    if (!button || !sweep || !gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const random = gsap.utils.random;
+    let stopped = false;
+    let sweepTween;
+    let nextSweep;
+
+    const playSweep = () => {
+      const horizontalTravel = random(0, 1, 1) === 0;
+      const reverse = random(0, 1, 1) === 1;
+      const crossOffset = horizontalTravel
+        ? random(-button.clientHeight * 0.16, button.clientHeight * 0.16)
+        : random(-button.clientWidth * 0.16, button.clientWidth * 0.16);
+      const path = horizontalTravel
+        ? {
+            startX: (reverse ? 1 : -1) * button.clientWidth * 0.95,
+            endX: (reverse ? -1 : 1) * button.clientWidth * 0.95,
+            startY: crossOffset,
+            endY: crossOffset,
+            angle: 90,
+          }
+        : {
+            startX: crossOffset,
+            endX: crossOffset,
+            startY: (reverse ? 1 : -1) * button.clientHeight * 0.95,
+            endY: (reverse ? -1 : 1) * button.clientHeight * 0.95,
+            angle: 0,
+          };
+
+      sweepTween = gsap.fromTo(
+        sweep,
+        {
+          xPercent: -50,
+          yPercent: -50,
+          x: path.startX,
+          y: path.startY,
+          rotation: path.angle,
+          autoAlpha: 0,
+        },
+        {
+          x: path.endX,
+          y: path.endY,
+          autoAlpha: random(0.62, 0.86),
+          duration: random(1.5, 2.4),
+          ease: "sine.inOut",
+          onComplete: () => {
+            if (stopped) return;
+            gsap.set(sweep, { autoAlpha: 0 });
+            nextSweep = gsap.delayedCall(random(0.55, 1.4), playSweep);
+          },
+        }
+      );
+    };
+
+    playSweep();
+    return () => {
+      stopped = true;
+      if (sweepTween) sweepTween.kill();
+      if (nextSweep) nextSweep.kill();
+      gsap.killTweensOf(sweep);
+    };
+  }, []);
 
   const handleSelect = (item) => {
     if (item.onSelect) item.onSelect(item);
@@ -90,10 +179,14 @@ function BubbleMenu({
           type="button"
           className=${`bubble toggle-bubble menu-btn ${isMenuOpen ? "open" : ""}`}
           onClick=${handleToggle}
+          onPointerMove=${handleTogglePointerMove}
+          onPointerLeave=${resetTogglePointer}
+          ref=${toggleRef}
           aria-label=${menuAriaLabel}
           aria-pressed=${isMenuOpen}
-          style=${{ background: menuBg }}
+          style=${{ "--menu-bg": menuBg }}
         >
+          <span className="specular-sweep" aria-hidden="true"><span className="specular-sweep-line"></span></span>
           <span className="menu-line" style=${{ background: menuContentColor }}></span>
           <span className="menu-line" style=${{ background: menuContentColor }}></span>
         </button>
