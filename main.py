@@ -5,6 +5,7 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 import re
+from urllib.parse import urlparse
 import numpy as np
 import pymysql
 from pydantic import BaseModel, Field
@@ -299,14 +300,26 @@ def _products_for_label(label: str) -> dict:
             continue
         image = product.get("image")
         image_name = image[len(image_prefix):] if isinstance(image, str) and image.startswith(image_prefix) else ""
-        valid_image_path = (
+        valid_local_image = (
             bool(image_name)
             and image_name not in {".", ".."}
             and "/" not in image_name
             and "\\" not in image_name
             and image.lower().endswith((".svg", ".png", ".jpg", ".jpeg", ".webp"))
         )
-        products.append({**product, "image": image if valid_image_path else fallback_image})
+        parsed_image = urlparse(image) if isinstance(image, str) else None
+        valid_remote_image = bool(
+            parsed_image
+            and parsed_image.scheme == "https"
+            and parsed_image.hostname
+            and parsed_image.username is None
+            and parsed_image.password is None
+            and Path(parsed_image.path).suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+        )
+        products.append({
+            **product,
+            "image": image if valid_local_image or valid_remote_image else fallback_image,
+        })
     return {"concern": concern, "matched_label": label, "products": products}
 
 
