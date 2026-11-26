@@ -333,3 +333,115 @@ h1 em, h2 em { color: #8a9c83; font-family: Georgia, serif; font-weight: 400; }
 .eyebrow-dot {
   display: none;
 }
+
+/* ---------- Motion layer ---------- */
+html { scroll-padding-top: 96px; }
+
+.site-header { position: sticky; top: 0; transition: box-shadow .3s ease, background-color .3s ease, backdrop-filter .3s ease; }
+.site-header.is-stuck { background: rgba(247, 246, 240, .84); backdrop-filter: blur(14px); box-shadow: 0 10px 30px rgba(36, 57, 50, .07); }
+
+.hero { position: relative; isolation: isolate; }
+.hero-copy, .hero-art { position: relative; z-index: 1; }
+.hero-ambient { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero-ambient span { position: absolute; border-radius: 50%; filter: blur(46px); opacity: .6; }
+.hero-ambient span:nth-child(1) { width: 62%; aspect-ratio: 1; left: 2%; top: 4%; background: radial-gradient(circle, rgba(205, 222, 194, .8), transparent 66%); animation: ambient-drift-a 22s ease-in-out infinite alternate; }
+.hero-ambient span:nth-child(2) { width: 42%; aspect-ratio: 1; right: 6%; top: 0; background: radial-gradient(circle, rgba(244, 227, 211, .85), transparent 68%); animation: ambient-drift-b 26s ease-in-out infinite alternate; }
+.hero-ambient span:nth-child(3) { width: 52%; aspect-ratio: 1; left: 38%; bottom: 0; background: radial-gradient(circle, rgba(216, 228, 210, .9), transparent 70%); animation: ambient-drift-c 30s ease-in-out infinite alternate; }
+@keyframes ambient-drift-a { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(30px, -24px, 0) scale(1.1); } }
+@keyframes ambient-drift-b { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-26px, 20px, 0) scale(1.07); } }
+@keyframes ambient-drift-c { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(18px, 26px, 0) scale(1.12); } }
+
+.insights-section { position: relative; }
+.insights-section::before, .insights-section::after { content: ""; position: absolute; z-index: 0; border-radius: 50%; filter: blur(64px); pointer-events: none; }
+.insights-section::before { width: 500px; height: 500px; left: -150px; top: -160px; background: radial-gradient(circle, rgba(126, 156, 124, .45), transparent 70%); animation: ambient-drift-a 26s ease-in-out infinite alternate; }
+.insights-section::after { width: 460px; height: 460px; right: -130px; bottom: -180px; background: radial-gradient(circle, rgba(196, 168, 132, .22), transparent 70%); animation: ambient-drift-c 32s ease-in-out infinite alternate; }
+.insights-inner { z-index: 1; }
+
+/* Scroll reveal */
+.motion-ready [data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .9s cubic-bezier(.2, .7, .2, 1); transition-delay: var(--d, 0s); }
+.motion-ready [data-reveal].is-in { opacity: 1; transform: none; }
+.motion-ready [data-reveal="words"] { opacity: 1; transform: none; }
+
+.motion-ready .word { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .09em; margin-bottom: -.09em; }
+.motion-ready .word-in { display: inline-block; transform: translateY(115%); opacity: 0; filter: blur(5px); transition: transform 1s cubic-bezier(.22, .7, .25, 1), opacity .8s ease, filter .9s ease; transition-delay: var(--d, 0s); }
+.motion-ready .is-in .word-in { transform: none; opacity: 1; filter: blur(0); }
+
+.motion-ready .result-card[data-reveal] { transform: translateY(30px) rotate(1deg); }
+.motion-ready .result-card[data-reveal].is-in { transform: rotate(1deg); }
+
+/* Persistent ambient life */
+.result-card { animation: result-float 9s ease-in-out infinite; }
+@keyframes result-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -9px; } }
+.floating-note { animation: note-float 7s ease-in-out infinite; }
+@keyframes note-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+.floating-swatch { animation: swatch-float 8.5s ease-in-out infinite; }
+@keyframes swatch-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 6px; } }
+
+.signal-ring { position: relative; }
+.signal-ring::after { content: ""; position: absolute; inset: -3px; border: 1px solid rgba(158, 174, 150, .55); border-radius: 50%; animation: signal-pulse 3.2s ease-out infinite; }
+@keyframes signal-pulse { 0% { transform: scale(.9); opacity: .9; } 70% { transform: scale(1.35); opacity: 0; } 100% { transform: scale(1.35); opacity: 0; } }
+.result-lines b { transition: width 1.4s cubic-bezier(.2, .7, .2, 1); }
+
+/* Product cards */
+.product-visual { transition: transform .3s ease, box-shadow .3s ease; }
+.product-visual::before { animation: ring-breathe 7s ease-in-out infinite alternate; }
+.product-visual::after { animation: ring-breathe 9s ease-in-out infinite alternate-reverse; }
+@keyframes ring-breathe { from { transform: scale(1); opacity: .75; } to { transform: scale(1.07); opacity: 1; } }
+.product-tube { animation: product-bob 7s ease-in-out infinite; }
+.product-jar { animation: product-bob 8s ease-in-out infinite .5s; }
+.product-bottle { animation: product-bob 7.5s ease-in-out infinite 1s; }
+@keyframes product-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+.product-card:hover .product-visual { box-shadow: 0 20px 38px rgba(36, 57, 50, .14); }
+.product-card:hover .product-tag { translate: 0 -3px; }
+.product-tag { transition: translate .3s ease; }
+.product-link { transition: transform .3s ease, background-color .3s ease, color .3s ease; }
+.product-card:hover .product-link { transform: rotate(45deg); background: var(--green); color: #f6f4e9; }
+.product-card:hover .product-info h3 { color: #40574a; }
+.product-info h3 { transition: color .3s ease; }
+
+/* Steps */
+.step-image { transition: transform .5s cubic-bezier(.2, .7, .2, 1), box-shadow .5s ease; }
+.step-card:hover .step-image { transform: scale(1.05) translateY(-3px); box-shadow: 0 16px 28px rgba(36, 57, 50, .14); }
+
+/* Chooser + proof micro-interactions */
+.choice-icon { transition: transform .3s ease; }
+.scan-choice:hover .choice-icon { transform: scale(1.07) rotate(-4deg); }
+.choice-arrow { transition: transform .25s ease; }
+.scan-choice:hover .choice-arrow { transform: translate(3px, -3px); }
+.scan-choice.is-selected .choice-icon { animation: selected-breathe 4.5s ease-in-out infinite; }
+@keyframes selected-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.proof-item:hover .proof-icon { animation: icon-wiggle .6s ease; }
+@keyframes icon-wiggle { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-7deg); } 70% { transform: rotate(6deg); } }
+
+/* Buttons */
+.button, .header-cta { position: relative; overflow: hidden; }
+.button::after, .header-cta::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, .26) 48%, transparent 64%); transform: translateX(-140%); transition: transform .75s ease; }
+.button:hover::after, .header-cta:hover::after { transform: translateX(140%); }
+.button-scan-arrow { transition: transform .3s ease; }
+.button:hover .button-scan-arrow { transform: translateX(4px); }
+.text-button .play-icon { transition: transform .3s ease; display: inline-block; }
+.text-button:hover .play-icon { transform: translateX(3px); }
+.main-nav > a { position: relative; }
+.main-nav > a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px; background: var(--orange); transform: scaleX(0); transform-origin: left; transition: transform .3s ease; }
+.main-nav > a:hover::after { transform: scaleX(1); }
+
+/* Closing CTA */
+.closing-cta { position: relative; overflow: hidden; }
+.closing-cta::before { content: ""; position: absolute; z-index: 0; width: 340px; height: 340px; right: 8%; top: -180px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(255, 255, 255, .65), transparent 70%); animation: ambient-drift-b 24s ease-in-out infinite alternate; }
+.closing-cta > * { position: relative; z-index: 1; }
+.closing-flower { animation: flower-turn 26s linear infinite; }
+@keyframes flower-turn { to { transform: rotate(360deg); } }
+
+/* Hero scan chips get a slow sway after their entrance */
+.scan-card-note { animation: card-rise .9s cubic-bezier(.2, .7, .2, 1) both, chip-sway 9s ease-in-out 1.4s infinite; }
+.scan-card-stats { animation: card-rise .9s cubic-bezier(.2, .7, .2, 1) .18s both, chip-sway 10s ease-in-out 1.6s infinite; }
+@keyframes chip-sway { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(.6deg) translateY(-3px); } }
+.hero-art[data-mode="body"] .scan-card { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-ready [data-reveal], .motion-ready .word-in { opacity: 1; transform: none; filter: none; transition: none; }
+  .result-card, .floating-note, .floating-swatch, .product-tube, .product-jar, .product-bottle,
+  .product-visual::before, .product-visual::after, .signal-ring::after, .closing-flower,
+  .hero-ambient span, .insights-section::before, .insights-section::after, .closing-cta::before,
+  .scan-card-note, .scan-card-stats, .scan-choice.is-selected .choice-icon { animation: none; }
+}

@@ -9,14 +9,16 @@
       content="A thoughtful skin check-in for your face and body. Explore a guided photo scan, sample insights, and progress tracking."
     />
     <title>Skinwise — A little more insight into your skin</title>
+    <link rel="icon" type="image/png" href="../User/assets/skinwise-scan-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=3d2" />
-    <script src="script.js?v=3d2" defer></script>
+    <link rel="stylesheet" href="styles.css?v=3d3" />
+    <script src="script.js?v=3d3" defer></script>
+    <script src="motion.js?v=3d3" defer></script>
     <script type="importmap">
       { "imports": { "three": "./vendor/three.module.min.js" } }
     </script>
@@ -52,6 +54,7 @@
 
     <main id="top">
       <section class="hero section-wrap">
+        <div class="hero-ambient" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="hero-copy">
           <div class="eyebrow"><span class="eyebrow-dot"></span> A calmer way to check in with your skin</div>
           <h1>Get to know your skin, <em>a little better.</em></h1>
