@@ -1423,6 +1423,37 @@
     });
   });
 
+  function appendProductImage(imageFrame, product) {
+    const fallbackImage = "/frontend/assets/products/default-product.svg";
+    const candidateImage = typeof product.image === "string" ? product.image.trim() : "";
+    const safeLocalImage = /^\/frontend\/assets\/products\/[a-z0-9_-]+\.(svg|png|jpe?g|webp)$/i.test(candidateImage);
+    const safeRemoteImage = (() => {
+      try {
+        const url = new URL(candidateImage);
+        return url.protocol === "https:" && !url.username && !url.password &&
+          /\.(png|jpe?g|webp|gif)$/i.test(url.pathname);
+      } catch {
+        return false;
+      }
+    })();
+    const image = document.createElement("img");
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    let triedFallback = false;
+    image.onerror = () => {
+      if (!triedFallback && image.src !== new URL(fallbackImage, window.location.href).href) {
+        triedFallback = true;
+        image.src = fallbackImage;
+      } else {
+        image.onerror = null;
+        imageFrame.hidden = true;
+      }
+    };
+    image.src = safeLocalImage || safeRemoteImage ? candidateImage : fallbackImage;
+    imageFrame.append(image);
+  }
+
   function presentResult() {
     const classNames = {
       akiec: "Actinic keratoses",
@@ -1514,21 +1545,7 @@
       card.className = "analysis-product";
       const imageFrame = document.createElement("div");
       imageFrame.className = "analysis-product-image";
-      const image = document.createElement("img");
-      image.alt = "";
-      image.loading = "lazy";
-      image.decoding = "async";
-      const fallbackImage = "/frontend/assets/products/default-product.svg";
-      const imagePath = typeof product.image === "string" &&
-        product.image.startsWith("/frontend/assets/products/") &&
-        !product.image.split("/").includes("..") && !product.image.includes("\\")
-        ? product.image : fallbackImage;
-      image.onerror = () => {
-        image.onerror = null;
-        image.src = fallbackImage;
-      };
-      image.src = imagePath;
-      imageFrame.append(image);
+      appendProductImage(imageFrame, product);
       const content = document.createElement("div");
       content.className = "analysis-product-content";
       const category = document.createElement("span");
@@ -1588,7 +1605,8 @@
       products: recommendedProducts.map((product) => ({
         category: product.category || "Product type",
         name: product.name || "Skincare product type",
-        description: product.description || "General product information."
+        description: product.description || "General product information.",
+        image: product.image || ""
       })),
       productDisclaimer: recommendedProducts.length
         ? predictionResult.product_disclaimer || "Product types are general information, not individualized treatment."
@@ -2015,13 +2033,19 @@
     products.forEach((product) => {
       const card = document.createElement("article");
       card.className = "analysis-product";
+      const imageFrame = document.createElement("div");
+      imageFrame.className = "analysis-product-image";
+      appendProductImage(imageFrame, product);
       const category = document.createElement("span");
       category.textContent = String(product.category || "Product type");
       const name = document.createElement("h4");
       name.textContent = String(product.name || "Skincare product type");
       const description = document.createElement("p");
       description.textContent = String(product.description || "General product information.");
-      card.append(category, name, description);
+      const content = document.createElement("div");
+      content.className = "analysis-product-content";
+      content.append(category, name, description);
+      card.append(imageFrame, content);
       productContainer.append(card);
     });
     productContainer.hidden = products.length === 0;

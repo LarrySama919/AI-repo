@@ -19,7 +19,14 @@
       "category": "Cleanser",
       "description": "A mild, non-medicated cleanser for a simple daily routine.",
       "image": "/frontend/assets/products/cleanser.svg",
-      "concerns": ["acne", "oily_skin", "dryness", "hyperpigmentation", "sensitive_skin", "general"]
+      "concerns": [
+        "acne",
+        "oily_skin",
+        "dryness",
+        "hyperpigmentation",
+        "sensitive_skin",
+        "general"
+      ]
     },
     {
       "id": "non-comedogenic-moisturizer",
@@ -27,7 +34,10 @@
       "category": "Moisturizer",
       "description": "A lightweight moisturizer labeled non-comedogenic; patch test before regular use.",
       "image": "/frontend/assets/products/moisturizer.svg",
-      "concerns": ["acne", "oily_skin"]
+      "concerns": [
+        "acne",
+        "oily_skin"
+      ]
     },
     {
       "id": "barrier-moisturizer",
@@ -35,7 +45,11 @@
       "category": "Moisturizer",
       "description": "A basic moisturizer for supporting skin comfort when it feels dry or tight.",
       "image": "/frontend/assets/products/moisturizer.svg",
-      "concerns": ["dryness", "hyperpigmentation", "sensitive_skin"]
+      "concerns": [
+        "dryness",
+        "hyperpigmentation",
+        "sensitive_skin"
+      ]
     },
     {
       "id": "broad-spectrum-sunscreen",
@@ -43,7 +57,13 @@
       "category": "Sun protection",
       "description": "Daily sun protection; choose a formula that feels comfortable for your skin.",
       "image": "/frontend/assets/products/sunscreen.svg",
-      "concerns": ["hyperpigmentation", "acne", "oily_skin", "dryness", "general"]
+      "concerns": [
+        "hyperpigmentation",
+        "acne",
+        "oily_skin",
+        "dryness",
+        "general"
+      ]
     },
     {
       "id": "lightweight-moisturizer",
@@ -51,7 +71,9 @@
       "category": "Moisturizer",
       "description": "A simple lightweight option for skin that tends to feel oily.",
       "image": "/frontend/assets/products/moisturizer.svg",
-      "concerns": ["oily_skin"]
+      "concerns": [
+        "oily_skin"
+      ]
     },
     {
       "id": "rich-moisturizer",
@@ -59,7 +81,9 @@
       "category": "Moisturizer",
       "description": "A fragrance-free cream moisturizer for a simple dry-skin routine.",
       "image": "/frontend/assets/products/moisturizer.svg",
-      "concerns": ["dryness"]
+      "concerns": [
+        "dryness"
+      ]
     },
     {
       "id": "blemish-patches",
@@ -67,7 +91,9 @@
       "category": "Spot cover",
       "description": "Simple hydrocolloid-style patches to cover individual spots; use only as directed on the package.",
       "image": "/frontend/assets/products/spot-cover.svg",
-      "concerns": ["acne"]
+      "concerns": [
+        "acne"
+      ]
     },
     {
       "id": "oil-blotting-sheets",
@@ -75,7 +101,9 @@
       "category": "Oil control",
       "description": "A disposable, non-medicated option for reducing surface shine during the day.",
       "image": "/frontend/assets/products/oil-control.svg",
-      "concerns": ["oily_skin"]
+      "concerns": [
+        "oily_skin"
+      ]
     },
     {
       "id": "tinted-sunscreen",
@@ -83,7 +111,10 @@
       "category": "Sun protection",
       "description": "A tinted daily sunscreen option; choose a shade and formula suitable for your skin.",
       "image": "/frontend/assets/products/sunscreen.svg",
-      "concerns": ["hyperpigmentation", "sensitive_skin"]
+      "concerns": [
+        "hyperpigmentation",
+        "sensitive_skin"
+      ]
     },
     {
       "id": "hydrating-serum",
@@ -91,7 +122,10 @@
       "category": "Hydration",
       "description": "A fragrance-free, non-medicated hydrating layer for skin that feels dry or tight.",
       "image": "/frontend/assets/products/hydration.svg",
-      "concerns": ["dryness", "sensitive_skin"]
+      "concerns": [
+        "dryness",
+        "sensitive_skin"
+      ]
     },
     {
       "id": "cream-cleanser",
@@ -99,7 +133,10 @@
       "category": "Cleanser",
       "description": "A gentle, non-medicated cleanser option for a simple routine.",
       "image": "/frontend/assets/products/cleanser.svg",
-      "concerns": ["dryness", "sensitive_skin"]
+      "concerns": [
+        "dryness",
+        "sensitive_skin"
+      ]
     },
     {
       "id": "simple-daily-moisturizer",
@@ -107,7 +144,238 @@
       "category": "Moisturizer",
       "description": "A basic fragrance-free moisturizer for a straightforward daily routine.",
       "image": "/frontend/assets/products/moisturizer.svg",
-      "concerns": ["general", "sensitive_skin"]
+      "concerns": [
+        "general",
+        "sensitive_skin"
+      ]
+    },
+    {
+      "id": "barbara-gould-1-masque-anti-rides-bio-cellulose",
+      "name": "Barbara Gould 1 Masque Anti-Rides Bio-Cellulose",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/333/130/009/6460/front_fr.5.400.jpg",
+      "concerns": [
+        "dryness",
+        "general"
+      ]
+    },
+    {
+      "id": "bior-1-minute-thermomaske-aktivkohle",
+      "name": "Bioré 1-Minute-Thermomaske Aktivkohle!",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/501/763/423/7080/front_nl.6.400.jpg",
+      "concerns": [
+        "oily_skin",
+        "general"
+      ]
+    },
+    {
+      "id": "karit-10-mins-purifying-mask",
+      "name": "Karité 10 MINS PURIFYING MASK",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/613/232/130/4810/front_fr.3.400.jpg",
+      "concerns": [
+        "acne",
+        "oily_skin",
+        "dryness",
+        "general"
+      ]
+    },
+    {
+      "id": "gali-nic-pierre-fabre-2-en-1-lait-lotion",
+      "name": "Galiénic, Pierre Fabre 2 en 1 Lait lotion",
+      "category": "Moisturizer",
+      "description": "Face moisturizer for a simple daily skincare routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/328/277/010/7913/front_fr.23.400.jpg",
+      "concerns": [
+        "general"
+      ]
+    },
+    {
+      "id": "carrefour-25-lingettes-d-maquillantes-fra-cheur",
+      "name": "Carrefour 25 lingettes démaquillantes fraîcheur",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/356/007/088/2090/front_fr.5.400.jpg",
+      "concerns": [
+        "dryness",
+        "general"
+      ]
+    },
+    {
+      "id": "schaebens-aha-peeling-tuchmaske",
+      "name": "Schaebens AHA Peeling Tuchmaske",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/400/357/302/1959/front_de.3.400.jpg",
+      "concerns": [
+        "hyperpigmentation"
+      ]
+    },
+    {
+      "id": "biotaniqe-professional-activator-of-youth",
+      "name": "Biotaniqe Professional Activator of Youth",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "/frontend/assets/products/default-product.svg",
+      "concerns": [
+        "dryness"
+      ]
+    },
+    {
+      "id": "ana-mar-a-agua-micelar-dual-purificante-infusi-n-de-aceites-naturales-y",
+      "name": "Ana María Agua micelar dual purificante, infusión de aceites naturales y arroz morado",
+      "category": "Cleanser",
+      "description": "Face cleanser for everyday cleansing. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/770/267/868/6588/front_es.3.400.jpg",
+      "concerns": [
+        "dryness"
+      ]
+    },
+    {
+      "id": "seomou-aloe-vera-nicotinamide-moisturizing-mask",
+      "name": "Seomou Aloe Vera Nicotinamide Moisturizing Mask",
+      "category": "Moisturizer",
+      "description": "Face moisturizer for a simple daily skincare routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/697/499/872/0971/front_fr.6.400.jpg",
+      "concerns": [
+        "hyperpigmentation"
+      ]
+    },
+    {
+      "id": "balea-anti-pickel-waschgel-hautrein",
+      "name": "Balea Anti Pickel Waschgel Hautrein",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/406/644/749/2804/front_en.4.400.jpg",
+      "concerns": [
+        "acne"
+      ]
+    },
+    {
+      "id": "neutrogena-anti-boutons-masque-nettoyant-2-en-1",
+      "name": "Neutrogena Anti-boutons Masque Nettoyant 2-en-1",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/357/466/179/9797/front_fr.3.400.jpg",
+      "concerns": [
+        "acne",
+        "oily_skin"
+      ]
+    },
+    {
+      "id": "cattier-argile-verte-pr-te-l-emploi-montmorillonite-illite",
+      "name": "Cattier Argile verte Prête à l'emploi Montmorillonite - Illite",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/328/395/001/1006/front_fr.4.400.jpg",
+      "concerns": [
+        "oily_skin"
+      ]
+    },
+    {
+      "id": "authoriderm-authoriderm-pantenol-9-ar-nd-r-c-ve-canland-r-c-y-z-temizlem",
+      "name": "Authoriderm Authoriderm Pantenol %9 Arındırıcı ve Canlandırıcı Yüz Temizleme Jeli",
+      "category": "Cleanser",
+      "description": "Face cleanser for everyday cleansing. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/868/425/221/5560/front_en.4.400.jpg",
+      "concerns": [
+        "hyperpigmentation"
+      ]
+    },
+    {
+      "id": "aveeno-aveeno-clear-completion-cream-cleanser",
+      "name": "Aveeno Aveeno clear completion cream cleanser",
+      "category": "Cleanser",
+      "description": "Face cleanser for everyday cleansing. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/006/260/006/3731/front_en.4.400.jpg",
+      "concerns": [
+        "acne"
+      ]
+    },
+    {
+      "id": "gutto-black-mask",
+      "name": "Gutto Black Mask",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/869/921/177/1018/front_fr.3.400.jpg",
+      "concerns": [
+        "acne",
+        "hyperpigmentation"
+      ]
+    },
+    {
+      "id": "cerave-blemish-control-cleanser",
+      "name": "Cerave Blemish control cleanser",
+      "category": "Cleanser",
+      "description": "Face cleanser for everyday cleansing. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/333/787/578/4054/front_en.21.400.jpg",
+      "concerns": [
+        "hyperpigmentation"
+      ]
+    },
+    {
+      "id": "caudalie-caudalie-instant-detox-mask-75-ml",
+      "name": "Caudalie Caudalie Instant Detox Mask 75 ml",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/352/293/000/4349/front_tr.3.400.jpg",
+      "concerns": [
+        "oily_skin"
+      ]
+    },
+    {
+      "id": "corine-de-farme-corine-de-farme-calendula-micellair-reinigingswater",
+      "name": "Corine de Farme Corine de Farme Calendula Micellair Reinigingswater",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/346/808/010/9896/front_nl.12.400.jpg",
+      "concerns": [
+        "sensitive_skin"
+      ]
+    },
+    {
+      "id": "inell-d-maquillant-2-en-1",
+      "name": "Inell Démaquillant 2 en 1",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/356/470/055/6009/front_fr.8.400.jpg",
+      "concerns": [
+        "sensitive_skin"
+      ]
+    },
+    {
+      "id": "diadermine-d-maquillant-yeux",
+      "name": "Diadermine Démaquillant yeux",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/541/009/161/4041/front_fr.5.400.jpg",
+      "concerns": [
+        "sensitive_skin"
+      ]
+    },
+    {
+      "id": "diadermine-eau-d-maquillante-express-3-en-1-visage-yeux-et-l-vres",
+      "name": "Diadermine Eau Démaquillante Express 3 en 1 Visage, Yeux et Lèvres",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/317/804/025/3070/front_fr.5.400.jpg",
+      "concerns": [
+        "sensitive_skin"
+      ]
+    },
+    {
+      "id": "lascad-mixa-eau-nettoyante-apaisante-solution-micellaire",
+      "name": "LASCAD, Mixa Eau nettoyante apaisante - solution micellaire",
+      "category": "Face care",
+      "description": "Facial skincare product for a simple routine. Check the product label for ingredients and directions.",
+      "image": "https://images.openbeautyfacts.org/images/products/360/055/003/8071/front_fr.5.400.jpg",
+      "concerns": [
+        "sensitive_skin"
+      ]
     }
   ],
   "disclaimer": "Illustrative product types only, not a diagnosis, endorsement, or individualized treatment plan. Check ingredients, patch test, and seek professional advice for persistent or concerning symptoms."
