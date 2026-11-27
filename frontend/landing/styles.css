@@ -22,8 +22,6 @@ button { font: inherit; }
 
 .site-header { height: 84px; padding: 0 max(32px, calc((100vw - 1280px) / 2)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(36,57,50,.08); background: rgba(247,246,240,.92); position: relative; z-index: 10; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font: 800 21px var(--display); letter-spacing: -.9px; color: var(--ink); }
-.brand-period { color: var(--orange); }
-.brand-logo { width: 37px; height: 37px; flex: 0 0 37px; object-fit: contain; border-radius: 9px; }
 .main-nav { display: flex; flex: 1; align-items: center; justify-content: flex-end; gap: clamp(12px, 1.7vw, 24px); color: #5a675f; font-size: 12px; font-weight: 600; }
 .main-nav a, .footer-links a { transition: color .2s ease; }
 .main-nav a:hover, .footer-links a:hover { color: var(--orange); }
@@ -215,14 +213,13 @@ h1 em, h2 em { color: #8a9c83; font-family: Georgia, serif; font-weight: 400; }
 .closing-cta > div:nth-child(2) { margin-right: auto; }
 .site-footer { min-height: 180px; display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 8px 35px; padding: 33px max(32px, calc((100vw - 1160px) / 2)); border-top: 1px solid var(--line); }
 .brand-footer { font-size: 18px; }
-.brand-footer .brand-logo { width: 32px; height: 32px; flex-basis: 32px; }
 .site-footer > p { margin: 5px 0 0; color: #7d887f; font-size: 10px; }
 .footer-links { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 24px; color: #66746a; font-size: 10px; }
 .site-footer > small { grid-column: 1 / -1; margin-top: 23px; padding-top: 15px; border-top: 1px solid var(--line); color: #9aa199; font-size: 9px; }
 .toast { position: fixed; z-index: 30; bottom: 24px; left: 50%; max-width: calc(100% - 32px); padding: 13px 18px; border-radius: 4px; color: white; background: var(--ink); box-shadow: 0 10px 30px rgba(0,0,0,.2); font-size: 11px; opacity: 0; pointer-events: none; transform: translate(-50%, 15px); transition: opacity .25s, transform .25s; }
 .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
 
-@media (max-width: 850px) {
+@media (max-width: 920px) {
   .site-header { padding-inline: 24px; }
   .menu-toggle { width: 38px; height: 38px; display: flex; flex-direction: column; justify-content: center; gap: 5px; margin-left: auto; border: 1px solid var(--line); border-radius: 50%; background: transparent; cursor: pointer; }
   .menu-toggle span { width: 13px; height: 1px; display: block; margin-inline: auto; background: var(--ink); transition: transform .2s; }

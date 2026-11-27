@@ -6,6 +6,8 @@
     <meta name="theme-color" content="#f7f6f0" />
     <meta name="description" content="Sign in to Skinwise and keep your skin check-ins together." />
     <title>Sign in — Skinwise</title>
+    <link rel="icon" type="image/png" href="../assets/skinwise-mark.png?v=3" />
+    <link rel="apple-touch-icon" href="../assets/skinwise-mark-180.png?v=3" />
     <script>
       document.documentElement.classList.add("auth-motion-pending");
       window.authMotionFallback = window.setTimeout(() => document.documentElement.classList.remove("auth-motion-pending"), 2400);
@@ -14,6 +16,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="login.css" />
+    <link rel="stylesheet" href="../brand.css?v=3" />
+    <script src="../brand.js?v=1" defer></script>
     <script src="login.js?v=20261124-reset-dialog" defer></script>
   </head>
   <body class="auth-page">
@@ -23,9 +27,8 @@
       <img class="auth-wave auth-wave--bottom" src="../User/assets/down_border.png" alt="" />
     </div>
     <header class="auth-header">
-      <a class="brand auth-brand" href="../landing/landing_page.html" aria-label="Skinwise home">
-        <img class="brand-logo" src="../User/assets/skinwise-scan-logo.png" alt="" aria-hidden="true" />
-        <span>skinwise<span class="brand-period">.</span></span>
+      <a class="brand auth-brand skinwise-brand" href="../landing/landing_page.html" aria-label="SkinWise home">
+        <span class="skinwise-mark" aria-hidden="true"><img class="skinwise-wordmark" src="../assets/skinwise-logo.gif" alt="" /></span>
       </a>
       <a class="back-link" href="../landing/landing_page.html"><span aria-hidden="true">←</span> Back to website</a>
     </header>

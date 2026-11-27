@@ -55,8 +55,6 @@ img { max-width: 100%; }
   z-index: 40;
 }
 .brand { display: inline-flex; align-items: center; gap: 10px; font: 800 20px var(--display); letter-spacing: -.9px; color: #fff; text-decoration: none; padding: 4px 8px 18px; }
-.brand i { color: var(--orange); font-style: normal; }
-.brand-logo { width: 34px; height: 34px; border-radius: 9px; object-fit: contain; background: #fff; }
 
 /* collapse toggle (sits in the sidebar header row, right-aligned) */
 .collapse-btn {
@@ -80,7 +78,7 @@ img { max-width: 100%; }
   font-size: 13.5px; font-weight: 600; text-align: left;
   transition: background .2s, color .2s, transform .15s, gap .45s cubic-bezier(.65,0,.35,1), padding .45s cubic-bezier(.65,0,.35,1);
 }
-.side-item span, .side-logout span, .brand span { max-width: 160px; overflow: hidden; white-space: nowrap; transition: opacity .3s ease, max-width .5s cubic-bezier(.65,0,.35,1); }
+.side-item span, .side-logout span { max-width: 160px; overflow: hidden; white-space: nowrap; transition: opacity .3s ease, max-width .5s cubic-bezier(.65,0,.35,1); }
 .side-item svg { width: 19px; height: 19px; flex: 0 0 19px; opacity: .85; }
 .side-item:hover { background: rgba(255, 255, 255, 0.07); color: #fff; transform: translateX(2px); }
 .side-item.is-active { background: rgba(255, 255, 255, 0.12); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
@@ -100,7 +98,6 @@ img { max-width: 100%; }
 /* ---------- collapsed sidebar state ---------- */
 .app.collapsed .sidebar { padding-left: 12px; padding-right: 12px; }
 .app.collapsed .brand { justify-content: flex-start; padding-left: 0; padding-right: 0; }
-.app.collapsed .brand span,
 .app.collapsed .side-item > span:not(.nav-icon),
 .app.collapsed .side-logout > span:not(.nav-icon) { opacity: 0; max-width: 0; }
 .app.collapsed .side-item,
@@ -812,7 +809,6 @@ img { max-width: 100%; }
   /* collapse is a desktop-only affordance — reset it inside the mobile drawer */
   .app.collapsed .sidebar { padding-left: 18px; padding-right: 18px; }
   .app.collapsed .brand { justify-content: flex-start; padding-left: 8px; padding-right: 8px; }
-  .app.collapsed .brand span,
   .app.collapsed .side-item > span:not(.nav-icon),
   .app.collapsed .side-logout > span:not(.nav-icon) { opacity: 1; max-width: 160px; }
   .app.collapsed .side-item,
