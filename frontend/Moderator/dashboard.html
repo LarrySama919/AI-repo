@@ -5,18 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f7f6f0" />
   <title>Skinwise — Moderator Workspace</title>
+  <link rel="icon" type="image/png" href="../assets/skinwise-mark.png?v=3" />
+  <link rel="apple-touch-icon" href="../assets/skinwise-mark-180.png?v=3" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../User/dashboard.css" />
   <link rel="stylesheet" href="moderator.css" />
+  <link rel="stylesheet" href="../brand.css?v=3" />
+  <script src="../brand.js?v=1" defer></script>
   <script src="moderator.js" defer></script>
 </head>
 <body>
   <div class="app" id="app" data-profile-role="moderator">
     <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#overview"><img class="brand-logo" src="../User/assets/skinwise-scan-logo.png" alt="" /><span>skinwise<i>.</i></span></a>
+      <a class="brand skinwise-brand" aria-label="SkinWise overview" href="#overview"><span class="skinwise-mark" aria-hidden="true"><img class="skinwise-wordmark" src="../assets/skinwise-logo.gif" alt="" /></span></a>
       <button class="collapse-btn" id="collapse-btn" type="button" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14 6-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <nav class="side-nav" aria-label="Moderator dashboard navigation">
         <p class="side-label">Workspace</p>
