@@ -156,7 +156,7 @@
 @media (max-width: 480px) { .admin-stats { gap: 10px; } .admin-stats .stat { min-height: 120px; padding: 16px; } .admin-stats .stat-num { font-size: 22px; } .dataset-metrics { gap: 6px; } .dataset-metrics strong { font-size: 10px; } .dataset-item { flex-wrap: wrap; } .dataset-item .pill { margin-left: 48px; } .data-table th, .data-table td { padding-right: 12px; padding-left: 12px; } }
 
 .app { transition: grid-template-columns .4s cubic-bezier(.65, 0, .35, 1); }
-@media (min-width: 961px) { .app.collapsed { grid-template-columns: 76px minmax(0, 1fr); } }
+@media (min-width: 961px) { .app.collapsed { grid-template-columns: 224px minmax(0, 1fr); } }
 .view.is-active { animation: dashboard-view-in .36s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes dashboard-view-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
 .card { transition: transform .22s ease, box-shadow .22s ease; }
@@ -272,7 +272,7 @@
   .detail-dialog.is-closing, .detail-dialog[open]::backdrop, .detail-dialog.is-closing::backdrop,
   .form-error.is-visible, .view.is-active .ai-shortcut { animation: none; transition: none; }
   .dataset-item, .data-table tbody td, .table-filter, .table-action, .review-entry,
-  .topbar .search, .dialog-close, .sidebar, .side-item, .side-logout, .brand span,
+  .topbar .search, .dialog-close, .sidebar, .side-item, .side-logout,
   .profile-field input, .profile-field textarea,
   .side-label, .collapse-btn, .collapse-btn svg { transition: none; }
   .card:hover, .dataset-item:hover, .review-entry:hover, .ai-shortcut:hover, .ai-shortcut:focus-visible, .table-filter:focus-visible,

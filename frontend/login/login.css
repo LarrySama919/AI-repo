@@ -20,13 +20,6 @@ body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(
 a { color: inherit; text-decoration: none; }
 button { font: inherit; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font: 800 21px var(--display); letter-spacing: -.9px; color: var(--ink); }
-.brand-period { color: var(--orange); }
-.brand-wordmark { position: relative; display: inline-block; width: 140px; height: 70px; flex: 0 0 140px; overflow: hidden; border-radius: 5px; background: transparent; }
-.brand-wordmark img { position: absolute; top: calc(50% + 9px); left: 50%; width: 260px; max-width: none; height: auto; transform: translate(-50%, -50%); }
-.brand-wordmark-static { display: none; }
-@media (max-width: 650px) { .brand-wordmark { width: 126px; height: 63px; flex-basis: 126px; } .brand-wordmark img { top: calc(50% + 8px); width: 234px; } }
-@media (max-width: 420px) { .brand-wordmark { width: 110px; height: 55px; flex-basis: 110px; } .brand-wordmark img { top: calc(50% + 7px); width: 204px; } }
-@media (prefers-reduced-motion: reduce) { .brand-wordmark { width: auto; height: auto; flex: 0 0 auto; overflow: visible; border-radius: 0; background: transparent; } .brand-wordmark img { display: none; } .brand-wordmark-static { display: inline; font: 800 21px var(--display); letter-spacing: -.9px; color: var(--ink); } }
 
 .auth-page {
   min-height: 100vh;

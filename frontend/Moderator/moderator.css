@@ -58,7 +58,7 @@
 @media (max-width: 480px) { .moderator-stats { gap: 10px; } .moderator-stats .stat { min-height: 120px; padding: 16px; } .moderator-stats .stat-num { font-size: 22px; } .table-filter { max-width: 100%; } .data-table th, .data-table td { padding-right: 12px; padding-left: 12px; } }
 
 .app { transition: grid-template-columns .4s cubic-bezier(.65, 0, .35, 1); }
-@media (min-width: 961px) { .app.collapsed { grid-template-columns: 76px minmax(0, 1fr); } }
+@media (min-width: 961px) { .app.collapsed { grid-template-columns: 224px minmax(0, 1fr); } }
 .view.is-active { animation: dashboard-view-in .32s ease both; }
 @keyframes dashboard-view-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .card { transition: transform .22s ease, box-shadow .22s ease; }
@@ -111,7 +111,7 @@
   .data-table tbody td, .table-filter, .table-action, .review-entry, .queue-list li,
   .activity-list > div, .topbar .search, .dialog-close, .sidebar, .side-item, .side-logout,
   .profile-field input, .profile-field textarea,
-  .brand span, .side-label, .side-card, .collapse-btn, .collapse-btn svg { transition: none; }
+  .side-label, .side-card, .collapse-btn, .collapse-btn svg { transition: none; }
   .card:hover, .review-entry:hover, .queue-list li:hover, .activity-list > div:hover,
   .table-filter:focus-visible, .table-action:hover, .topbar .search:focus-within,
   .dialog-close:hover, .side-item:hover, .side-logout:hover, .collapse-btn:hover { transform: none; }
